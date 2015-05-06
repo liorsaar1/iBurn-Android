@@ -1,0 +1,115 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="#aaaaff"
+              android:orientation="vertical"
+              android:padding="10dip"
+              tools:context=".gj.ftdi.FtdiActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="FTDI Tester"
+        android:textColor="@android:color/black"
+        android:textSize="24sp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dip"
+        android:layout_marginTop="4dip"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btSend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dip"
+            android:background="#FF333333"
+            android:onClick="onClickSend"
+            android:text="Send 1"/>
+
+        <Button
+            android:id="@+id/ftdiSendTen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dip"
+            android:background="#FF333333"
+            android:onClick="onClickSendTen"
+            android:text="Send 10"/>
+
+        <Button
+            android:id="@+id/ftdiSendMany"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dip"
+            android:background="#FF333333"
+            android:onClick="onClickSendMany"
+            android:text="Many"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dip"
+        android:layout_marginTop="4dip"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btSendMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dip"
+            android:background="#FF333333"
+            android:onClick="onClickSendMessage"
+            android:text="Msg"/>
+
+        <Button
+            android:id="@+id/ftdiRead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dip"
+            android:background="#FF333333"
+            android:onClick="onClickRead"
+            android:text="Read"/>
+
+        <Button
+            android:id="@+id/ftdiReadLoop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#FF333333"
+            android:onClick="onClickReadLoop"
+            android:text="Read Loop"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/messageConsole"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ccccff"
+        android:lines="15"
+        android:scrollbars="vertical|horizontal"
+        android:text="Ready\n"
+        android:textColor="@android:color/black"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Incoming"
+        android:textColor="@android:color/black"/>
+
+    <TextView
+        android:id="@+id/bytesConsole"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ccccff"
+        android:lines="10"
+        android:scrollbars="vertical|horizontal"
+        android:textColor="@android:color/black"/>
+
+
+</LinearLayout>

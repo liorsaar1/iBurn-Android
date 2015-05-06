@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">iBurn</string>
+    <string name="app_name_ftdi">iBurn FTDI</string>
 
     <!-- MainActivity Tabs -->
     <string name="gj_tab">Galactic Jungle</string>

@@ -5,4 +5,5 @@ public class GjMessageStatusRequest extends GjMessage {
     public GjMessageStatusRequest() {
         super(Type.StatusRequest);
     }
+
 }

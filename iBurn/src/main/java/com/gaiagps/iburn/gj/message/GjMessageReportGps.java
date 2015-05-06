@@ -4,7 +4,15 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class GjMessageReportGps extends GjMessageString {
 
-    public GjMessageReportGps(LatLng latLng) {
-        super(Type.ReportGps, latLng.toString());
+    public GjMessageReportGps(int id, LatLng latLng) {
+        super(Type.ReportGps, report(id, latLng));
+    }
+
+    public GjMessageReportGps(String payload) {
+        super(Type.ReportGps, payload);
+    }
+
+    private static String report(int id, LatLng latLng) {
+        return id+"," + latLng.latitude + "," + latLng.longitude;
     }
 }

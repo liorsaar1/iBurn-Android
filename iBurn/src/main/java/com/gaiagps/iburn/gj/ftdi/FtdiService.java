@@ -13,37 +13,77 @@ import android.util.Log;
 import com.ftdi.j2xx.D2xxManager;
 import com.ftdi.j2xx.FT_Device;
 
-import org.apache.http.util.ByteArrayBuffer;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FtdiService extends Service {
     private final static String TAG = "FtdiService";
+    private static D2xxManager ftD2xx = null;
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
-
-    private static D2xxManager ftD2xx = null;
-    private FT_Device ftDev;
-
     boolean mThreadIsStopped = true;
+    private static final int BBSIZE = 1024 * 1024 * 4; // 4 meg
+    ByteBuffer bb;
+    private FT_Device ftDev;
+    private Runnable mLoop = new Runnable() {
+        @Override
+        public void run() {
+            int readSize;
+            long sleepDuration = 100;
+            mThreadIsStopped = false;
+            while (true) {
+                if (mThreadIsStopped) {
+                    broadcastMessage("thread stopped");
+                    break;
+                }
 
-    /**
-     * Class used for the client Binder.  Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with IPC.
-     */
-    public class LocalBinder extends Binder {
-        FtdiService getService() {
-            return FtdiService.this;
+                synchronized (ftDev) {
+                    readSize = ftDev.getQueueStatus();
+                    if (readSize > 0) {
+                        byte[] inputBytes = new byte[readSize];
+                        ftDev.read(inputBytes, readSize);
+                        bb.put(inputBytes);
+                    } // end of if(readSize>0)
+                } // end of synchronized
+
+                // if nothing came in - sleep more
+                if (readSize <= 0) {
+                    sleepDuration += 100;
+                } else {
+                    sleepDuration = 100;
+                }
+
+                // always sleep a little
+                try {
+                    Thread.sleep(sleepDuration);
+                } catch (InterruptedException e) {
+                }
+
+            }
         }
-    }
+    };
+    BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            broadcastMessage("action: " + action);
+            if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
+                // never come here(when attached, go to onNewIntent)
+                openDevice();
+            } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                closeDevice();
+            }
+        }
+    };
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.e(TAG, "onCreate <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
-        poolInit();
+        bb = ByteBuffer.allocate(BBSIZE);
 
         try {
             ftD2xx = D2xxManager.getInstance(this);
@@ -70,35 +110,10 @@ public class FtdiService extends Service {
         return START_STICKY;
     }
 
-    BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            broadcastMessage("action: "+action);
-            if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
-                // never come here(when attached, go to onNewIntent)
-                openDevice();
-            } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-                closeDevice();
-            }
-        }
-    };
-
     @Override
     public IBinder onBind(Intent intent) {
         Log.e(TAG, "onBind <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         return mBinder;
-    }
-
-    final int POOL_SIZE = 2;
-    final int POOL_BUFFER_SIZE = 4096;
-    ByteArrayBuffer[] pool;
-    int poolIndex = 0;
-
-    private void poolInit() {
-        pool = new ByteArrayBuffer[POOL_SIZE];
-        for (int i = 0; i < POOL_SIZE ; i++) {
-            pool[i] = new ByteArrayBuffer(POOL_BUFFER_SIZE);
-        }
     }
 
     public int read(byte[] bytes) {
@@ -106,26 +121,20 @@ public class FtdiService extends Service {
         try {
             if (ftDev == null) {
                 openDevice();
-                if(ftDev == null) {
-                    broadcastError( "FTDI device not found");
+                if (ftDev == null) {
+                    broadcastError("FTDI device not found");
                     return -1;
                 }
             }
 
             synchronized (ftDev) {
-                ByteArrayBuffer bab = pool[poolIndex];
-                int length = bab.length();
+                int length = bb.position();
                 if (length > bytes.length) {
-                    length = bytes.length;
+                    broadcastError("Input buffer too small. Required " + length);
+                    return -1;
                 }
-                for (int i = 0 ; i < length ; i++) {
-                    bytes[i] = (byte)bab.byteAt(i);
-                }
-                // advance pool index
-                if (++poolIndex >= POOL_SIZE) {
-                    poolIndex = 0;
-                }
-                bab.clear();
+                bb.rewind();
+                bb.get(bytes, 0, length);
                 return length;
             }
         } catch (Throwable t) {
@@ -141,48 +150,39 @@ public class FtdiService extends Service {
         t.printStackTrace(printWriter);
         byte[] stack = stringWriter.toString().getBytes();
         int length = stack.length;
-        for (int i = 0 ; i < length ; i++) {
-            bytes[i] = stack[i];
-        }
+        System.arraycopy(stack, 0, bytes, 0, length);
         broadcastError("ERROR:" + stringWriter.toString());
     }
 
     public int send(byte[] bytes) {
-        broadcastMessage("send:" + new String(bytes));
+        //broadcastMessage("send:" + new String(bytes));
         if (ftDev == null) {
             openDevice();
         }
-        int written = write(bytes);
-        return written;
-    }
-
-    private void broadcast(byte[] bytes) {
-        Intent intent = new Intent("com.ksksue.app.ftdi_uart.xxx");
-        intent.putExtra("bytes", bytes);
-        sendBroadcast(intent);
+        return write(bytes);
     }
 
     private void broadcastError(String string) {
-        Intent intent = new Intent("com.ksksue.app.ftdi_uart.xxx");
+        Intent intent = new Intent("com.gaiagps.iburn.gj.ftdi.VIEW");
         intent.putExtra("error", string);
         sendBroadcast(intent);
     }
 
     private void broadcastMessage(String string) {
-        Intent intent = new Intent("com.ksksue.app.ftdi_uart.xxx");
+        Intent intent = new Intent("com.gaiagps.iburn.gj.ftdi.VIEW");
         intent.putExtra("message", string);
         sendBroadcast(intent);
     }
 
     public int write(byte[] bytes) {
-        if(ftDev == null) {
-            broadcastError( "FTDI device not found");
+        if (ftDev == null) {
+            broadcastError("FTDI device not found");
             return -1;
         }
 
         synchronized (ftDev) {
-            if(ftDev.isOpen() == false) {
-                broadcastError( "Device not open");
+            if (!ftDev.isOpen()) {
+                broadcastError("Device not open");
                 Log.e(TAG, "onClickWrite : Device is not open");
                 return -1;
             }
@@ -194,10 +194,13 @@ public class FtdiService extends Service {
     }
 
     private void openDevice() {
-        if(ftDev != null) {
-            if(ftDev.isOpen()) {
-                if(mThreadIsStopped) {
-                    SetConfig(9600, (byte)8, (byte)1, (byte)0, (byte)3);
+        if (ftDev != null) {
+            broadcastMessage("open: not null");
+            if (ftDev.isOpen()) {
+                broadcastMessage("open: opened");
+                if (mThreadIsStopped) {
+                    broadcastMessage("open: stopped");
+                    SetConfig(9600, (byte) 8, (byte) 1, (byte) 0, (byte) 3);
                     ftDev.purge((byte) (D2xxManager.FT_PURGE_TX | D2xxManager.FT_PURGE_RX));
                     ftDev.restartInTask();
                     new Thread(mLoop).start();
@@ -206,10 +209,9 @@ public class FtdiService extends Service {
             }
         }
 
-        int devCount = 0;
-        devCount = ftD2xx.createDeviceInfoList(this);
+        int devCount = ftD2xx.createDeviceInfoList(this);
         broadcastMessage("devCount: " + devCount);
-        if(devCount <= 0) {
+        if (devCount <= 0) {
             broadcastError("No Devices found: " + devCount);
             return;
         }
@@ -217,15 +219,15 @@ public class FtdiService extends Service {
         D2xxManager.FtDeviceInfoListNode[] deviceList = new D2xxManager.FtDeviceInfoListNode[devCount];
         ftD2xx.getDeviceInfoList(devCount, deviceList);
 
-        for( int i = 0; i < deviceList.length; i++) {
+        for (int i = 0; i < deviceList.length; i++) {
             D2xxManager.FtDeviceInfoListNode node = deviceList[i];
-            String info = "#" + i + ", id:"+ node.id + ", serial:" + node.serialNumber + ", desc:" + node.description;
+            String info = "#" + i + ", id:" + node.id + ", serial:" + node.serialNumber + ", desc:" + node.description;
             broadcastMessage(info);
         }
 
         int deviceIndex = 0; // FIXME - must identify the right device
 
-        if(ftDev == null) {
+        if (ftDev == null) {
             ftDev = ftD2xx.openByIndex(this, deviceIndex);
         } else {
             synchronized (ftDev) {
@@ -233,9 +235,9 @@ public class FtdiService extends Service {
             }
         }
 
-        if(ftDev.isOpen()) {
-            if(mThreadIsStopped) {
-                SetConfig(9600, (byte)8, (byte)1, (byte)0, (byte)3);
+        if (ftDev.isOpen()) {
+            if (mThreadIsStopped) {
+                SetConfig(9600, (byte) 8, (byte) 1, (byte) 0, (byte) 3);
                 ftDev.purge((byte) (D2xxManager.FT_PURGE_TX | D2xxManager.FT_PURGE_RX));
                 ftDev.restartInTask();
                 new Thread(mLoop).start();
@@ -243,44 +245,17 @@ public class FtdiService extends Service {
         }
     }
 
-    private Runnable mLoop = new Runnable() {
-        @Override
-        public void run() {
-            int i;
-            int readSize;
-            mThreadIsStopped = false;
-            while(true) {
-                if(mThreadIsStopped) {
-                    break;
-                }
-
-                synchronized (ftDev) {
-                    readSize = ftDev.getQueueStatus();
-                    if(readSize>0) {
-                        byte[] inputBytes = new byte[readSize];
-                        ftDev.read(inputBytes, readSize);
-                        ByteArrayBuffer bab = pool[poolIndex];
-                        bab.append(inputBytes,0, readSize);
-                    } // end of if(readSize>0)
-                } // end of synchronized
-
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                }
-
-            }
-        }
-    };
-
     private void closeDevice() {
         mThreadIsStopped = true;
-        if(ftDev != null) {
+        if (ftDev != null) {
+            broadcastMessage("device closed");
             ftDev.close();
         }
+        ftDev = null;
     }
+
     public void SetConfig(int baud, byte dataBits, byte stopBits, byte parity, byte flowControl) {
-        if (ftDev.isOpen() == false) {
+        if (!ftDev.isOpen()) {
             Log.e(TAG, "SetConfig: device not open");
             return;
         }
@@ -363,4 +338,61 @@ public class FtdiService extends Service {
         ftDev.setFlowControl(flowCtrlSetting, (byte) 0x11, (byte) 0x13);
     }
 
+    /**
+     * Class used for the client Binder.  Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with IPC.
+     */
+    public class LocalBinder extends Binder {
+        FtdiService getService() {
+            return FtdiService.this;
+        }
+    }
+
+    class ByteFifo {
+        public static final int LIMIT = 1024 * 1024 * 2; // 2 mega
+        private List<byte[]> list = new ArrayList<>();
+        private int available = 0;
+
+        public byte[] alloc(int size) {
+            limit(size);
+            byte[] bytes = new byte[size];
+            list.add(bytes);
+            available += size;
+            return bytes;
+        }
+
+        private void limit(int size) {
+            if (size >= LIMIT) {
+                throw new RuntimeException("Memory allocation exceeds " + LIMIT);
+            }
+            while (available + size >= LIMIT) {
+                available -= list.get(0).length;
+                list.remove(0);
+            }
+        }
+
+        public int dump(byte[] target) {
+            int length = 0;
+            int listSize = list.size();
+            for (int i = 0; i < listSize; i++) {
+                byte[] src = list.get(0);
+                if (length + src.length >= target.length) {
+                    break;
+                }
+                copy(src, target, length);
+                length += src.length;
+                available -= src.length;
+                list.remove(0);
+            }
+            return length;
+        }
+
+        public int getAvailable() {
+            return available;
+        }
+
+        private void copy(byte[] src, byte[] dst, int offset) {
+            System.arraycopy(src, 0, dst, offset, src.length) ;
+        }
+    }
 }

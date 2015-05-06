@@ -1,7 +1,6 @@
 package com.gaiagps.iburn.gj.message;
 
-import com.google.android.gms.maps.model.LatLng;
-
+import java.io.EOFException;
 import java.nio.ByteBuffer;
 
 /**
@@ -43,39 +42,58 @@ import java.nio.ByteBuffer;
 
 public class GjMessage {
     public static final byte[] preamble = {(byte) 0xFF, (byte) 0x55, (byte) 0xAA};
+    protected final static String TAG = GjMessage.class.getSimpleName();
     protected byte type;
+    protected byte[] data = new byte[0];
 
     public GjMessage(Type type) {
         this.type = type.getValue();
     }
 
-    @Override
-    public String toString() {
-        return Type.valueOf(type).toString() ;
-    }
-
-    public String toHexString() {
-        StringBuffer sb = new StringBuffer();
-        for (byte b : toByteArray()) {
-            sb.append(String.format("%02x ", b));
+    public static GjMessage create(ByteBuffer bb) throws ChecksumException, EOFException, PreambleNotFoundException, ParserException {
+        // find first preamble
+        if (!findFirst(bb, preamble)) {
+            throw new PreambleNotFoundException();
         }
-        return sb.toString();
+        // read body
+        byte typeByte = read(bb);
+        byte dataLength = read(bb);
+        byte[] data = read(bb, dataLength);
+        byte expectedChecksum = read(bb);
+
+        // verify checksum
+        int messageLength = preamble.length + 1 + 1 + data.length;
+        ByteBuffer tmp = ByteBuffer.allocate(messageLength);
+        tmp.put(preamble).put(typeByte).put(dataLength).put(data);
+        byte actualChecksum = checksum(tmp);
+        if (actualChecksum != expectedChecksum) {
+            throw new ChecksumException(expectedChecksum, actualChecksum);
+        }
+
+        // phew
+        try {
+            Type type = Type.valueOf(typeByte);
+            switch (type) {
+                case StatusRequest:
+                    return new GjMessageStatusRequest();
+                case Mode:
+                    return new GjMessageMode(Mode.valueOf(data[0]));
+                case ReportGps:
+                    return new GjMessageReportGps(new String(data));
+                case RequestGps:
+                    return new GjMessageRequestGps();
+                case Lighting:
+                    return new GjMessageLighting(new String(data));
+                case Text:
+                    return new GjMessageText(new String(data));
+            }
+        } catch (RuntimeException e) {
+            throw new ParserException(e.getMessage());
+        }
+        return null;
     }
 
-    public byte[] toByteArray() {
-        // preamble + type + length + data + checksum
-        int length = preamble.length + 1 + 0 + 0 + 1;
-
-        ByteBuffer buffer = ByteBuffer.allocate(length);
-
-        buffer.put(preamble);
-        buffer.put(type);
-        buffer.put(checksum(buffer));
-
-        return buffer.array();
-    }
-
-    protected byte checksum(ByteBuffer byteBuffer) {
+    protected static byte checksum(ByteBuffer byteBuffer) {
         int checksum = 0;
 
         for (int i : byteBuffer.array()) {
@@ -84,7 +102,79 @@ public class GjMessage {
         return (byte) checksum;
     }
 
-    public static enum Type {
+    private static boolean findFirst(ByteBuffer bb, byte[] bytes) {
+        while (bb.remaining() > 0) {
+            if (compare(bb, bytes)) {
+                // skip the preamble
+                bb.position(bb.position() + preamble.length);
+                return true;
+            }
+            bb.position(bb.position() + 1);
+        }
+        return false;
+    }
+
+    private static boolean compare(ByteBuffer bb, byte[] bytes) {
+        if (bb.remaining() < bytes.length) {
+            return false;
+        }
+        for (int i = 0; i < bytes.length; i++) {
+            byte expected = bytes[i];
+            byte actual = bb.get(bb.position() + i);
+            if (actual != expected) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected static byte read(ByteBuffer bb) throws EOFException {
+        if (bb.remaining() < 1) {
+            throw new EOFException("Reading byte");
+        }
+        return bb.get();
+    }
+
+    protected static byte[] read(ByteBuffer bb, byte dataLength) throws EOFException {
+        if (bb.remaining() < dataLength) {
+            throw new EOFException("Reading bytes " + dataLength);
+        }
+        byte[] data = new byte[dataLength];
+        bb.get(data, 0, dataLength);
+        return data;
+    }
+
+    public byte[] toByteArray() {
+        // preamble + type + length + data + checksum
+        int length = preamble.length + 1 + 1 + data.length + 1;
+
+        ByteBuffer buffer = ByteBuffer.allocate(length);
+
+        buffer.put(preamble);
+        buffer.put(type);
+        buffer.put((byte) data.length);
+        if (data.length > 0) {
+            buffer.put(data);
+        }
+        buffer.put(checksum(buffer));
+
+        return buffer.array();
+    }
+
+    @Override
+    public String toString() {
+        return Type.valueOf(type).toString();
+    }
+
+    public String toHexString() {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : toByteArray()) {
+            sb.append(String.format("%02x ", b));
+        }
+        return sb.toString();
+    }
+
+    public enum Type {
         StatusRequest((byte) 0x01),
         Mode((byte) 0x02),
         ReportGps((byte) 0x03),
@@ -98,18 +188,18 @@ public class GjMessage {
             this.value = value;
         }
 
+        public static Type valueOf(byte b) {
+            if (b - 1 >= values().length)
+                throw new RuntimeException("Type: Illegal Value: " + b);
+            return values()[b - 1];
+        }
+
         public byte getValue() {
             return value;
         }
-
-        public static Type valueOf(byte b) {
-            if (b-1 >= values().length)
-                throw new RuntimeException("Type: Illegal Value: " + b);
-            return values()[b-1];
-        }
     }
 
-    public static enum Mode {
+    public enum Mode {
         // standard buffered mode. This will buffer GPS updates until they are requested.
         Buffered((byte) 0x00),
         // non-buffered mode.  This will report GPS updates as they are received.
@@ -121,45 +211,33 @@ public class GjMessage {
             this.value = value;
         }
 
-        public byte getValue() {
-            return value;
-        }
-
         public static Mode valueOf(byte b) {
             if (b >= values().length)
                 throw new RuntimeException("Mode: Illegal Value: " + b);
             return values()[b];
         }
+
+        public byte getValue() {
+            return value;
+        }
     }
 
-    public static void test() {
+    public static class PreambleNotFoundException extends Exception {
+        public PreambleNotFoundException() {
+            super("Message preamble not found");
+        }
+    }
 
-        GjMessageText textMessage = new GjMessageText("HI");
-        byte[] buf = textMessage.toByteArray();
-        String hex = textMessage.toHexString();
-        String s = textMessage.toString();
+    public static class ParserException extends Exception {
+        public ParserException(String whatBroke) {
+            super("Parser Error: " + whatBroke);
+        }
+    }
 
-        GjMessageStatusRequest statusRequestMessage = new GjMessageStatusRequest();
-        buf = statusRequestMessage.toByteArray();
-        hex = statusRequestMessage.toHexString();
-        s = statusRequestMessage.toString();
-
-        GjMessageMode modeMessage = new GjMessageMode(GjMessage.Mode.Buffered);
-        buf = modeMessage.toByteArray();
-        hex = modeMessage.toHexString();
-        s = modeMessage.toString();
-
-        modeMessage = new GjMessageMode(GjMessage.Mode.NonBuffered);
-        buf = modeMessage.toByteArray();
-        hex = modeMessage.toHexString();
-        s = modeMessage.toString();
-
-        LatLng latLng = new LatLng(40.7888, -119.20315);
-        GjMessageReportGps reportGpsMessage = new GjMessageReportGps(latLng);
-        buf = reportGpsMessage.toByteArray();
-        hex = reportGpsMessage.toHexString();
-        s = reportGpsMessage.toString();
-
+    public static class ChecksumException extends Exception {
+        public ChecksumException(byte expected, byte actual) {
+            super(String.format("Checksum Error: expected:%02x actual:%02x ", expected, actual));
+        }
     }
 
 }

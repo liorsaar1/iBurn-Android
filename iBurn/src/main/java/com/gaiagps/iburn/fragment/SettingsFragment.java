@@ -121,7 +121,8 @@ public class SettingsFragment extends Fragment {
                 break;
             case ReportGps:
                 LatLng latLng = new LatLng(40.7888, -119.20315);
-                messageSend(new GjMessageReportGps(latLng));
+                int id = 5 ; // unit id
+                messageSend(new GjMessageReportGps(id, latLng));
                 break;
             case RequestGps:
                 messageSend(new GjMessageRequestGps());
