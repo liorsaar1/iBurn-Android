@@ -49,8 +49,7 @@ public class GjMessageFactory {
         s = reportGpsMessage.toString();
     }
 
-    public static void testStream() {
-
+    public static ByteBuffer create1() {
         ByteBuffer bb = ByteBuffer.allocate(4096);
         bb.put((byte) 0x01);
         bb.put((byte) 0x02);
@@ -65,8 +64,23 @@ public class GjMessageFactory {
         bb.put(new GjMessageMode(GjMessage.Mode.NonBuffered).toByteArray());
         bb.put(new GjMessageReportGps(5, new LatLng(40.7888, -119.20315)).toByteArray());
 
-        bb.limit(bb.position()); // IMPORTANT !!!
-        bb.rewind(); // IMPORTANT !!!
+        bb.flip() ; // IMPORTANT !!!
+        return bb;
+    }
+
+    public static ByteBuffer create2() {
+        ByteBuffer bb = ByteBuffer.allocate(4096);
+        for (int i = 0 ; bb.remaining() > 100; i++) {
+            bb.put(new GjMessageText(i + "-abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ").toByteArray());
+        }
+
+        bb.flip() ; // IMPORTANT !!!
+        return bb;
+    }
+
+    public static void testStream() {
+
+        ByteBuffer bb = create1();
 
         ByteBuffer cc = ByteBuffer.allocate(400);
         cc.rewind();

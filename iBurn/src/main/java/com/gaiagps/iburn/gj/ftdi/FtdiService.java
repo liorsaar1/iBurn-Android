@@ -133,8 +133,9 @@ public class FtdiService extends Service {
                     broadcastError("Input buffer too small. Required " + length);
                     return -1;
                 }
-                bb.rewind();
+                bb.flip();
                 bb.get(bytes, 0, length);
+                bb.compact();
                 return length;
             }
         } catch (Throwable t) {

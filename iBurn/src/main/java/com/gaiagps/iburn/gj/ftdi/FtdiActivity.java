@@ -16,6 +16,8 @@ import com.gaiagps.iburn.R;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageText;
 
+import java.nio.ByteBuffer;
+
 public class FtdiActivity extends Activity {
     private static final String TAG = FtdiActivity.class.getSimpleName();
     private TextView messageConsole;
@@ -111,10 +113,15 @@ public class FtdiActivity extends Activity {
 
     private void sendOne() {
 
-
-        GjMessageFactory.test();
-        GjMessageFactory.testStream();
-
+        ByteBuffer bb = GjMessageFactory.create2();
+        byte[] bytes = new byte[bb.limit()];
+        bb.get(bytes, 0, bb.limit());
+        int written = ftdiServiceManager.send(bytes);
+        if (written == bb.limit()) {
+            console("Sent: written:" + written + "\n");
+        } else {
+            console("ERROR: expected: " + bb.limit() + " written:" + written + "\n");
+        }
 
 //
 //        String s = counter + "-ABCDEFGHIJKLMNOP-" + counter++ + "\n";

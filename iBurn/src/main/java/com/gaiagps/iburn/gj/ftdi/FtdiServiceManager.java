@@ -6,8 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.TextView;
 
+import com.gaiagps.iburn.gj.message.GjMessage;
+import com.gaiagps.iburn.gj.message.GjMessageFactory;
+
+import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -17,6 +23,7 @@ import java.util.concurrent.TimeUnit;
  * Created by liorsaar on 2015-05-06
  */
 public class FtdiServiceManager {
+    private static final String TAG = FtdiServiceManager.class.getSimpleName();
     private FtdiService mService;
     private boolean mBound = false;
 
@@ -89,6 +96,8 @@ public class FtdiServiceManager {
         return mService.read(bytes);
     }
 
+    private final ByteBuffer bb = ByteBuffer.allocate(4096+400);
+
     public void scheduleRead(final Activity acticity) {
         final Runnable readLoopRunnable = new Runnable() {
             @Override
@@ -101,7 +110,16 @@ public class FtdiServiceManager {
                         public void run() {
                             console("Bytes read: " + length + "\n");
                             if (length > 0) {
-                                incoming(bytes);
+                                //incoming(bytes);
+                                bb.put(bytes, 0, length);
+                                bb.limit(bb.position());
+                                bb.rewind();
+                                List<GjMessage> list = GjMessageFactory.parseAll(bb);
+                                bb.compact();
+                                for (GjMessage message : list) {
+                                    Log.e(TAG, message.toString());
+                                    incoming(message.toString()+"\n");
+                                }
                             }
                         }
                     });
@@ -147,6 +165,24 @@ public class FtdiServiceManager {
             return;
         }
         bytesConsole.append(new String(bytes));
+        bytesConsole.post(new Runnable() {
+            @Override
+            public void run() {
+                final int scrollAmount = bytesConsole.getLayout().getLineTop(bytesConsole.getLineCount()) - bytesConsole.getHeight();
+                // if there is no need to scroll, scrollAmount will be <=0
+                if (scrollAmount > 0)
+                    bytesConsole.scrollTo(0, scrollAmount);
+                else
+                    bytesConsole.scrollTo(0, 0);
+            }
+        });
+    }
+
+    private void incoming(String string) {
+        if (bytesConsole == null) {
+            return;
+        }
+        bytesConsole.append(string);
         bytesConsole.post(new Runnable() {
             @Override
             public void run() {
