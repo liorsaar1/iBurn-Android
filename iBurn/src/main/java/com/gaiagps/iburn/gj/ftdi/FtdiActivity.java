@@ -67,10 +67,6 @@ public class FtdiActivity extends Activity {
         readLoopButton = (Button) findViewById(R.id.ftdiReadLoop);
 
         console("onCreate \n");
-
-        GjMessageFactory.test();
-        GjMessageFactory.testStream();
-
         // service manager
         if (ftdiServiceManager == null) {
             ftdiServiceManager = new FtdiServiceManager();
@@ -114,14 +110,21 @@ public class FtdiActivity extends Activity {
     }
 
     private void sendOne() {
-        String s = counter + "-ABCDEFGHIJKLMNOP-" + counter++ + "\n";
-        console("send:" + s + "\n");
-        int written = ftdiServiceManager.send(s.getBytes());
-        if (written == s.length()) {
-            console("Sent: written:" + written + "\n");
-        } else {
-            console("ERROR: expected: " + s.length() + " written:" + written + "\n");
-        }
+
+
+        GjMessageFactory.test();
+        GjMessageFactory.testStream();
+
+
+//
+//        String s = counter + "-ABCDEFGHIJKLMNOP-" + counter++ + "\n";
+//        console("send:" + s + "\n");
+//        int written = ftdiServiceManager.send(s.getBytes());
+//        if (written == s.length()) {
+//            console("Sent: written:" + written + "\n");
+//        } else {
+//            console("ERROR: expected: " + s.length() + " written:" + written + "\n");
+//        }
     }
 
     public void onClickSendTen(View v) {

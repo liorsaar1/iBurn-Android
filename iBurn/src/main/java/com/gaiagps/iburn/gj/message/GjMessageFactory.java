@@ -65,12 +65,48 @@ public class GjMessageFactory {
         bb.put(new GjMessageMode(GjMessage.Mode.NonBuffered).toByteArray());
         bb.put(new GjMessageReportGps(5, new LatLng(40.7888, -119.20315)).toByteArray());
 
+        bb.limit(bb.position()); // IMPORTANT !!!
+        bb.rewind(); // IMPORTANT !!!
+
+        ByteBuffer cc = ByteBuffer.allocate(400);
+        cc.rewind();
+        while( bb.remaining() > 0) {
+            for (int i=0; i < 7  &&  bb.remaining() > 0; i++) {
+                byte b = bb.get();
+                cc.put( b );
+            }
+            cc.limit(cc.position());
+            cc.rewind();
+            List<GjMessage> list = parseAll(cc);
+            cc.compact();
+            for (GjMessage message : list) {
+                Log.e(TAG, message.toString());
+            }
+        }
+    }
+
+    public static void testStream2() {
+
+        ByteBuffer bb = ByteBuffer.allocate(4096);
+        bb.put((byte) 0x01);
+        bb.put((byte) 0x02);
+        bb.put((byte) 0xFF);
+        bb.put((byte) 0x04);
+        bb.put((byte) 0xFF);
+        bb.put((byte) 0x55);
+        bb.put(new GjMessageText("123456").toByteArray());
+        bb.put(new GjMessageText("abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ").toByteArray());
+        bb.put(new GjMessageStatusRequest().toByteArray());
+        bb.put(new GjMessageMode(GjMessage.Mode.Buffered).toByteArray());
+        bb.put(new GjMessageMode(GjMessage.Mode.NonBuffered).toByteArray());
+        bb.put(new GjMessageReportGps(5, new LatLng(40.7888, -119.20315)).toByteArray());
+
         bb.limit(bb.position() - 5);  // IMPORTANT !!!
         bb.rewind(); // IMPORTANT !!!
 
         List<GjMessage> list = parseAll(bb);
-        for (GjMessage m : list) {
-            Log.e(TAG, m.toString());
+        for (GjMessage message : list) {
+            Log.e(TAG, message.toString());
         }
 
         bb.limit(bb.limit() + 5);
@@ -93,13 +129,14 @@ public class GjMessageFactory {
                 break;
             } catch (GjMessage.ChecksumException e) {
                 // too bad, but continue
-                break;
+                continue;
             } catch (GjMessage.PreambleNotFoundException e) {
-                // garbage all the way thru
+                // hmmm
+                bb.position(savePosition);
                 break;
             } catch (GjMessage.ParserException e) {
                 // some parameter value is off, continue
-                break;
+                continue;
             }
         }
         return list;
