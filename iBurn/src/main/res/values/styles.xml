@@ -100,7 +100,7 @@
         <item name="android:background">@color/light_back</item>
     </style>
 
-    <dimen name="GjMarginSide">10dip</dimen>
+    <dimen name="GjMarginSide">2dp</dimen>
 
     <style name="GjItem">
         <item name="android:layout_width">match_parent</item>
@@ -113,14 +113,18 @@
         <item name="android:layout_marginTop">4dp</item>
         <item name="android:layout_marginBottom">4dp</item>
         <item name="android:textColor">@color/sub_tab_text</item>
-        <item name="android:textSize">24sp</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="GjButton" parent="GjText">
+        <item name="android:layout_width">60dp</item>
     </style>
 
     <style name="GjText.title">
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:gravity">center</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">28sp</item>
+        <item name="android:textSize">18sp</item>
     </style>
 
 </resources>
