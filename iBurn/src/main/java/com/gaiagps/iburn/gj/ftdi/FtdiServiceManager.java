@@ -1,9 +1,11 @@
 package com.gaiagps.iburn.gj.ftdi;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
@@ -24,6 +26,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class FtdiServiceManager {
     private static final String TAG = FtdiServiceManager.class.getSimpleName();
+    public static final String ACTION_VIEW = "com.gaiagps.iburn.gj.ftdi.VIEW";
     private FtdiService mService;
     private boolean mBound = false;
 
@@ -57,6 +60,9 @@ public class FtdiServiceManager {
 
     public void onStart(Activity activity) {
         console("onStart: bound:" + mBound + "\n");
+        // listen to the service
+        IntentFilter filter = new IntentFilter(ACTION_VIEW);
+        activity.registerReceiver(receiver, filter);
         // Bind to LocalService
         if (!mBound) {
             Intent intent = new Intent(activity, FtdiService.class);
@@ -195,4 +201,31 @@ public class FtdiServiceManager {
             }
         });
     }
+
+
+    BroadcastReceiver receiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            System.out.println("BA intent:" + intent);
+            String action = intent.getAction();
+            if ("com.gaiagps.iburn.gj.ftdi.VIEW".equals(action)) {
+                String message = intent.getStringExtra("message");
+                String error = intent.getStringExtra("error");
+                if (error != null) {
+                    console("Service: ERROR: " + error + "\n");
+                    return;
+                }
+                if (message != null) {
+                    console("Service:" + message + "\n");
+                    return;
+                }
+                byte[] bytes = intent.getByteArrayExtra("bytes");
+                if (bytes != null) {
+                    console("Service: bytes: " + new String(bytes) + "\n");
+                    incoming(bytes);
+                    return;
+                }
+            }
+        }
+    };
+
 }

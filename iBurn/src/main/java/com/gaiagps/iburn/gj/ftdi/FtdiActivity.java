@@ -1,10 +1,6 @@
 package com.gaiagps.iburn.gj.ftdi;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -28,30 +24,6 @@ public class FtdiActivity extends Activity {
     private Button readButton;
     private Button readLoopButton;
 
-    BroadcastReceiver receiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            System.out.println("BA intent:" + intent);
-            String action = intent.getAction();
-            if ("com.gaiagps.iburn.gj.ftdi.VIEW".equals(action)) {
-                String message = intent.getStringExtra("message");
-                String error = intent.getStringExtra("error");
-                if (error != null) {
-                    console("Service: ERROR: " + error + "\n");
-                    return;
-                }
-                if (message != null) {
-                    console("Service:" + message + "\n");
-                    return;
-                }
-                byte[] bytes = intent.getByteArrayExtra("bytes");
-                if (bytes != null) {
-                    console("Service: bytes: " + new String(bytes) + "\n");
-                    incoming(bytes);
-                    return;
-                }
-            }
-        }
-    };
     private static FtdiServiceManager ftdiServiceManager;
 
     @Override
@@ -81,9 +53,6 @@ public class FtdiActivity extends Activity {
     protected void onStart() {
         super.onStart();
         ftdiServiceManager.onStart(this);
-        // listen to the service
-        IntentFilter filter = new IntentFilter("com.gaiagps.iburn.gj.ftdi.VIEW");
-        registerReceiver(receiver, filter);
     }
 
     @Override
