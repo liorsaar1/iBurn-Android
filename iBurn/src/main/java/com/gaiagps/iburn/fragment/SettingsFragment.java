@@ -17,6 +17,7 @@ import com.gaiagps.iburn.gj.message.GjMessageMode;
 import com.gaiagps.iburn.gj.message.GjMessageReportGps;
 import com.gaiagps.iburn.gj.message.GjMessageRequestGps;
 import com.gaiagps.iburn.gj.message.GjMessageStatusRequest;
+import com.gaiagps.iburn.gj.message.GjMessageText;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -77,6 +78,10 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) { onClickModeNonBuffered(v); }
         });
+        view.findViewById(R.id.GjMessageSendButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onClickSendText(v); }
+        });
 
         return view;
     }
@@ -86,22 +91,27 @@ public class SettingsFragment extends Fragment {
     ///////////////////////////////////////////////
     Handler sendHandler = new Handler();
 
-    public void onClickStatusRequest(View v) {
+    private void onClickStatusRequest(View v) {
         send( new GjMessageStatusRequest() );
     }
-    public void onClickRequestGps(View v) {
+    private void onClickRequestGps(View v) {
         send( new GjMessageRequestGps() );
     }
-    public void onClickReportGps(View v) {
+    private void onClickReportGps(View v) {
         int id = 5;
         LatLng latLng = new LatLng(40.7888, -119.20315);
         send(new GjMessageReportGps(id, latLng));
     }
-    public void onClickModeBuffered(View v) {
+    private void onClickModeBuffered(View v) {
         send( new GjMessageMode(GjMessage.Mode.Buffered) );
     }
-    public void onClickModeNonBuffered(View v) {
+    private void onClickModeNonBuffered(View v) {
         send( new GjMessageMode(GjMessage.Mode.NonBuffered) );
+    }
+    private void onClickSendText(View v) {
+        String text = messageEditText.getText().toString();
+        messageEditText.setText("");
+        send(new GjMessageText(text));
     }
 
     private void send( final GjMessage message ) {

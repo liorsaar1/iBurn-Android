@@ -40,7 +40,7 @@ public class FtdiActivity extends Activity {
         readButton = (Button) findViewById(R.id.ftdiRead);
         readLoopButton = (Button) findViewById(R.id.ftdiReadLoop);
 
-        console("onCreate \n");
+        console("onCreate");
         // service manager
         if (ftdiServiceManager == null) {
             ftdiServiceManager = new FtdiServiceManager();
@@ -87,9 +87,9 @@ public class FtdiActivity extends Activity {
         bb.get(bytes, 0, bb.limit());
         int written = ftdiServiceManager.send(bytes);
         if (written == bb.limit()) {
-            console("Sent: written:" + written + "\n");
+            console("Sent: written:" + written);
         } else {
-            console("ERROR: expected: " + bb.limit() + " written:" + written + "\n");
+            console("ERROR: expected: " + bb.limit() + " written:" + written);
         }
 
 //
@@ -125,13 +125,13 @@ public class FtdiActivity extends Activity {
     private void sendGjMessage() {
         String s = counter + "-ABCDEFGHIJKLMNOP-" + counter++;
         GjMessageText msgText = new GjMessageText(s);
-        console("send:" + msgText.toString() + "\n");
+        console("send:" + msgText.toString());
         int written = ftdiServiceManager.send(msgText.toByteArray());
         int length = msgText.toByteArray().length;
         if (written == length) {
-            console("Sent: written:" + written + "\n");
+            console("Sent: written:" + written);
         } else {
-            console("ERROR: expected: " + length + " written:" + written + "\n");
+            console("ERROR: expected: " + length + " written:" + written);
         }
     }
 
@@ -146,7 +146,7 @@ public class FtdiActivity extends Activity {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                console("Writing: 1000 \n");
+                console("Writing: 1000");
             }
 
             @Override
@@ -155,13 +155,13 @@ public class FtdiActivity extends Activity {
                     String s = counter + "-ABCDEFGHIJKLMNOP-" + counter++ + "\n";
                     int written = ftdiServiceManager.send(s.getBytes());
                     if (written != s.length()) {
-                        return "ERROR: expected: " + s.length() + " written:" + written + "\n";
+                        return "ERROR: expected: " + s.length() + " written:" + written;
                     }
                     if (i % 100 == 0) {
                         onProgressUpdate(i);
                     }
                 }
-                return "DONE\n";
+                return "DONE";
             }
 
             @Override
@@ -183,7 +183,7 @@ public class FtdiActivity extends Activity {
         try {
             byte[] bytes = new byte[4096];
             int length = ftdiServiceManager.read(bytes);
-            console("Bytes read: " + length + "\n");
+            console("Bytes read: " + length);
             if (length > 0) {
                 incoming(bytes);
             }
@@ -202,34 +202,14 @@ public class FtdiActivity extends Activity {
         ftdiServiceManager.scheduleRead(FtdiActivity.this);
     }
 
-    private void console(String s) {
-        messageConsole.append(s);
-        messageConsole.post(new Runnable() {
-            @Override
-            public void run() {
-                final int scrollAmount = messageConsole.getLayout().getLineTop(messageConsole.getLineCount()) - messageConsole.getHeight();
-                // if there is no need to scroll, scrollAmount will be <=0
-                if (scrollAmount > 0)
-                    messageConsole.scrollTo(0, scrollAmount);
-                else
-                    messageConsole.scrollTo(0, 0);
-            }
-        });
+    private void console(String string) {
+        messageConsole.append(string + "\n");
+        FtdiServiceManager.scrollToEnd(messageConsole);
     }
 
     private void incoming(byte[] bytes) {
         bytesConsole.append(new String(bytes));
-        bytesConsole.post(new Runnable() {
-            @Override
-            public void run() {
-                final int scrollAmount = bytesConsole.getLayout().getLineTop(bytesConsole.getLineCount()) - bytesConsole.getHeight();
-                // if there is no need to scroll, scrollAmount will be <=0
-                if (scrollAmount > 0)
-                    bytesConsole.scrollTo(0, scrollAmount);
-                else
-                    bytesConsole.scrollTo(0, 0);
-            }
-        });
+        FtdiServiceManager.scrollToEnd(bytesConsole);
     }
 
 }

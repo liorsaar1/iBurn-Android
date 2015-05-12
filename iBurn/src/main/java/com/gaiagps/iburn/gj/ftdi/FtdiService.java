@@ -164,13 +164,13 @@ public class FtdiService extends Service {
     }
 
     private void broadcastError(String string) {
-        Intent intent = new Intent("com.gaiagps.iburn.gj.ftdi.VIEW");
+        Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
         intent.putExtra("error", string);
         sendBroadcast(intent);
     }
 
     private void broadcastMessage(String string) {
-        Intent intent = new Intent("com.gaiagps.iburn.gj.ftdi.VIEW");
+        Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
         intent.putExtra("message", string);
         sendBroadcast(intent);
     }

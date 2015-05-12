@@ -48,7 +48,7 @@ public class FtdiServiceManager {
             FtdiService.LocalBinder binder = (FtdiService.LocalBinder) service;
             mService = binder.getService();
             mBound = true;
-            console("Service bound \n");
+            console("Service bound");
         }
 
         @Override
@@ -59,7 +59,7 @@ public class FtdiServiceManager {
     };
 
     public void onStart(Activity activity) {
-        console("onStart: bound:" + mBound + "\n");
+        console("onStart: bound:" + mBound);
         // listen to the service
         IntentFilter filter = new IntentFilter(ACTION_VIEW);
         activity.registerReceiver(receiver, filter);
@@ -71,7 +71,7 @@ public class FtdiServiceManager {
     }
 
     public void onStop(Activity activity) {
-        console("onStop: bound:" + mBound + "\n");
+        console("onStop: bound:" + mBound);
         // NEVER Unbind from the service
         if (false) {
             activity.unbindService(mConnection);
@@ -80,7 +80,7 @@ public class FtdiServiceManager {
     }
 
     public void onPause(Activity activity) {
-        console("onPause: bound:" + mBound + "\n");
+        console("onPause: bound:" + mBound);
         if (readScheduledFuture != null) {
             if (!readScheduledFuture.isCancelled()) {
                 readScheduledFuture.cancel(false);
@@ -114,7 +114,7 @@ public class FtdiServiceManager {
                     acticity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            console("Bytes read: " + length + "\n");
+                            console("Bytes read: " + length);
                             if (length > 0) {
                                 //incoming(bytes);
                                 bb.put(bytes, 0, length);
@@ -130,7 +130,7 @@ public class FtdiServiceManager {
                         }
                     });
                 } catch (Throwable t) {
-                    //console("ERROR:" + t.getMessage());
+                    console("ERROR:" + t.getMessage());
                 }
             }
         };
@@ -143,20 +143,25 @@ public class FtdiServiceManager {
         this.messageConsole = messageConsole;
     }
 
-    private void console(String s) {
+    private void console(String string) {
+        Log.e(TAG, string);
         if (messageConsole == null) {
             return;
         }
-        messageConsole.append(s);
-        messageConsole.post(new Runnable() {
+        messageConsole.append(string + "\n");
+        scrollToEnd(messageConsole);
+    }
+
+    public static void scrollToEnd(final TextView tv) {
+        tv.post(new Runnable() {
             @Override
             public void run() {
-                final int scrollAmount = messageConsole.getLayout().getLineTop(messageConsole.getLineCount()) - messageConsole.getHeight();
+                final int scrollAmount = tv.getLayout().getLineTop(tv.getLineCount()) - tv.getHeight();
                 // if there is no need to scroll, scrollAmount will be <=0
                 if (scrollAmount > 0)
-                    messageConsole.scrollTo(0, scrollAmount);
+                    tv.scrollTo(0, scrollAmount);
                 else
-                    messageConsole.scrollTo(0, 0);
+                    tv.scrollTo(0, 0);
             }
         });
     }
@@ -171,17 +176,7 @@ public class FtdiServiceManager {
             return;
         }
         bytesConsole.append(new String(bytes));
-        bytesConsole.post(new Runnable() {
-            @Override
-            public void run() {
-                final int scrollAmount = bytesConsole.getLayout().getLineTop(bytesConsole.getLineCount()) - bytesConsole.getHeight();
-                // if there is no need to scroll, scrollAmount will be <=0
-                if (scrollAmount > 0)
-                    bytesConsole.scrollTo(0, scrollAmount);
-                else
-                    bytesConsole.scrollTo(0, 0);
-            }
-        });
+        scrollToEnd(bytesConsole);
     }
 
     private void incoming(String string) {
@@ -189,17 +184,7 @@ public class FtdiServiceManager {
             return;
         }
         bytesConsole.append(string);
-        bytesConsole.post(new Runnable() {
-            @Override
-            public void run() {
-                final int scrollAmount = bytesConsole.getLayout().getLineTop(bytesConsole.getLineCount()) - bytesConsole.getHeight();
-                // if there is no need to scroll, scrollAmount will be <=0
-                if (scrollAmount > 0)
-                    bytesConsole.scrollTo(0, scrollAmount);
-                else
-                    bytesConsole.scrollTo(0, 0);
-            }
-        });
+        scrollToEnd(bytesConsole);
     }
 
 
@@ -207,20 +192,20 @@ public class FtdiServiceManager {
         public void onReceive(Context context, Intent intent) {
             System.out.println("BA intent:" + intent);
             String action = intent.getAction();
-            if ("com.gaiagps.iburn.gj.ftdi.VIEW".equals(action)) {
+            if (ACTION_VIEW.equals(action)) {
                 String message = intent.getStringExtra("message");
                 String error = intent.getStringExtra("error");
                 if (error != null) {
-                    console("Service: ERROR: " + error + "\n");
+                    console("Service: ERROR: " + error);
                     return;
                 }
                 if (message != null) {
-                    console("Service:" + message + "\n");
+                    console("Service:" + message);
                     return;
                 }
                 byte[] bytes = intent.getByteArrayExtra("bytes");
                 if (bytes != null) {
-                    console("Service: bytes: " + new String(bytes) + "\n");
+                    console("Service: bytes: " + new String(bytes));
                     incoming(bytes);
                     return;
                 }
