@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.gaiagps.iburn.R;
+import com.gaiagps.iburn.activity.MainActivity;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageMode;
 import com.gaiagps.iburn.gj.message.GjMessageReportGps;
@@ -28,8 +29,8 @@ public class SettingsFragment extends Fragment {
 
     private View messageEditTextContainer;
     private EditText messageEditText;
-    private TextView messageConsole;
-    private TextView messageIncoming;
+    private static TextView messageConsole;
+    private static TextView messageIncoming;
     private Button messageTextButton;
 
     public static SettingsFragment newInstance() {
@@ -55,6 +56,11 @@ public class SettingsFragment extends Fragment {
         messageConsole.setMovementMethod(new ScrollingMovementMethod());
         messageIncoming = (TextView) view.findViewById(R.id.GjIncoming);
         messageIncoming.setMovementMethod(new ScrollingMovementMethod());
+
+        if (MainActivity.ftdiServiceManager != null) {
+            MainActivity.ftdiServiceManager.setConsole(messageConsole);
+            MainActivity.ftdiServiceManager.setIncoming(messageIncoming);
+        }
 
         view.findViewById(R.id.GjMessageStatusRequest).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,10 +130,16 @@ public class SettingsFragment extends Fragment {
         });
     }
 
+    public void console(GjMessage message) {
+        console(message.toString());
+        console(message.toHexString());
+    }
 
-    private void console(GjMessage message) {
-        messageConsole.append(">>> " + message.toString() + "\n");
-        messageConsole.append(">>> " + message.toHexString() + "\n");
+    public void console(String string) {
+        if (messageConsole == null ) {
+            return;
+        }
+        messageConsole.append(">>> " + string + "\n");
 
         messageConsole.post(new Runnable() {
             @Override

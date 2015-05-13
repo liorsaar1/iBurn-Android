@@ -10,6 +10,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -43,6 +46,8 @@ import com.gaiagps.iburn.fragment.EventListViewFragment;
 import com.gaiagps.iburn.fragment.GalacticJungleFragment;
 import com.gaiagps.iburn.fragment.GoogleMapFragment;
 import com.gaiagps.iburn.fragment.SettingsFragment;
+import com.gaiagps.iburn.gj.ftdi.FtdiServiceManager;
+import com.gaiagps.iburn.gj.message.GjMessage;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.model.LatLng;
@@ -66,6 +71,8 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
     private static final String HOCKEY_ID = SECRETS.HOCKEY_ID;
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
     private boolean googlePlayServicesMissing = false;
+
+    public static FtdiServiceManager ftdiServiceManager;
 
     @InjectView(R.id.title)            TextView mTitleTextView;
     @InjectView(R.id.toolbar)          Toolbar mToolbar;
@@ -114,8 +121,56 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
             mUnlockContainer.setVisibility(View.GONE);
         }
         handleIntent(getIntent());
-        checkForUpdates();
+        if (false) checkForUpdates(); // GJ
+
+        // service manager
+        if (ftdiServiceManager == null) {
+            ftdiServiceManager = new FtdiServiceManager();
+        }
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        ftdiServiceManager.onStart(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        ftdiServiceManager.onStop(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ftdiServiceManager.onPause(this);
+    }
+
+    private Handler ftdiMessageHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message inputMessage) {
+            if (inputMessage.obj == null) {
+                console("Error: null");
+                return;
+            }
+            if (!(inputMessage.obj instanceof List)) {
+                console("Error: " + inputMessage.obj);
+                return;
+            }
+            List<GjMessage> list = (List<GjMessage>) inputMessage.obj;
+            console("list !!!!" + list.size());
+            for (GjMessage message : list) {
+                Log.e(TAG, message.toString());
+                console( ">>>"+message.toString()+"\n");
+            }
+        }
+    };
+
+    private void console(final String s) {
+        ((SettingsFragment) mPagerAdapter.getItem(1)).console(s);
+    }
+
 
     private boolean mSearching = false;
 
@@ -246,6 +301,8 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
             setupFragmentStatePagerAdapter();
             googlePlayServicesMissing = false;
         }
+        // continue reading frmo ftdi
+        ftdiServiceManager.onResume(this, ftdiMessageHandler);
     }
 
     private void showWelcomeDialog() {
@@ -397,8 +454,8 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         private int mLastPosition = -1;
 
         public static enum IBurnTab {
-            GJ      (R.string.gj_tab, R.drawable.ic_gj,       GalacticJungleFragment.class),
-            SET     (R.string.set_tab,        R.drawable.ic_settings, SettingsFragment.class),
+            GJ      (R.string.gj_tab,     R.drawable.ic_gj,       GalacticJungleFragment.class),
+            SET     (R.string.set_tab,    R.drawable.ic_settings, SettingsFragment.class),
             MAP     (R.string.map_tab,    R.drawable.ic_brc,      GoogleMapFragment.class),
             ART     (R.string.art_tab,    R.drawable.ic_monument, ArtListViewFragment.class),
             CAMPS   (R.string.camps_tab,  R.drawable.ic_camp,     CampListViewFragment.class),

@@ -117,7 +117,6 @@ public class FtdiService extends Service {
     }
 
     public int read(byte[] bytes) {
-        broadcastMessage("read");
         try {
             if (ftDev == null) {
                 openDevice();
@@ -129,6 +128,7 @@ public class FtdiService extends Service {
 
             synchronized (ftDev) {
                 int length = bb.position();
+                broadcastMessage("read: " + length);
                 if (length > bytes.length) {
                     broadcastError("Input buffer too small. Required " + length);
                     return -1;

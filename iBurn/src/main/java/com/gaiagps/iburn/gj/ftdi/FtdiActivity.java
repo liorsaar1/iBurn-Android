@@ -76,10 +76,10 @@ public class FtdiActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        ftdiServiceManager.onResume(this, handler);
+        ftdiServiceManager.onResume(this, ftdiMessageHandler);
     }
 
-    private Handler handler = new Handler(Looper.getMainLooper()) {
+    private Handler ftdiMessageHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message inputMessage) {
             if (inputMessage.obj == null) {
