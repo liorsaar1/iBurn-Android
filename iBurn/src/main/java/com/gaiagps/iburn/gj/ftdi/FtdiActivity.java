@@ -3,16 +3,22 @@ package com.gaiagps.iburn.gj.ftdi;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.gaiagps.iburn.R;
+import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageText;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
 public class FtdiActivity extends Activity {
     private static final String TAG = FtdiActivity.class.getSimpleName();
@@ -70,8 +76,30 @@ public class FtdiActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        ftdiServiceManager.onResume(this);
+        ftdiServiceManager.onResume(this, handler);
     }
+
+    private Handler handler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message inputMessage) {
+            if (inputMessage.obj == null) {
+                console("Error: null");
+                return;
+            }
+            if (!(inputMessage.obj instanceof List)) {
+                console("Error: " + inputMessage.obj);
+                return;
+            }
+            List<GjMessage> list = (List<GjMessage>) inputMessage.obj;
+            console("list !!!!" + list.size());
+            for (GjMessage message : list) {
+                Log.e(TAG, message.toString());
+                console( ">>>"+message.toString()+"\n");
+            }
+
+        }
+    };
+
 
     public void onClickSend(View v) {
         if (!ftdiServiceManager.isBound()) {
@@ -194,12 +222,12 @@ public class FtdiActivity extends Activity {
     }
 
     public void onClickReadLoop(View v) {
-        if (!ftdiServiceManager.isBound()) {
-            return;
-        }
-        readLoopButton.setEnabled(false);
-
-        ftdiServiceManager.scheduleRead(FtdiActivity.this);
+//        if (!ftdiServiceManager.isBound()) {
+//            return;
+//        }
+//        readLoopButton.setEnabled(false);
+//
+//        ftdiServiceManager.scheduleRead(FtdiActivity.this);
     }
 
     private void console(String string) {

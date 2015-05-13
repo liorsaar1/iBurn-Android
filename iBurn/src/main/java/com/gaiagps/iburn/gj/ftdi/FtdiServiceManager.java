@@ -7,7 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -40,34 +42,13 @@ public class FtdiServiceManager {
     /**
      * Defines callbacks for service binding, passed to bindService()
      */
-    private ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            FtdiService.LocalBinder binder = (FtdiService.LocalBinder) service;
-            mService = binder.getService();
-            mBound = true;
-            console("Service bound");
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mService = null;
-            mBound = false;
-        }
-    };
+    private ServiceConnection mConnection ;
 
     public void onStart(Activity activity) {
         console("onStart: bound:" + mBound);
         // listen to the service
         IntentFilter filter = new IntentFilter(ACTION_VIEW);
         activity.registerReceiver(receiver, filter);
-        // Bind to LocalService
-        if (!mBound) {
-            Intent intent = new Intent(activity, FtdiService.class);
-            activity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-        }
     }
 
     public void onStop(Activity activity) {
@@ -85,12 +66,39 @@ public class FtdiServiceManager {
             if (!readScheduledFuture.isCancelled()) {
                 readScheduledFuture.cancel(false);
             }
+            readScheduledFuture = null;
         }
     }
 
-    public void onResume(Activity activity) {
-        if (readScheduledFuture != null) {
-            scheduleRead(activity);
+    public void onResume(Activity activity, final Handler handler) {
+        // Bind to LocalService
+        if (!mBound) {
+            //
+            mConnection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName className, IBinder service) {
+                    // We've bound to LocalService, cast the IBinder and get LocalService instance
+                    FtdiService.LocalBinder binder = (FtdiService.LocalBinder) service;
+                    mService = binder.getService();
+                    mBound = true;
+                    console("Service bound");
+                    scheduleRead(handler);
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName arg0) {
+                    mService = null;
+                    mBound = false;
+                }
+            };
+
+
+
+            Intent intent = new Intent(activity, FtdiService.class);
+            activity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        } else {
+            // start/restart reading
+            scheduleRead(handler);
         }
     }
 
@@ -104,31 +112,33 @@ public class FtdiServiceManager {
 
     private final ByteBuffer bb = ByteBuffer.allocate(4096+400);
 
-    public void scheduleRead(final Activity acticity) {
+    public void scheduleRead(final Handler handler) {
+        if (!mBound) {
+            console("scheduleRead: not bound");
+            return;
+        }
+        if (readScheduledFuture != null) {
+            console("scheduleRead: already running");
+            return;
+        }
+
+        console("scheduleRead: start");
         final Runnable readLoopRunnable = new Runnable() {
             @Override
             public void run() {
                 try {
                     final byte[] bytes = new byte[4096];
                     final int length = mService.read(bytes);
-                    acticity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            console("Bytes read: " + length);
-                            if (length > 0) {
-                                //incoming(bytes);
-                                bb.put(bytes, 0, length);
-                                bb.limit(bb.position());
-                                bb.rewind();
-                                List<GjMessage> list = GjMessageFactory.parseAll(bb);
-                                bb.compact();
-                                for (GjMessage message : list) {
-                                    Log.e(TAG, message.toString());
-                                    incoming(message.toString()+"\n");
-                                }
-                            }
-                        }
-                    });
+                    if (length > 0) {
+                        bb.put(bytes, 0, length);
+                        bb.limit(bb.position());
+                        bb.rewind();
+                        List<GjMessage> list = GjMessageFactory.parseAll(bb);
+                        bb.compact();
+                        Message handlerMessage = new Message();
+                        handlerMessage.obj = list;
+                        handler.sendMessage(handlerMessage);
+                    }
                 } catch (Throwable t) {
                     console("ERROR:" + t.getMessage());
                 }
