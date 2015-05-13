@@ -151,11 +151,11 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         @Override
         public void handleMessage(Message inputMessage) {
             if (inputMessage.obj == null) {
-                console("Error: null");
+                console("Error: input message NULL");
                 return;
             }
             if (!(inputMessage.obj instanceof List)) {
-                console("Error: " + inputMessage.obj);
+                console("Error: not list:" + inputMessage.obj);
                 return;
             }
             List<GjMessage> list = (List<GjMessage>) inputMessage.obj;

@@ -91,7 +91,7 @@ public class FtdiActivity extends Activity {
                 return;
             }
             List<GjMessage> list = (List<GjMessage>) inputMessage.obj;
-            console("list !!!!" + list.size());
+            console("list size " + list.size());
             for (GjMessage message : list) {
                 Log.e(TAG, message.toString());
                 console( ">>>"+message.toString()+"\n");

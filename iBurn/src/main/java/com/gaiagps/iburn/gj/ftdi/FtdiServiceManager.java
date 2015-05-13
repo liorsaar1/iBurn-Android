@@ -110,7 +110,8 @@ public class FtdiServiceManager {
         return mService.read(bytes);
     }
 
-    private final ByteBuffer bb = ByteBuffer.allocate(4096+400);
+    private final ByteBuffer bb = ByteBuffer.allocate(FtdiService.FTDI_BUFFER_SIZE+400);
+    private final byte[] ftdiInputBuffer = new byte[FtdiService.FTDI_BUFFER_SIZE];
 
     public void scheduleRead(final Handler handler) {
         if (!mBound) {
@@ -127,10 +128,9 @@ public class FtdiServiceManager {
             @Override
             public void run() {
                 try {
-                    final byte[] bytes = new byte[4096];
-                    final int length = mService.read(bytes);
+                    final int length = mService.read(ftdiInputBuffer);
                     if (length > 0) {
-                        bb.put(bytes, 0, length);
+                        bb.put(ftdiInputBuffer, 0, length);
                         bb.limit(bb.position());
                         bb.rewind();
                         List<GjMessage> list = GjMessageFactory.parseAll(bb);

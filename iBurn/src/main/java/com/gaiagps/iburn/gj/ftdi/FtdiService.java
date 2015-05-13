@@ -25,7 +25,7 @@ public class FtdiService extends Service {
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
     boolean mThreadIsStopped = true;
-    private static final int BBSIZE = 1024 * 1024 * 4; // 4 meg
+    public static final int FTDI_BUFFER_SIZE = 1024 * 1024 * 4; // 4 meg
     ByteBuffer bb;
     private FT_Device ftDev;
     private Runnable mLoop = new Runnable() {
@@ -45,7 +45,12 @@ public class FtdiService extends Service {
                     if (readSize > 0) {
                         byte[] inputBytes = new byte[readSize];
                         ftDev.read(inputBytes, readSize);
-                        bb.put(inputBytes);
+                        if (readSize > bb.remaining()) {
+                            broadcastError("INPUT OVERFLOW !!! :( ");
+                            bb.rewind();
+                        } else {
+                            bb.put(inputBytes);
+                        }
                     } // end of if(readSize>0)
                 } // end of synchronized
 
@@ -83,7 +88,7 @@ public class FtdiService extends Service {
         super.onCreate();
         Log.e(TAG, "onCreate <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
-        bb = ByteBuffer.allocate(BBSIZE);
+        bb = ByteBuffer.allocate(FTDI_BUFFER_SIZE);
 
         try {
             ftD2xx = D2xxManager.getInstance(this);
@@ -131,7 +136,7 @@ public class FtdiService extends Service {
                 broadcastMessage("read: " + length);
                 if (length > bytes.length) {
                     broadcastError("Input buffer too small. Required " + length);
-                    return -1;
+                    length = bytes.length-100;
                 }
                 bb.flip();
                 bb.get(bytes, 0, length);
