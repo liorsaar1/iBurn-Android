@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -27,22 +28,61 @@ import java.util.concurrent.TimeUnit;
  * Created by liorsaar on 2015-05-06
  */
 public class FtdiServiceManager {
-    private static final String TAG = FtdiServiceManager.class.getSimpleName();
     public static final String ACTION_VIEW = "com.gaiagps.iburn.gj.ftdi.VIEW";
+    private static final String TAG = FtdiServiceManager.class.getSimpleName();
+    private final ScheduledExecutorService readScheduler = Executors.newScheduledThreadPool(1);
+    private final ByteBuffer bb = ByteBuffer.allocate(FtdiService.FTDI_BUFFER_SIZE + 400);
+    private final byte[] ftdiInputBuffer = new byte[FtdiService.FTDI_BUFFER_SIZE];
+    private TextView messageConsole;
+    private TextView bytesConsole;
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            System.out.println("BA intent:" + intent);
+            String action = intent.getAction();
+            if (ACTION_VIEW.equals(action)) {
+                String message = intent.getStringExtra("message");
+                String error = intent.getStringExtra("error");
+                if (error != null) {
+                    console("Service: ERROR: " + error);
+                    return;
+                }
+                if (message != null) {
+                    console("Service:" + message);
+                    return;
+                }
+                byte[] bytes = intent.getByteArrayExtra("bytes");
+                if (bytes != null) {
+                    console("Service: bytes: " + new String(bytes));
+                    incoming(bytes);
+                    return;
+                }
+            }
+        }
+    };
     private FtdiService mService;
     private boolean mBound = false;
-
-    private final ScheduledExecutorService readScheduler = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> readScheduledFuture;
+    private WeakReference<FtdiServiceListener> weakFtdiServiceListener;
+    private ServiceConnection mConnection;
+
+    public static void scrollToEnd(final TextView tv) {
+        tv.post(new Runnable() {
+            @Override
+            public void run() {
+                final int scrollAmount = tv.getLayout().getLineTop(tv.getLineCount()) - tv.getHeight();
+                // if there is no need to scroll, scrollAmount will be <=0
+                if (scrollAmount > 0)
+                    tv.scrollTo(0, scrollAmount);
+                else
+                    tv.scrollTo(0, 0);
+            }
+        });
+    }
 
     public boolean isBound() {
         return mBound;
     }
-
-    /**
-     * Defines callbacks for service binding, passed to bindService()
-     */
-    private ServiceConnection mConnection ;
 
     public void onStart(Activity activity) {
         console("onStart: bound:" + mBound);
@@ -70,9 +110,13 @@ public class FtdiServiceManager {
         }
     }
 
-    public void onResume(Activity activity, final Handler handler) {
+    public void onResume(Activity activity, final FtdiServiceListener ftdiServiceListener) {
+        // must use weak reference
+        weakFtdiServiceListener = new WeakReference<FtdiServiceListener>(ftdiServiceListener);
+        final FtdiHandler ftdiHandler = new FtdiHandler(weakFtdiServiceListener);
         // Bind to LocalService
         if (!mBound) {
+
             //
             mConnection = new ServiceConnection() {
                 @Override
@@ -82,7 +126,7 @@ public class FtdiServiceManager {
                     mService = binder.getService();
                     mBound = true;
                     console("Service bound");
-                    scheduleRead(handler);
+                    scheduleRead(ftdiHandler);
                 }
 
                 @Override
@@ -96,7 +140,7 @@ public class FtdiServiceManager {
             activity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         } else {
             // start/restart reading
-            scheduleRead(handler);
+            scheduleRead(ftdiHandler);
         }
     }
 
@@ -108,11 +152,7 @@ public class FtdiServiceManager {
         return mService.read(bytes);
     }
 
-    private final ByteBuffer bb = ByteBuffer.allocate(FtdiService.FTDI_BUFFER_SIZE+400);
-    private final byte[] ftdiInputBuffer = new byte[FtdiService.FTDI_BUFFER_SIZE];
-
     public void scheduleRead(final Handler handler) {
-//        if( true ) return ;
 
         if (!mBound) {
             console("scheduleRead: not bound");
@@ -147,8 +187,6 @@ public class FtdiServiceManager {
         readScheduledFuture = readScheduler.scheduleAtFixedRate(readLoopRunnable, 1, 2, TimeUnit.SECONDS);
     }
 
-
-    private TextView messageConsole;
     public void setConsole(TextView messageConsole) {
         this.messageConsole = messageConsole;
     }
@@ -162,21 +200,6 @@ public class FtdiServiceManager {
         scrollToEnd(messageConsole);
     }
 
-    public static void scrollToEnd(final TextView tv) {
-        tv.post(new Runnable() {
-            @Override
-            public void run() {
-                final int scrollAmount = tv.getLayout().getLineTop(tv.getLineCount()) - tv.getHeight();
-                // if there is no need to scroll, scrollAmount will be <=0
-                if (scrollAmount > 0)
-                    tv.scrollTo(0, scrollAmount);
-                else
-                    tv.scrollTo(0, 0);
-            }
-        });
-    }
-
-    private TextView bytesConsole;
     public void setIncoming(TextView bytesConsole) {
         this.bytesConsole = bytesConsole;
     }
@@ -197,30 +220,34 @@ public class FtdiServiceManager {
         scrollToEnd(bytesConsole);
     }
 
+    public static class FtdiHandler extends Handler {
+        WeakReference<FtdiServiceListener> weakListener;
 
-    BroadcastReceiver receiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            System.out.println("BA intent:" + intent);
-            String action = intent.getAction();
-            if (ACTION_VIEW.equals(action)) {
-                String message = intent.getStringExtra("message");
-                String error = intent.getStringExtra("error");
-                if (error != null) {
-                    console("Service: ERROR: " + error);
-                    return;
-                }
-                if (message != null) {
-                    console("Service:" + message);
-                    return;
-                }
-                byte[] bytes = intent.getByteArrayExtra("bytes");
-                if (bytes != null) {
-                    console("Service: bytes: " + new String(bytes));
-                    incoming(bytes);
-                    return;
-                }
-            }
+        public FtdiHandler(WeakReference<FtdiServiceListener> weakListener) {
+            this.weakListener = weakListener;
         }
-    };
+
+        @Override
+        public void handleMessage(Message inputMessage) {
+            FtdiServiceListener listener = weakListener.get();
+
+            if (inputMessage.obj == null) {
+                listener.console("Error: null");
+                return;
+            }
+            if (!(inputMessage.obj instanceof List)) {
+                listener.console("Error: " + inputMessage.obj);
+                return;
+            }
+            List<GjMessage> list = (List<GjMessage>) inputMessage.obj;
+            listener.console("list size " + list.size());
+            for (GjMessage message : list) {
+                Log.e(TAG, message.toString());
+                listener.console(">>>" + message.toString() + "\n");
+            }
+
+        }
+    }
+
 
 }
