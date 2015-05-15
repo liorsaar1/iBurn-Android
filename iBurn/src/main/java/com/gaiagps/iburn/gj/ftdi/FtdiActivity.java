@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -17,10 +16,11 @@ import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageText;
 
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-public class FtdiActivity extends Activity {
+public class FtdiActivity extends Activity implements FtdiServiceListener {
     private static final String TAG = FtdiActivity.class.getSimpleName();
     private TextView messageConsole;
     private TextView bytesConsole;
@@ -28,7 +28,6 @@ public class FtdiActivity extends Activity {
     private int counter = 1;
     private Button manyButton;
     private Button readButton;
-    private Button readLoopButton;
 
     private static FtdiServiceManager ftdiServiceManager;
 
@@ -44,7 +43,6 @@ public class FtdiActivity extends Activity {
 
         manyButton = (Button) findViewById(R.id.ftdiSendMany);
         readButton = (Button) findViewById(R.id.ftdiRead);
-        readLoopButton = (Button) findViewById(R.id.ftdiReadLoop);
 
         console("onCreate");
         // service manager
@@ -76,29 +74,43 @@ public class FtdiActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        ftdiServiceManager.onResume(this, ftdiMessageHandler);
+
+        weakFtdiServiceListener = new WeakReference<FtdiServiceListener>(this);
+        FtdiHandler ftdiHandler = new FtdiHandler(weakFtdiServiceListener);
+
+        ftdiServiceManager.onResume(this, ftdiHandler);
     }
 
-    private Handler ftdiMessageHandler = new Handler(Looper.getMainLooper()) {
+
+
+    private WeakReference<FtdiServiceListener> weakFtdiServiceListener;
+
+    public static class FtdiHandler extends Handler {
+        WeakReference<FtdiServiceListener> weakListener;
+        public FtdiHandler(WeakReference<FtdiServiceListener> weakListener) {
+            this.weakListener = weakListener;
+        }
         @Override
         public void handleMessage(Message inputMessage) {
+            FtdiServiceListener listener = weakListener.get();
+
             if (inputMessage.obj == null) {
-                console("Error: null");
+                listener.console("Error: null");
                 return;
             }
             if (!(inputMessage.obj instanceof List)) {
-                console("Error: " + inputMessage.obj);
+                listener.console("Error: " + inputMessage.obj);
                 return;
             }
             List<GjMessage> list = (List<GjMessage>) inputMessage.obj;
-            console("list size " + list.size());
+            listener.console("list size " + list.size());
             for (GjMessage message : list) {
                 Log.e(TAG, message.toString());
-                console( ">>>"+message.toString()+"\n");
+                listener.console( ">>>"+message.toString()+"\n");
             }
 
         }
-    };
+    }
 
 
     public void onClickSend(View v) {
@@ -230,7 +242,7 @@ public class FtdiActivity extends Activity {
 //        ftdiServiceManager.scheduleRead(FtdiActivity.this);
     }
 
-    private void console(String string) {
+    public void console(String string) {
         messageConsole.append(string + "\n");
         FtdiServiceManager.scrollToEnd(messageConsole);
     }

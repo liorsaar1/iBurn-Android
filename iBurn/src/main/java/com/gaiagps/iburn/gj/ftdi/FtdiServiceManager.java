@@ -92,8 +92,6 @@ public class FtdiServiceManager {
                 }
             };
 
-
-
             Intent intent = new Intent(activity, FtdiService.class);
             activity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         } else {
@@ -114,6 +112,8 @@ public class FtdiServiceManager {
     private final byte[] ftdiInputBuffer = new byte[FtdiService.FTDI_BUFFER_SIZE];
 
     public void scheduleRead(final Handler handler) {
+//        if( true ) return ;
+
         if (!mBound) {
             console("scheduleRead: not bound");
             return;
