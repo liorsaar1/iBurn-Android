@@ -12,6 +12,9 @@ import android.util.Log;
 
 import com.ftdi.j2xx.D2xxManager;
 import com.ftdi.j2xx.FT_Device;
+import com.gaiagps.iburn.gj.message.GjMessage;
+import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
+import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -72,11 +75,12 @@ public class FtdiService extends Service {
     private BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            broadcastMessage("action: " + action);
             if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
+                broadcastMessage(new GjMessageUsb(true));
                 // never come here(when attached, go to onNewIntent)
                 openDevice();
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                broadcastMessage(new GjMessageUsb(false));
                 closeDevice();
             }
         }
@@ -175,7 +179,14 @@ public class FtdiService extends Service {
 
     private void broadcastMessage(String string) {
         Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
-        intent.putExtra("message", string);
+        GjMessageConsole message = new GjMessageConsole(string);
+        intent.putExtra("message", message.toByteArray());
+        sendBroadcast(intent);
+    }
+
+    private void broadcastMessage(GjMessage message) {
+        Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
+        intent.putExtra("message", message.toByteArray());
         sendBroadcast(intent);
     }
 

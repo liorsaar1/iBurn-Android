@@ -152,5 +152,6 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         if (message instanceof GjMessageText) {
             console(message.toString());
         }
+        throw new RuntimeException("onMessage: unhandled:" + message);
     }
 }

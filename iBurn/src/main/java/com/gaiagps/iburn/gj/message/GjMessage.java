@@ -1,5 +1,8 @@
 package com.gaiagps.iburn.gj.message;
 
+import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
+import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
+
 import java.io.EOFException;
 import java.nio.ByteBuffer;
 
@@ -86,6 +89,10 @@ public class GjMessage {
                     return new GjMessageLighting(new String(data));
                 case Text:
                     return new GjMessageText(new String(data));
+                case Console:
+                    return new GjMessageConsole(new String(data));
+                case USB:
+                    return new GjMessageUsb( data[0] != 0 ? true : false);
             }
         } catch (RuntimeException e) {
             throw new ParserException(e.getMessage());
@@ -180,7 +187,9 @@ public class GjMessage {
         ReportGps((byte) 0x03),
         RequestGps((byte) 0x04),
         Lighting((byte) 0x05),
-        Text((byte) 0x06);
+        Text((byte) 0x06),
+        Console((byte) 0x10),
+        USB((byte) 0x11);
 
         private final byte value;
 
@@ -189,9 +198,17 @@ public class GjMessage {
         }
 
         public static Type valueOf(byte b) {
-            if (b - 1 >= values().length)
-                throw new RuntimeException("Type: Illegal Value: " + b);
-            return values()[b - 1];
+            switch (b) {
+                case 0x01: return StatusRequest;
+                case 0x02: return Mode;
+                case 0x03: return ReportGps;
+                case 0x04: return RequestGps;
+                case 0x05: return Lighting;
+                case 0x06: return Text;
+                case 0x10: return Console;
+                case 0x11: return USB;
+            }
+            throw new RuntimeException("Type: Illegal Value: " + b);
         }
 
         public byte getValue() {

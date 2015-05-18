@@ -9,6 +9,10 @@ public class GjMessageString extends GjMessage {
         data = dataString.substring(0, length).getBytes();
     }
 
+    public String getString() {
+        return new String(data);
+    }
+
     @Override
     public String toString() {
         return Type.valueOf(type) + ":" + new String(data) ;

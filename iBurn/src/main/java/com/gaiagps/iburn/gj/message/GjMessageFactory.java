@@ -64,17 +64,25 @@ public class GjMessageFactory {
         bb.put(new GjMessageMode(GjMessage.Mode.NonBuffered).toByteArray());
         bb.put(new GjMessageReportGps(5, new LatLng(40.7888, -119.20315)).toByteArray());
 
-        bb.flip() ; // IMPORTANT !!!
+        bb.flip(); // IMPORTANT !!!
         return bb;
     }
 
     public static ByteBuffer create2() {
         ByteBuffer bb = ByteBuffer.allocate(4096);
-        for (int i = 0 ; bb.remaining() > 100; i++) {
+        for (int i = 0; bb.remaining() > 100; i++) {
             bb.put(new GjMessageText(i + "-abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ").toByteArray());
         }
 
-        bb.flip() ; // IMPORTANT !!!
+        bb.flip(); // IMPORTANT !!!
+        return bb;
+    }
+
+    public static ByteBuffer create3() {
+        ByteBuffer bb = ByteBuffer.allocate(13);
+        bb.put(new GjMessageText("123456").toByteArray());
+
+        bb.flip(); // IMPORTANT !!!
         return bb;
     }
 
@@ -84,10 +92,10 @@ public class GjMessageFactory {
 
         ByteBuffer cc = ByteBuffer.allocate(400);
         cc.rewind();
-        while( bb.remaining() > 0) {
-            for (int i=0; i < 7  &&  bb.remaining() > 0; i++) {
+        while (bb.remaining() > 0) {
+            for (int i = 0; i < 7 && bb.remaining() > 0; i++) {
                 byte b = bb.get();
-                cc.put( b );
+                cc.put(b);
             }
             cc.limit(cc.position());
             cc.rewind();
@@ -154,6 +162,13 @@ public class GjMessageFactory {
             }
         }
         return list;
+    }
+
+    public static List<GjMessage> parseAll(byte[] bytes) {
+        ByteBuffer bb = ByteBuffer.allocate(bytes.length);
+        bb.put(bytes);
+        bb.rewind();
+        return parseAll(bb);
     }
 }
 

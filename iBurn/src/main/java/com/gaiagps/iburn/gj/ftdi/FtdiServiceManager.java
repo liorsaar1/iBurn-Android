@@ -11,12 +11,12 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageText;
+import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
 
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
@@ -42,20 +42,14 @@ public class FtdiServiceManager {
             System.out.println("BA intent:" + intent);
             String action = intent.getAction();
             if (ACTION_VIEW.equals(action)) {
-                String message = intent.getStringExtra("message");
                 String error = intent.getStringExtra("error");
                 if (error != null) {
                     console("Service: ERROR: " + error);
                     return;
                 }
-                if (message != null) {
-                    console("Service:" + message);
-                    return;
-                }
-                byte[] bytes = intent.getByteArrayExtra("bytes");
+                byte[] bytes = intent.getByteArrayExtra("message");
                 if (bytes != null) {
-                    console("Service: bytes: " + new String(bytes));
-//                    incoming(bytes);
+                    dispatch(bytes);
                     return;
                 }
             }
@@ -69,20 +63,6 @@ public class FtdiServiceManager {
 
     public FtdiServiceManager(List<GjMessageListener> ftdiListeners) {
         this.ftdiListeners = ftdiListeners;
-    }
-
-    public static void scrollToEnd(final TextView tv) {
-        tv.post(new Runnable() {
-            @Override
-            public void run() {
-                final int scrollAmount = tv.getLayout().getLineTop(tv.getLineCount()) - tv.getHeight();
-                // if there is no need to scroll, scrollAmount will be <=0
-                if (scrollAmount > 0)
-                    tv.scrollTo(0, scrollAmount);
-                else
-                    tv.scrollTo(0, 0);
-            }
-        });
     }
 
     public boolean isBound() {
@@ -116,6 +96,7 @@ public class FtdiServiceManager {
     }
 
     public void onResume(Activity activity) {
+        console("onResume: bound:" + mBound);
         // must use weak reference
         weakReferenceActivity = new WeakReference<Activity>(activity);
         final FtdiHandler ftdiHandler = new FtdiHandler(weakReferenceActivity);
@@ -150,13 +131,23 @@ public class FtdiServiceManager {
     }
 
     private void console(String string) {
-        GjMessageText message = new GjMessageText(string);
+        GjMessageConsole message = new GjMessageConsole(string);
         dispatch(message);
     }
 
     private void dispatch(GjMessage message) {
         for (GjMessageListener listener : ftdiListeners) {
             listener.onMessage(message);
+        }
+    }
+
+    private void dispatch(byte[] bytes) {
+        dispatch(GjMessageFactory.parseAll(bytes));
+    }
+
+    private void dispatch(List<GjMessage> list) {
+        for (GjMessage message : list) {
+            dispatch(message);
         }
     }
 

@@ -13,6 +13,8 @@ import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageText;
+import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
+import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -89,7 +91,7 @@ public class FtdiActivity extends Activity implements GjMessageListener {
 
     private void sendOne() {
 
-        ByteBuffer bb = GjMessageFactory.create2();
+        ByteBuffer bb = GjMessageFactory.create3();
         byte[] bytes = new byte[bb.limit()];
         bb.get(bytes, 0, bb.limit());
         int written = ftdiServiceManager.send(bytes);
@@ -211,18 +213,39 @@ public class FtdiActivity extends Activity implements GjMessageListener {
 
     public void console(String string) {
         messageConsole.append(string + "\n");
-        FtdiServiceManager.scrollToEnd(messageConsole);
+        scrollToEnd(messageConsole);
     }
 
     private void incoming(byte[] bytes) {
         bytesConsole.append(new String(bytes));
-        FtdiServiceManager.scrollToEnd(bytesConsole);
+        scrollToEnd(bytesConsole);
     }
+
+    public static void scrollToEnd(final TextView tv) {
+        tv.post(new Runnable() {
+            @Override
+            public void run() {
+                final int scrollAmount = tv.getLayout().getLineTop(tv.getLineCount()) - tv.getHeight();
+                // if there is no need to scroll, scrollAmount will be <=0
+                if (scrollAmount > 0)
+                    tv.scrollTo(0, scrollAmount);
+                else
+                    tv.scrollTo(0, 0);
+            }
+        });
+    }
+
 
     @Override
     public void onMessage(GjMessage message) {
-        if (message instanceof GjMessageText) {
-            console(message.toString());
+        if (message instanceof GjMessageConsole) {
+            console("INFO:" + ((GjMessageConsole)message).getString());
+            return;
         }
+        if (message instanceof GjMessageUsb) {
+            console("USB:" + ((GjMessageUsb)message).getStatusString());
+            return;
+        }
+        throw new RuntimeException("onMessage: unhandled:" + message);
     }
 }
