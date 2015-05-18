@@ -16,8 +16,6 @@ import com.ftdi.j2xx.FT_Device;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 public class FtdiService extends Service {
     private final static String TAG = "FtdiService";
@@ -70,7 +68,8 @@ public class FtdiService extends Service {
             }
         }
     };
-    BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
+
+    private BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             broadcastMessage("action: " + action);
@@ -99,14 +98,14 @@ public class FtdiService extends Service {
         IntentFilter filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        registerReceiver(mUsbReceiver, filter);
+        registerReceiver(usbReceiver, filter);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         mThreadIsStopped = true;
-        unregisterReceiver(mUsbReceiver);
+        unregisterReceiver(usbReceiver);
     }
 
     @Override
@@ -354,51 +353,4 @@ public class FtdiService extends Service {
         }
     }
 
-    class ByteFifo {
-        public static final int LIMIT = 1024 * 1024 * 2; // 2 mega
-        private List<byte[]> list = new ArrayList<>();
-        private int available = 0;
-
-        public byte[] alloc(int size) {
-            limit(size);
-            byte[] bytes = new byte[size];
-            list.add(bytes);
-            available += size;
-            return bytes;
-        }
-
-        private void limit(int size) {
-            if (size >= LIMIT) {
-                throw new RuntimeException("Memory allocation exceeds " + LIMIT);
-            }
-            while (available + size >= LIMIT) {
-                available -= list.get(0).length;
-                list.remove(0);
-            }
-        }
-
-        public int dump(byte[] target) {
-            int length = 0;
-            int listSize = list.size();
-            for (int i = 0; i < listSize; i++) {
-                byte[] src = list.get(0);
-                if (length + src.length >= target.length) {
-                    break;
-                }
-                copy(src, target, length);
-                length += src.length;
-                available -= src.length;
-                list.remove(0);
-            }
-            return length;
-        }
-
-        public int getAvailable() {
-            return available;
-        }
-
-        private void copy(byte[] src, byte[] dst, int offset) {
-            System.arraycopy(src, 0, dst, offset, src.length) ;
-        }
-    }
 }

@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
+import com.gaiagps.iburn.gj.message.GjMessageListener;
+import com.gaiagps.iburn.gj.message.GjMessageText;
 
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
@@ -33,8 +35,7 @@ public class FtdiServiceManager {
     private final ScheduledExecutorService readScheduler = Executors.newScheduledThreadPool(1);
     private final ByteBuffer bb = ByteBuffer.allocate(FtdiService.FTDI_BUFFER_SIZE + 400);
     private final byte[] ftdiInputBuffer = new byte[FtdiService.FTDI_BUFFER_SIZE];
-    private TextView messageConsole;
-    private TextView bytesConsole;
+    private final List<GjMessageListener> ftdiListeners;
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
@@ -54,7 +55,7 @@ public class FtdiServiceManager {
                 byte[] bytes = intent.getByteArrayExtra("bytes");
                 if (bytes != null) {
                     console("Service: bytes: " + new String(bytes));
-                    incoming(bytes);
+//                    incoming(bytes);
                     return;
                 }
             }
@@ -63,8 +64,12 @@ public class FtdiServiceManager {
     private FtdiService mService;
     private boolean mBound = false;
     private ScheduledFuture<?> readScheduledFuture;
-    private WeakReference<FtdiServiceListener> weakFtdiServiceListener;
+    private WeakReference<Activity> weakReferenceActivity;
     private ServiceConnection mConnection;
+
+    public FtdiServiceManager(List<GjMessageListener> ftdiListeners) {
+        this.ftdiListeners = ftdiListeners;
+    }
 
     public static void scrollToEnd(final TextView tv) {
         tv.post(new Runnable() {
@@ -110,10 +115,10 @@ public class FtdiServiceManager {
         }
     }
 
-    public void onResume(Activity activity, final FtdiServiceListener ftdiServiceListener) {
+    public void onResume(Activity activity) {
         // must use weak reference
-        weakFtdiServiceListener = new WeakReference<FtdiServiceListener>(ftdiServiceListener);
-        final FtdiHandler ftdiHandler = new FtdiHandler(weakFtdiServiceListener);
+        weakReferenceActivity = new WeakReference<Activity>(activity);
+        final FtdiHandler ftdiHandler = new FtdiHandler(weakReferenceActivity);
         // Bind to LocalService
         if (!mBound) {
 
@@ -125,7 +130,7 @@ public class FtdiServiceManager {
                     FtdiService.LocalBinder binder = (FtdiService.LocalBinder) service;
                     mService = binder.getService();
                     mBound = true;
-                    console("Service bound");
+                    console("Service Bound");
                     scheduleRead(ftdiHandler);
                 }
 
@@ -144,6 +149,17 @@ public class FtdiServiceManager {
         }
     }
 
+    private void console(String string) {
+        GjMessageText message = new GjMessageText(string);
+        dispatch(message);
+    }
+
+    private void dispatch(GjMessage message) {
+        for (GjMessageListener listener : ftdiListeners) {
+            listener.onMessage(message);
+        }
+    }
+
     public int send(byte[] bytes) {
         return mService.send(bytes);
     }
@@ -153,6 +169,8 @@ public class FtdiServiceManager {
     }
 
     public void scheduleRead(final Handler handler) {
+
+        if (true) return;
 
         if (!mBound) {
             console("scheduleRead: not bound");
@@ -187,65 +205,40 @@ public class FtdiServiceManager {
         readScheduledFuture = readScheduler.scheduleAtFixedRate(readLoopRunnable, 1, 2, TimeUnit.SECONDS);
     }
 
-    public void setConsole(TextView messageConsole) {
-        this.messageConsole = messageConsole;
-    }
-
-    private void console(String string) {
-        Log.e(TAG, string);
-        if (messageConsole == null) {
-            return;
-        }
-        messageConsole.append(string + "\n");
-        scrollToEnd(messageConsole);
-    }
-
-    public void setIncoming(TextView bytesConsole) {
-        this.bytesConsole = bytesConsole;
-    }
-
-    private void incoming(byte[] bytes) {
-        if (bytesConsole == null) {
-            return;
-        }
-        bytesConsole.append(new String(bytes));
-        scrollToEnd(bytesConsole);
-    }
-
-    private void incoming(String string) {
-        if (bytesConsole == null) {
-            return;
-        }
-        bytesConsole.append(string);
-        scrollToEnd(bytesConsole);
-    }
-
     public static class FtdiHandler extends Handler {
-        WeakReference<FtdiServiceListener> weakListener;
+        WeakReference<Activity> weakReferenceActivity;
 
-        public FtdiHandler(WeakReference<FtdiServiceListener> weakListener) {
-            this.weakListener = weakListener;
+        public FtdiHandler(WeakReference<Activity> weakReferenceActivity) {
+            this.weakReferenceActivity = weakReferenceActivity;
         }
 
         @Override
         public void handleMessage(Message inputMessage) {
-            FtdiServiceListener listener = weakListener.get();
+            Activity activity = weakReferenceActivity.get();
 
             if (inputMessage.obj == null) {
-                listener.console("Error: null");
+//                listener.console("Error: null");
                 return;
             }
             if (!(inputMessage.obj instanceof List)) {
-                listener.console("Error: " + inputMessage.obj);
+//                listener.console("Error: " + inputMessage.obj);
                 return;
             }
             List<GjMessage> list = (List<GjMessage>) inputMessage.obj;
-            listener.console("list size " + list.size());
+//            listener.console("list size " + list.size());
             for (GjMessage message : list) {
                 Log.e(TAG, message.toString());
-                listener.console(">>>" + message.toString() + "\n");
+//                listener.console(">>>" + message.toString() + "\n");
             }
 
+        }
+
+        public void message(String string) {
+            GjMessageText text = new GjMessageText(string);
+            dispatch(text);
+        }
+
+        private void dispatch(GjMessage message) {
         }
     }
 

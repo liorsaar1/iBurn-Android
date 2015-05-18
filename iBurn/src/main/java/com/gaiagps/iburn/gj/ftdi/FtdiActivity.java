@@ -9,13 +9,16 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.gaiagps.iburn.R;
+import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
+import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageText;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
-public class FtdiActivity extends Activity implements FtdiServiceListener {
-    private static final String TAG = FtdiActivity.class.getSimpleName();
+public class FtdiActivity extends Activity implements GjMessageListener {
     private TextView messageConsole;
     private TextView bytesConsole;
 
@@ -41,10 +44,14 @@ public class FtdiActivity extends Activity implements FtdiServiceListener {
         console("onCreate");
         // service manager
         if (ftdiServiceManager == null) {
-            ftdiServiceManager = new FtdiServiceManager();
-            ftdiServiceManager.setConsole(messageConsole);
-            ftdiServiceManager.setIncoming(bytesConsole);
+            ftdiServiceManager = new FtdiServiceManager(getFtdiListeners());
         }
+    }
+
+    private List<GjMessageListener> getFtdiListeners() {
+        List<GjMessageListener> list = new ArrayList<>();
+        list.add(this);
+        return list;
     }
 
     @Override
@@ -68,7 +75,7 @@ public class FtdiActivity extends Activity implements FtdiServiceListener {
     @Override
     protected void onResume() {
         super.onResume();
-        ftdiServiceManager.onResume(this, this);
+        ftdiServiceManager.onResume(this);
     }
 
 
@@ -212,4 +219,10 @@ public class FtdiActivity extends Activity implements FtdiServiceListener {
         FtdiServiceManager.scrollToEnd(bytesConsole);
     }
 
+    @Override
+    public void onMessage(GjMessage message) {
+        if (message instanceof GjMessageText) {
+            console(message.toString());
+        }
+    }
 }

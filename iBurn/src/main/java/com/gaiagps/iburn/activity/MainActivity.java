@@ -46,6 +46,7 @@ import com.gaiagps.iburn.fragment.EventListViewFragment;
 import com.gaiagps.iburn.fragment.GalacticJungleFragment;
 import com.gaiagps.iburn.fragment.GoogleMapFragment;
 import com.gaiagps.iburn.fragment.SettingsFragment;
+import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.ftdi.FtdiServiceManager;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.google.android.gms.common.ConnectionResult;
@@ -125,8 +126,18 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
 
         // service manager
         if (ftdiServiceManager == null) {
-            ftdiServiceManager = new FtdiServiceManager();
+            ftdiServiceManager = new FtdiServiceManager(getFtdiListeners());
         }
+    }
+
+    private List<GjMessageListener> getFtdiListeners() {
+        List<GjMessageListener> list = new ArrayList();
+        for (int i = 0; i < mPagerAdapter.getCount(); i++) {
+            if (mPagerAdapter.getItem(i) instanceof GjMessageListener) {
+                list.add((GjMessageListener) mPagerAdapter.getItem(i));
+            }
+        }
+        return list;
     }
 
     @Override
@@ -167,7 +178,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         }
     };
 
-    private void console(final String s) {
+    public void console(final String s) {
         ((SettingsFragment) mPagerAdapter.getItem(1)).console(s);
     }
 
@@ -302,7 +313,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
             googlePlayServicesMissing = false;
         }
         // continue reading frmo ftdi
-        ftdiServiceManager.onResume(this, ftdiMessageHandler);
+        ftdiServiceManager.onResume(this);
     }
 
     private void showWelcomeDialog() {

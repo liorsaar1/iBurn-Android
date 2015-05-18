@@ -12,7 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.gaiagps.iburn.R;
-import com.gaiagps.iburn.activity.MainActivity;
+import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageMode;
 import com.gaiagps.iburn.gj.message.GjMessageReportGps;
@@ -24,7 +24,7 @@ import com.google.android.gms.maps.model.LatLng;
 /**
  * Created by liorsaar on 4/19/15
  */
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends Fragment implements GjMessageListener {
     private static final String TAG = "SettingsFragment";
 
     private View messageEditTextContainer;
@@ -57,16 +57,9 @@ public class SettingsFragment extends Fragment {
         messageIncoming = (TextView) view.findViewById(R.id.GjIncoming);
         messageIncoming.setMovementMethod(new ScrollingMovementMethod());
 
-        if (MainActivity.ftdiServiceManager != null) {
-            MainActivity.ftdiServiceManager.setConsole(messageConsole);
-            MainActivity.ftdiServiceManager.setIncoming(messageIncoming);
-        }
-
         view.findViewById(R.id.GjMessageStatusRequest).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                onClickStatusRequest(v);
-            }
+            public void onClick(View v) { onClickStatusRequest(v); }
         });
         view.findViewById(R.id.GjMessageRequestGps).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,4 +147,10 @@ public class SettingsFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onMessage(GjMessage message) {
+        if (message instanceof GjMessageText) {
+            console(message.toString());
+        }
+    }
 }
