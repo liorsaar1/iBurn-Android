@@ -12,8 +12,8 @@ import com.gaiagps.iburn.R;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
-import com.gaiagps.iburn.gj.message.GjMessageText;
 import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
+import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
 import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
 
 import java.nio.ByteBuffer;
@@ -90,26 +90,8 @@ public class FtdiActivity extends Activity implements GjMessageListener {
     }
 
     private void sendOne() {
-
         ByteBuffer bb = GjMessageFactory.create3();
-        byte[] bytes = new byte[bb.limit()];
-        bb.get(bytes, 0, bb.limit());
-        int written = ftdiServiceManager.send(bytes);
-        if (written == bb.limit()) {
-            console("Sent: written:" + written);
-        } else {
-            console("ERROR: expected: " + bb.limit() + " written:" + written);
-        }
-
-//
-//        String s = counter + "-ABCDEFGHIJKLMNOP-" + counter++ + "\n";
-//        console("send:" + s + "\n");
-//        int written = ftdiServiceManager.send(s.getBytes());
-//        if (written == s.length()) {
-//            console("Sent: written:" + written + "\n");
-//        } else {
-//            console("ERROR: expected: " + s.length() + " written:" + written + "\n");
-//        }
+        int written = ftdiServiceManager.send(bb);
     }
 
     public void onClickSendTen(View v) {
@@ -132,16 +114,16 @@ public class FtdiActivity extends Activity implements GjMessageListener {
     }
 
     private void sendGjMessage() {
-        String s = counter + "-ABCDEFGHIJKLMNOP-" + counter++;
-        GjMessageText msgText = new GjMessageText(s);
-        console("send:" + msgText.toString());
-        int written = ftdiServiceManager.send(msgText.toByteArray());
-        int length = msgText.toByteArray().length;
-        if (written == length) {
-            console("Sent: written:" + written);
-        } else {
-            console("ERROR: expected: " + length + " written:" + written);
-        }
+//        String s = counter + "-ABCDEFGHIJKLMNOP-" + counter++;
+//        GjMessageText msgText = new GjMessageText(s);
+//        console("send:" + msgText.toString());
+//        int written = ftdiServiceManager.send(msgText.toByteArray());
+//        int length = msgText.toByteArray().length;
+//        if (written == length) {
+//            console("Sent: written:" + written);
+//        } else {
+//            console("ERROR: expected: " + length + " written:" + written);
+//        }
     }
 
     public void onClickSendMany(View v) {
@@ -160,16 +142,16 @@ public class FtdiActivity extends Activity implements GjMessageListener {
 
             @Override
             protected Object doInBackground(Object[] params) {
-                for (int i = 0; i < 1000; i++) {
-                    String s = counter + "-ABCDEFGHIJKLMNOP-" + counter++ + "\n";
-                    int written = ftdiServiceManager.send(s.getBytes());
-                    if (written != s.length()) {
-                        return "ERROR: expected: " + s.length() + " written:" + written;
-                    }
-                    if (i % 100 == 0) {
-                        onProgressUpdate(i);
-                    }
-                }
+//                for (int i = 0; i < 1000; i++) {
+//                    String s = counter + "-ABCDEFGHIJKLMNOP-" + counter++ + "\n";
+//                    int written = ftdiServiceManager.send(s.getBytes());
+//                    if (written != s.length()) {
+//                        return "ERROR: expected: " + s.length() + " written:" + written;
+//                    }
+//                    if (i % 100 == 0) {
+//                        onProgressUpdate(i);
+//                    }
+//                }
                 return "DONE";
             }
 
@@ -244,6 +226,10 @@ public class FtdiActivity extends Activity implements GjMessageListener {
         }
         if (message instanceof GjMessageUsb) {
             console("USB:" + ((GjMessageUsb)message).getStatusString());
+            return;
+        }
+        if (message instanceof GjMessageFtdi) {
+            console("FTDI:" + ((GjMessageFtdi)message).getStatusString());
             return;
         }
         throw new RuntimeException("onMessage: unhandled:" + message);

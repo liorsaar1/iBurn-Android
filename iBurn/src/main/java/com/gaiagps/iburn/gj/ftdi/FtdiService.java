@@ -14,6 +14,7 @@ import com.ftdi.j2xx.D2xxManager;
 import com.ftdi.j2xx.FT_Device;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
+import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
 import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
 
 import java.io.PrintWriter;
@@ -77,8 +78,7 @@ public class FtdiService extends Service {
             String action = intent.getAction();
             if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
                 broadcastMessage(new GjMessageUsb(true));
-                // never come here(when attached, go to onNewIntent)
-                openDevice();
+                // open on send - not here
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 broadcastMessage(new GjMessageUsb(false));
                 closeDevice();
@@ -211,11 +211,11 @@ public class FtdiService extends Service {
 
     private void openDevice() {
         if (ftDev != null) {
-            broadcastMessage("open: not null");
+            broadcastMessage("open: device not null");
             if (ftDev.isOpen()) {
-                broadcastMessage("open: opened");
+                broadcastMessage("open: already opened");
                 if (mThreadIsStopped) {
-                    broadcastMessage("open: stopped");
+                    broadcastMessage("open: thread stopped");
                     SetConfig(9600, (byte) 8, (byte) 1, (byte) 0, (byte) 3);
                     ftDev.purge((byte) (D2xxManager.FT_PURGE_TX | D2xxManager.FT_PURGE_RX));
                     ftDev.restartInTask();
@@ -252,6 +252,7 @@ public class FtdiService extends Service {
         }
 
         if (ftDev.isOpen()) {
+            broadcastMessage(new GjMessageFtdi(true));
             if (mThreadIsStopped) {
                 SetConfig(9600, (byte) 8, (byte) 1, (byte) 0, (byte) 3);
                 ftDev.purge((byte) (D2xxManager.FT_PURGE_TX | D2xxManager.FT_PURGE_RX));
@@ -262,6 +263,7 @@ public class FtdiService extends Service {
     }
 
     private void closeDevice() {
+        broadcastMessage(new GjMessageFtdi(false));
         mThreadIsStopped = true;
         if (ftDev != null) {
             broadcastMessage("device closed");

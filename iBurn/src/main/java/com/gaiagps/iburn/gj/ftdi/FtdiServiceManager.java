@@ -151,7 +151,19 @@ public class FtdiServiceManager {
         }
     }
 
-    public int send(byte[] bytes) {
+    public int send(ByteBuffer bb) {
+        byte[] bytes = new byte[bb.limit()];
+        bb.get(bytes, 0, bb.limit());
+        int written = send(bytes);
+        if (written == bb.limit()) {
+            console("Sent: written:" + written);
+        } else {
+            console("ERROR: expected: " + bb.limit() + " written:" + written);
+        }
+        return written;
+    }
+
+    private int send(byte[] bytes) {
         return mService.send(bytes);
     }
 
