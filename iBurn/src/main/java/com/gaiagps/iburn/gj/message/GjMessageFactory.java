@@ -21,21 +21,6 @@ public class GjMessageFactory {
         String hex;
         String s;
 
-        GjMessageStatusRequest statusRequestMessage = new GjMessageStatusRequest();
-        buf = statusRequestMessage.toByteArray();
-        hex = statusRequestMessage.toHexString();
-        s = statusRequestMessage.toString();
-
-        GjMessageMode modeMessage = new GjMessageMode(GjMessage.Mode.Buffered);
-        buf = modeMessage.toByteArray();
-        hex = modeMessage.toHexString();
-        s = modeMessage.toString();
-
-        modeMessage = new GjMessageMode(GjMessage.Mode.NonBuffered);
-        buf = modeMessage.toByteArray();
-        hex = modeMessage.toHexString();
-        s = modeMessage.toString();
-
         GjMessageText textMessage = new GjMessageText("HI");
         buf = textMessage.toByteArray();
         hex = textMessage.toHexString();
@@ -43,7 +28,7 @@ public class GjMessageFactory {
 
         LatLng latLng = new LatLng(40.7888, -119.20315);
         int id = 5;
-        GjMessageReportGps reportGpsMessage = new GjMessageReportGps(id, latLng);
+        GjMessageGps reportGpsMessage = new GjMessageGps(id, latLng);
         buf = reportGpsMessage.toByteArray();
         hex = reportGpsMessage.toHexString();
         s = reportGpsMessage.toString();
@@ -59,10 +44,8 @@ public class GjMessageFactory {
         bb.put((byte) 0x55);
         bb.put(new GjMessageText("123456").toByteArray());
         bb.put(new GjMessageText("abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ").toByteArray());
-        bb.put(new GjMessageStatusRequest().toByteArray());
-        bb.put(new GjMessageMode(GjMessage.Mode.Buffered).toByteArray());
-        bb.put(new GjMessageMode(GjMessage.Mode.NonBuffered).toByteArray());
-        bb.put(new GjMessageReportGps(5, new LatLng(40.7888, -119.20315)).toByteArray());
+        bb.put(new GjMessageStatusResponse().toByteArray());
+        bb.put(new GjMessageGps(5, new LatLng(40.7888, -119.20315)).toByteArray());
 
         bb.flip(); // IMPORTANT !!!
         return bb;
@@ -118,10 +101,8 @@ public class GjMessageFactory {
         bb.put((byte) 0x55);
         bb.put(new GjMessageText("123456").toByteArray());
         bb.put(new GjMessageText("abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ").toByteArray());
-        bb.put(new GjMessageStatusRequest().toByteArray());
-        bb.put(new GjMessageMode(GjMessage.Mode.Buffered).toByteArray());
-        bb.put(new GjMessageMode(GjMessage.Mode.NonBuffered).toByteArray());
-        bb.put(new GjMessageReportGps(5, new LatLng(40.7888, -119.20315)).toByteArray());
+        bb.put(new GjMessageStatusResponse().toByteArray());
+        bb.put(new GjMessageGps(5, new LatLng(40.7888, -119.20315)).toByteArray());
 
         bb.limit(bb.position() - 5);  // IMPORTANT !!!
         bb.rewind(); // IMPORTANT !!!

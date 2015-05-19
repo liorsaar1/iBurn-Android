@@ -12,14 +12,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.gaiagps.iburn.R;
-import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessage;
-import com.gaiagps.iburn.gj.message.GjMessageMode;
-import com.gaiagps.iburn.gj.message.GjMessageReportGps;
-import com.gaiagps.iburn.gj.message.GjMessageRequestGps;
-import com.gaiagps.iburn.gj.message.GjMessageStatusRequest;
+import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageText;
-import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Created by liorsaar on 4/19/15
@@ -91,21 +86,17 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     Handler sendHandler = new Handler();
 
     private void onClickStatusRequest(View v) {
-        send( new GjMessageStatusRequest() );
     }
     private void onClickRequestGps(View v) {
-        send( new GjMessageRequestGps() );
     }
     private void onClickReportGps(View v) {
-        int id = 5;
-        LatLng latLng = new LatLng(40.7888, -119.20315);
-        send(new GjMessageReportGps(id, latLng));
+//        int id = 5;
+//        LatLng latLng = new LatLng(40.7888, -119.20315);
+//        send(new GjMessageReportGps(id, latLng));
     }
     private void onClickModeBuffered(View v) {
-        send( new GjMessageMode(GjMessage.Mode.Buffered) );
     }
     private void onClickModeNonBuffered(View v) {
-        send( new GjMessageMode(GjMessage.Mode.NonBuffered) );
     }
     private void onClickSendText(View v) {
         String text = messageEditText.getText().toString();
@@ -149,9 +140,6 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
 
     @Override
     public void onMessage(GjMessage message) {
-        if (message instanceof GjMessageText) {
-            console(message.toString());
-        }
-        throw new RuntimeException("onMessage: unhandled:" + message);
+        console(message.toString());
     }
 }
