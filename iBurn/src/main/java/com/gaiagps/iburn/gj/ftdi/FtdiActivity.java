@@ -12,9 +12,6 @@ import com.gaiagps.iburn.R;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
-import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
-import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
-import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -220,18 +217,6 @@ public class FtdiActivity extends Activity implements GjMessageListener {
 
     @Override
     public void onMessage(GjMessage message) {
-        if (message instanceof GjMessageConsole) {
-            console("INFO:" + ((GjMessageConsole)message).getString());
-            return;
-        }
-        if (message instanceof GjMessageUsb) {
-            console("USB:" + ((GjMessageUsb)message).getStatusString());
-            return;
-        }
-        if (message instanceof GjMessageFtdi) {
-            console("FTDI:" + ((GjMessageFtdi)message).getStatusString());
-            return;
-        }
-        throw new RuntimeException("onMessage: unhandled:" + message);
+        console(message.toString());
     }
 }

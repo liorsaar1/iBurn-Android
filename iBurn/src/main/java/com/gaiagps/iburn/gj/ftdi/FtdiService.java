@@ -13,6 +13,7 @@ import android.util.Log;
 import com.ftdi.j2xx.D2xxManager;
 import com.ftdi.j2xx.FT_Device;
 import com.gaiagps.iburn.gj.message.GjMessage;
+import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
 import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
 import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
@@ -20,6 +21,7 @@ import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 public class FtdiService extends Service {
     private final static String TAG = "FtdiService";
@@ -45,16 +47,32 @@ public class FtdiService extends Service {
                 synchronized (ftDev) {
                     readSize = ftDev.getQueueStatus();
                     if (readSize > 0) {
+                        broadcastMessage("read:"+readSize);
                         byte[] inputBytes = new byte[readSize];
                         ftDev.read(inputBytes, readSize);
                         if (readSize > bb.remaining()) {
                             broadcastError("INPUT OVERFLOW !!! :( ");
                             bb.rewind();
                         } else {
-                            bb.put(inputBytes);
+                            bb.put(inputBytes); // collect the input
                         }
                     } // end of if(readSize>0)
                 } // end of synchronized
+
+                // after every read - process
+                if (readSize > 0) {
+//                    broadcastMessage("1:" + bb.position() + " " + bb.limit());
+                    bb.limit(bb.position());
+//                    broadcastMessage("2:" + bb.position() + " " + bb.limit());
+                    bb.rewind();
+//                    broadcastMessage("3:" + bb.position() + " " + bb.limit());
+                    List<GjMessage> list = GjMessageFactory.parseAll(bb); // keeps unprocessed bytes in the buffer
+//                    broadcastMessage("4:" + bb.position() + " " + bb.limit());
+                    bb.compact(); // remove only the used bytes
+//                    broadcastMessage("5:" + bb.position() + " " + bb.limit());
+//                    broadcastMessage("6:" + list.size());
+                    broadcastMessage(list);
+                }
 
                 // if nothing came in - sleep more
                 if (readSize <= 0) {
@@ -76,9 +94,11 @@ public class FtdiService extends Service {
     private BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            broadcastMessage(action.toString());
             if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
                 broadcastMessage(new GjMessageUsb(true));
                 // open on send - not here
+                openDevice();
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 broadcastMessage(new GjMessageUsb(false));
                 closeDevice();
@@ -102,6 +122,7 @@ public class FtdiService extends Service {
         IntentFilter filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        filter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED);
         registerReceiver(usbReceiver, filter);
     }
 
@@ -188,6 +209,12 @@ public class FtdiService extends Service {
         Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
         intent.putExtra("message", message.toByteArray());
         sendBroadcast(intent);
+    }
+
+    private void broadcastMessage(List<GjMessage> list) {
+        for (GjMessage message : list) {
+            broadcastMessage(message);
+        }
     }
 
     public int write(byte[] bytes) {
