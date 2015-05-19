@@ -8,13 +8,13 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbManager;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.ftdi.j2xx.D2xxManager;
 import com.ftdi.j2xx.FT_Device;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
+import com.gaiagps.iburn.gj.message.internal.GjMessageError;
 import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
 import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
 
@@ -24,12 +24,12 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 public class FtdiService extends Service {
+    public static final int FTDI_BUFFER_SIZE = 1024 * 1024 * 4; // 4 meg
     private final static String TAG = "FtdiService";
     private static D2xxManager ftD2xx = null;
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
     boolean mThreadIsStopped = true;
-    public static final int FTDI_BUFFER_SIZE = 1024 * 1024 * 4; // 4 meg
     ByteBuffer bb;
     private FT_Device ftDev;
     private Runnable mLoop = new Runnable() {
@@ -40,18 +40,18 @@ public class FtdiService extends Service {
             mThreadIsStopped = false;
             while (true) {
                 if (mThreadIsStopped) {
-                    broadcastMessage("thread stopped");
+                    console("thread stopped");
                     break;
                 }
 
                 synchronized (ftDev) {
                     readSize = ftDev.getQueueStatus();
                     if (readSize > 0) {
-                        broadcastMessage("read:"+readSize);
+                        console("read:" + readSize);
                         byte[] inputBytes = new byte[readSize];
                         ftDev.read(inputBytes, readSize);
                         if (readSize > bb.remaining()) {
-                            broadcastError("INPUT OVERFLOW !!! :( ");
+                            error("INPUT OVERFLOW !!! :( ");
                             bb.rewind();
                         } else {
                             bb.put(inputBytes); // collect the input
@@ -61,16 +61,16 @@ public class FtdiService extends Service {
 
                 // after every read - process
                 if (readSize > 0) {
-//                    broadcastMessage("1:" + bb.position() + " " + bb.limit());
+//                    console("1:" + bb.position() + " " + bb.limit());
                     bb.limit(bb.position());
-//                    broadcastMessage("2:" + bb.position() + " " + bb.limit());
+//                    console("2:" + bb.position() + " " + bb.limit());
                     bb.rewind();
-//                    broadcastMessage("3:" + bb.position() + " " + bb.limit());
+//                    console("3:" + bb.position() + " " + bb.limit());
                     List<GjMessage> list = GjMessageFactory.parseAll(bb); // keeps unprocessed bytes in the buffer
-//                    broadcastMessage("4:" + bb.position() + " " + bb.limit());
+//                    console("4:" + bb.position() + " " + bb.limit());
                     bb.compact(); // remove only the used bytes
-//                    broadcastMessage("5:" + bb.position() + " " + bb.limit());
-//                    broadcastMessage("6:" + list.size());
+//                    console("5:" + bb.position() + " " + bb.limit());
+//                    console("6:" + list.size());
                     broadcastMessage(list);
                 }
 
@@ -94,7 +94,6 @@ public class FtdiService extends Service {
     private BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            broadcastMessage(action.toString());
             if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
                 broadcastMessage(new GjMessageUsb(true));
                 // open on send - not here
@@ -109,14 +108,13 @@ public class FtdiService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.e(TAG, "onCreate <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
         bb = ByteBuffer.allocate(FTDI_BUFFER_SIZE);
 
         try {
             ftD2xx = D2xxManager.getInstance(this);
         } catch (D2xxManager.D2xxException ex) {
-            Log.e(TAG, ex.toString());
+            error("D2XX:"+ex.toString());
         }
 
         IntentFilter filter = new IntentFilter();
@@ -135,13 +133,12 @@ public class FtdiService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        broadcastMessage("onStartCommand: " + START_STICKY);
+        console("onStartCommand: " + START_STICKY);
         return START_STICKY;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.e(TAG, "onBind <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         return mBinder;
     }
 
@@ -150,17 +147,17 @@ public class FtdiService extends Service {
             if (ftDev == null) {
                 openDevice();
                 if (ftDev == null) {
-                    broadcastError("FTDI device not found");
+                    error("FTDI device not found");
                     return -1;
                 }
             }
 
             synchronized (ftDev) {
                 int length = bb.position();
-                broadcastMessage("read: " + length);
+                console("read: " + length);
                 if (length > bytes.length) {
-                    broadcastError("Input buffer too small. Required " + length);
-                    length = bytes.length-100;
+                    error("Input buffer too small. Required " + length);
+                    length = bytes.length - 100;
                 }
                 bb.flip();
                 bb.get(bytes, 0, length);
@@ -174,35 +171,29 @@ public class FtdiService extends Service {
     }
 
     private void broadcastException(byte[] bytes, Throwable t) {
-        broadcastError("Exception: " + t.getMessage());
+        error("Exception: " + t.getMessage());
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         t.printStackTrace(printWriter);
         byte[] stack = stringWriter.toString().getBytes();
         int length = stack.length;
         System.arraycopy(stack, 0, bytes, 0, length);
-        broadcastError("ERROR:" + stringWriter.toString());
+        error("ERROR:" + stringWriter.toString());
     }
 
     public int send(byte[] bytes) {
-        //broadcastMessage("send:" + new String(bytes));
+        //console("send:" + new String(bytes));
         if (ftDev == null) {
             openDevice();
         }
         return write(bytes);
     }
 
-    private void broadcastError(String string) {
-        Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
-        intent.putExtra("error", string);
-        sendBroadcast(intent);
+    private void console(String string) {
+        broadcastMessage(new GjMessageConsole(string));
     }
-
-    private void broadcastMessage(String string) {
-        Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
-        GjMessageConsole message = new GjMessageConsole(string);
-        intent.putExtra("message", message.toByteArray());
-        sendBroadcast(intent);
+    private void error(String string) {
+        broadcastMessage(new GjMessageError(string));
     }
 
     private void broadcastMessage(GjMessage message) {
@@ -219,14 +210,13 @@ public class FtdiService extends Service {
 
     public int write(byte[] bytes) {
         if (ftDev == null) {
-            broadcastError("FTDI device not found");
+            error("FTDI device not found");
             return -1;
         }
 
         synchronized (ftDev) {
             if (!ftDev.isOpen()) {
-                broadcastError("Device not open");
-                Log.e(TAG, "onClickWrite : Device is not open");
+                error("Device not open");
                 return -1;
             }
 
@@ -238,11 +228,11 @@ public class FtdiService extends Service {
 
     private void openDevice() {
         if (ftDev != null) {
-            broadcastMessage("open: device not null");
+            console("open: device not null");
             if (ftDev.isOpen()) {
-                broadcastMessage("open: already opened");
+                console("open: already opened");
                 if (mThreadIsStopped) {
-                    broadcastMessage("open: thread stopped");
+                    console("open: thread stopped");
                     SetConfig(9600, (byte) 8, (byte) 1, (byte) 0, (byte) 3);
                     ftDev.purge((byte) (D2xxManager.FT_PURGE_TX | D2xxManager.FT_PURGE_RX));
                     ftDev.restartInTask();
@@ -253,9 +243,9 @@ public class FtdiService extends Service {
         }
 
         int devCount = ftD2xx.createDeviceInfoList(this);
-        broadcastMessage("devCount: " + devCount);
+        console("devCount: " + devCount);
         if (devCount <= 0) {
-            broadcastError("No Devices found: " + devCount);
+            error("No Devices found: " + devCount);
             return;
         }
 
@@ -265,7 +255,7 @@ public class FtdiService extends Service {
         for (int i = 0; i < deviceList.length; i++) {
             D2xxManager.FtDeviceInfoListNode node = deviceList[i];
             String info = "#" + i + ", id:" + node.id + ", serial:" + node.serialNumber + ", desc:" + node.description;
-            broadcastMessage(info);
+            console(info);
         }
 
         int deviceIndex = 0; // FIXME - must identify the right device
@@ -293,7 +283,7 @@ public class FtdiService extends Service {
         broadcastMessage(new GjMessageFtdi(false));
         mThreadIsStopped = true;
         if (ftDev != null) {
-            broadcastMessage("device closed");
+            console("device closed");
             ftDev.close();
         }
         ftDev = null;
@@ -301,7 +291,6 @@ public class FtdiService extends Service {
 
     public void SetConfig(int baud, byte dataBits, byte stopBits, byte parity, byte flowControl) {
         if (!ftDev.isOpen()) {
-            Log.e(TAG, "SetConfig: device not open");
             return;
         }
 
@@ -377,9 +366,7 @@ public class FtdiService extends Service {
                 break;
         }
 
-        // TODO : flow ctrl: XOFF/XOM
-        // TODO : flow ctrl: XOFF/XOM
-//        ftDev.setFlowControl(flowCtrlSetting, (byte) 0x0b, (byte) 0x0d);
+        // see doc
         ftDev.setFlowControl(flowCtrlSetting, (byte) 0x11, (byte) 0x13);
     }
 

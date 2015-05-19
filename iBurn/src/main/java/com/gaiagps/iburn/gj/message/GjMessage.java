@@ -1,6 +1,7 @@
 package com.gaiagps.iburn.gj.message;
 
 import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
+import com.gaiagps.iburn.gj.message.internal.GjMessageError;
 import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
 import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
 
@@ -92,6 +93,8 @@ public class GjMessage {
                     return new GjMessageText(new String(data));
                 case Console:
                     return new GjMessageConsole(new String(data));
+                case Error:
+                    return new GjMessageError(new String(data));
                 case USB:
                     return new GjMessageUsb( data[0] != 0 ? true : false);
                 case FTDI:
@@ -192,8 +195,9 @@ public class GjMessage {
         Lighting((byte) 0x05),
         Text((byte) 0x06),
         Console((byte) 0x10),
-        USB((byte) 0x11),
-        FTDI((byte) 0x12);
+        Error((byte) 0x11),
+        USB((byte) 0x12),
+        FTDI((byte) 0x13);
 
         private final byte value;
 
@@ -210,8 +214,9 @@ public class GjMessage {
                 case 0x05: return Lighting;
                 case 0x06: return Text;
                 case 0x10: return Console;
-                case 0x11: return USB;
-                case 0x12: return FTDI;
+                case 0x11: return Error;
+                case 0x12: return USB;
+                case 0x13: return FTDI;
             }
             throw new RuntimeException("Type: Illegal Value: " + b);
         }
