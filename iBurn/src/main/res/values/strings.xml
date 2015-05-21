@@ -53,8 +53,8 @@
     <string name="unlock_description">Location info is hidden until gates open.</string>
     <string name="enter_unlock_password">Enter Unlock Password</string>
 
-
     <string name="gj_settings_messages">Messages</string>
+    <string name="gj_settings_status">Status</string>
 
     <string name="gj_message_type">Message Type</string>
     <string-array name="gj_message_type_array">

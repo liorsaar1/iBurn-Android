@@ -164,6 +164,11 @@ System latency is TBD
 public class GjMessage {
     public static final byte[] preamble = {(byte) 0xFF, (byte) 0x55, (byte) 0xAA};
     protected final static String TAG = GjMessage.class.getSimpleName();
+    private static final int TYPE_LENGTH = 1;
+    private static final int NUMBER_LENGTH = 1;
+    private static final int VEHICLE_LENGTH = 1;
+    private static final int DATA_LENGTH = 1;
+    private static final int CHECKSUM_LENGTH = 1;
     protected byte type;
     protected byte number;
     protected byte vehicle;
@@ -171,6 +176,12 @@ public class GjMessage {
 
     public GjMessage(Type type) {
         this.type = type.getValue();
+        this.number = 23;
+        this.vehicle = 34;
+    }
+
+    public byte getByte() {
+        return data[0];
     }
 
     public static GjMessage create(ByteBuffer bb) throws ChecksumException, EOFException, PreambleNotFoundException, ParserException {
@@ -187,7 +198,7 @@ public class GjMessage {
         byte expectedChecksum = read(bb);
 
         // verify checksum
-        int messageLength = preamble.length + 1 + 1 + data.length;
+        int messageLength = preamble.length + TYPE_LENGTH + NUMBER_LENGTH + VEHICLE_LENGTH + DATA_LENGTH + data.length;
         ByteBuffer tmp = ByteBuffer.allocate(messageLength);
         tmp.put(preamble).put(typeByte).put(number).put(vehicle).put(dataLength).put(data);
         byte actualChecksum = checksum(tmp);
@@ -202,7 +213,7 @@ public class GjMessage {
                 case Response:
                     return new GjMessageResponse();
                 case StatusResponse:
-                    return new GjMessageStatusResponse();
+                    return new GjMessageStatusResponse(data[0]);
                 case Gps:
                     return new GjMessageGps(new String(data));
                 case Lighting:
@@ -276,17 +287,19 @@ public class GjMessage {
     }
 
     public byte[] toByteArray() {
-        // preamble + type + length + data + checksum
-        int length = preamble.length + 1 + 1 + data.length + 1;
+        int messageLength = preamble.length + TYPE_LENGTH + NUMBER_LENGTH + VEHICLE_LENGTH + DATA_LENGTH + data.length + CHECKSUM_LENGTH;
 
-        ByteBuffer buffer = ByteBuffer.allocate(length);
+        ByteBuffer buffer = ByteBuffer.allocate(messageLength);
 
         buffer.put(preamble);
         buffer.put(type);
+        buffer.put(number);
+        buffer.put(vehicle);
         buffer.put((byte) data.length);
         if (data.length > 0) {
             buffer.put(data);
         }
+        // TODO make sure last byte is 0
         buffer.put(checksum(buffer));
 
         return buffer.array();

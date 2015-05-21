@@ -1,89 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <TextView
-        style="@style/GjText.title"
-        android:text="@string/gj_settings_messages"/>
 
     <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/GjText.title"
+            android:text="@string/gj_settings_status"/>
+
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/GjStatusUsb"
+                    style="@style/GjStatus"
+                    android:text="USB"/>
+                <TextView
+                    android:id="@+id/GjStatusFtdi"
+                    style="@style/GjStatus"
+                    android:text="FTDI"/>
+                <TextView
+                    android:id="@+id/GjStatusRadio"
+                    style="@style/GjStatus"
+                    android:text="Radio"/>
+                <TextView
+                    android:id="@+id/GjStatusVoltage"
+                    style="@style/GjStatus"
+                    android:text="Voltage"/>
+                <TextView
+                    android:id="@+id/GjStatusTemp"
+                    style="@style/GjStatus"
+                    android:text="Temp"/>
+                <TextView
+                    android:id="@+id/GjStatusCompass"
+                    style="@style/GjStatus"
+                    android:text="Compass"/>
+                <TextView
+                    android:id="@+id/GjStatusGps"
+                    style="@style/GjStatus"
+                    android:text="GPS"/>
+            </TableRow>
+        </TableLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            style="@style/GjText.title"
+            android:text="@string/gj_settings_messages"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/GjTestMessageStatus"
+                style="@style/GjButton"
+                android:text="Stt"/>
+
+            <Button
+                android:id="@+id/GjMessageRequestGps"
+                style="@style/GjButton"
+                android:text="Rq G"/>
+
+            <Button
+                android:id="@+id/GjMessageReportGps"
+                style="@style/GjButton"
+                android:text="GPS"/>
+
+            <Button
+                android:id="@+id/GjMessageModeBuffered"
+                style="@style/GjButton"
+                android:text="M-B"/>
+
+            <Button
+                android:id="@+id/GjMessageModeNonBuffered"
+                style="@style/GjButton"
+                android:text="M-N"/>
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/GjMessageEditText"
+            style="@style/GjText"
+            android:background="#ffffffff"
+            android:hint="Enter Text"
+            android:maxLength="100"
+            android:textColor="#000000"
+            android:textSize="20sp"/>
 
         <Button
-            android:id="@+id/GjMessageStatusRequest"
-            style="@style/GjButton"
-            android:text="Stt"/>
-
-        <Button
-            android:id="@+id/GjMessageRequestGps"
-            style="@style/GjButton"
-            android:text="Rq G"/>
-
-        <Button
-            android:id="@+id/GjMessageReportGps"
-            style="@style/GjButton"
-            android:text="GPS"/>
-
-        <Button
-            android:id="@+id/GjMessageModeBuffered"
-            style="@style/GjButton"
-            android:text="M-B"/>
-
-        <Button
-            android:id="@+id/GjMessageModeNonBuffered"
-            style="@style/GjButton"
-            android:text="M-N"/>
+            android:id="@+id/GjMessageSendButton"
+            style="@style/GjText"
+            android:text="Text"/>
     </LinearLayout>
 
-    <EditText
-        android:id="@+id/GjMessageEditText"
-        style="@style/GjText"
-        android:background="#ffffffff"
-        android:textSize="20sp"
-        android:hint="Enter Text"
-        android:maxLength="100"
-        android:textColor="#000000"/>
+        <TextView
+            style="@style/GjText.title"
+            android:text="Console"/>
 
-    <Button
-        android:id="@+id/GjMessageSendButton"
-        style="@style/GjText"
-        android:text="Text"/>
+        <TextView
+            android:id="@+id/GjMessageConsole"
+            style="@style/GjText"
+            android:layout_height="match_parent"
+            android:background="#ffffffff"
+            android:scrollbars="vertical|horizontal"
+            android:text="Ready\n"
+            android:textColor="@android:color/black"/>
 
-    <TextView
-        style="@style/GjText.title"
-        android:text="Console"/>
+        <TextView
+            android:visibility="gone"
+            style="@style/GjText.title"
+            android:text="Incoming"/>
 
-    <TextView
-        android:id="@+id/GjMessageConsole"
-        style="@style/GjText"
-        android:background="#ffffffff"
-        android:lines="10"
-        android:scrollbars="vertical|horizontal"
-        android:text="Ready\n"
-        android:textColor="@android:color/black"/>
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/GjIncoming"
+            style="@style/GjText"
+            android:background="#ffffffff"
+            android:lines="10"
+            android:scrollbars="vertical|horizontal"
+            android:text="Ready\n"
+            android:textColor="@android:color/black"/>
 
-    <TextView
-        style="@style/GjText.title"
-        android:text="Incoming"/>
-
-    <TextView
-        android:id="@+id/GjIncoming"
-        style="@style/GjText"
-        android:background="#ffffffff"
-        android:lines="10"
-        android:scrollbars="vertical|horizontal"
-        android:text="Ready\n"
-        android:textColor="@android:color/black"/>
-
-</LinearLayout>
-    </ScrollView>
+    </LinearLayout>
