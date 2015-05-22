@@ -56,10 +56,6 @@ Single byte incremented with each packet sent.  For checksum error responses, th
 
 
 Message Type:
-0x01 Status request (Will stream status once every 5 seconds)
-0x02 Mode (not needed since GPS is read by PCB)
-0x03 Report own GPS location  (not needed since GPS is read by PCB)
-0x04 Request buffered GPS locations  (Not needed as GPS data will be streamed)
 0x05 Lighting cues
 0x06 Text message
 
@@ -174,14 +170,24 @@ public class GjMessage {
     protected byte vehicle;
     protected byte[] data = new byte[0];
 
+    private static byte fakeSeqNumber = 1;
+
     public GjMessage(Type type) {
         this.type = type.getValue();
-        this.number = 23;
+        this.number = fakeSeqNumber++;
         this.vehicle = 34;
     }
 
     public byte getByte() {
         return data[0];
+    }
+
+    public byte getVehicle() {
+        return vehicle;
+    }
+
+    public byte getSeqNumber() {
+        return number;
     }
 
     public static GjMessage create(ByteBuffer bb) throws ChecksumException, EOFException, PreambleNotFoundException, ParserException {

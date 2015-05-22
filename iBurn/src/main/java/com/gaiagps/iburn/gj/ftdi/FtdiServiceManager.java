@@ -7,10 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.util.Log;
 
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
@@ -18,13 +15,10 @@ import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageText;
 import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
 
-import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by liorsaar on 2015-05-06
@@ -55,10 +49,9 @@ public class FtdiServiceManager {
             }
         }
     };
+
     private FtdiService mService;
     private boolean mBound = false;
-    private ScheduledFuture<?> readScheduledFuture;
-    private WeakReference<Activity> weakReferenceActivity;
     private ServiceConnection mConnection;
 
     public FtdiServiceManager(List<GjMessageListener> ftdiListeners) {
@@ -87,19 +80,10 @@ public class FtdiServiceManager {
 
     public void onPause(Activity activity) {
         console("onPause: bound:" + mBound);
-        if (readScheduledFuture != null) {
-            if (!readScheduledFuture.isCancelled()) {
-                readScheduledFuture.cancel(false);
-            }
-            readScheduledFuture = null;
-        }
     }
 
     public void onResume(Activity activity) {
         console("onResume: bound:" + mBound);
-        // must use weak reference
-        weakReferenceActivity = new WeakReference<Activity>(activity);
-        final FtdiHandler ftdiHandler = new FtdiHandler(weakReferenceActivity);
         // Bind to LocalService
         if (!mBound) {
 
@@ -112,7 +96,7 @@ public class FtdiServiceManager {
                     mService = binder.getService();
                     mBound = true;
                     console("Service Bound");
-                    scheduleRead(ftdiHandler);
+                    send(new GjMessageText("Online"));
                 }
 
                 @Override
@@ -124,9 +108,6 @@ public class FtdiServiceManager {
 
             Intent intent = new Intent(activity, FtdiService.class);
             activity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-        } else {
-            // start/restart reading
-            scheduleRead(ftdiHandler);
         }
     }
 
@@ -151,6 +132,16 @@ public class FtdiServiceManager {
         }
     }
 
+    public int send(GjMessage message) {
+        int written = send(message.toByteArray());
+        if (written == message.toByteArray().length) {
+            console("Sent: written:" + written);
+        } else {
+            console("ERROR: expected: " + message.toByteArray().length + " written:" + written);
+        }
+        return written;
+    }
+
     public int send(ByteBuffer bb) {
         byte[] bytes = new byte[bb.limit()];
         bb.get(bytes, 0, bb.limit());
@@ -170,80 +161,5 @@ public class FtdiServiceManager {
     public int read(byte[] bytes) {
         return mService.read(bytes);
     }
-
-    public void scheduleRead(final Handler handler) {
-
-        if (true) return;
-
-        if (!mBound) {
-            console("scheduleRead: not bound");
-            return;
-        }
-        if (readScheduledFuture != null) {
-            console("scheduleRead: already running");
-            return;
-        }
-
-        console("scheduleRead: start");
-        final Runnable readLoopRunnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final int length = mService.read(ftdiInputBuffer);
-                    if (length > 0) {
-                        bb.put(ftdiInputBuffer, 0, length);
-                        bb.limit(bb.position());
-                        bb.rewind();
-                        List<GjMessage> list = GjMessageFactory.parseAll(bb);
-                        bb.compact();
-                        Message handlerMessage = new Message();
-                        handlerMessage.obj = list;
-                        handler.sendMessage(handlerMessage);
-                    }
-                } catch (Throwable t) {
-                    console("ERROR:" + t.getMessage());
-                }
-            }
-        };
-        readScheduledFuture = readScheduler.scheduleAtFixedRate(readLoopRunnable, 1, 2, TimeUnit.SECONDS);
-    }
-
-    public static class FtdiHandler extends Handler {
-        WeakReference<Activity> weakReferenceActivity;
-
-        public FtdiHandler(WeakReference<Activity> weakReferenceActivity) {
-            this.weakReferenceActivity = weakReferenceActivity;
-        }
-
-        @Override
-        public void handleMessage(Message inputMessage) {
-            Activity activity = weakReferenceActivity.get();
-
-            if (inputMessage.obj == null) {
-//                listener.console("Error: null");
-                return;
-            }
-            if (!(inputMessage.obj instanceof List)) {
-//                listener.console("Error: " + inputMessage.obj);
-                return;
-            }
-            List<GjMessage> list = (List<GjMessage>) inputMessage.obj;
-//            listener.console("list size " + list.size());
-            for (GjMessage message : list) {
-                Log.e(TAG, message.toString());
-//                listener.console(">>>" + message.toString() + "\n");
-            }
-
-        }
-
-        public void message(String string) {
-            GjMessageText text = new GjMessageText(string);
-            dispatch(text);
-        }
-
-        private void dispatch(GjMessage message) {
-        }
-    }
-
 
 }

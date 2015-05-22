@@ -158,31 +158,6 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         ftdiServiceManager.onPause(this);
     }
 
-    private Handler ftdiMessageHandler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(Message inputMessage) {
-            if (inputMessage.obj == null) {
-                console("Error: input message NULL");
-                return;
-            }
-            if (!(inputMessage.obj instanceof List)) {
-                console("Error: not list:" + inputMessage.obj);
-                return;
-            }
-            List<GjMessage> list = (List<GjMessage>) inputMessage.obj;
-            console("list !!!!" + list.size());
-            for (GjMessage message : list) {
-                Log.e(TAG, message.toString());
-                console( ">>>"+message.toString()+"\n");
-            }
-        }
-    };
-
-    public void console(final String s) {
-        ((SettingsFragment) mPagerAdapter.getItem(1)).console(s);
-    }
-
-
     private boolean mSearching = false;
 
     private void setupSearchButton() {

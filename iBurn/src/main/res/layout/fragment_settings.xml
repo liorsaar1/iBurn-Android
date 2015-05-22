@@ -28,6 +28,10 @@
                     style="@style/GjStatus"
                     android:text="FTDI"/>
                 <TextView
+                    android:id="@+id/GjStatusVehicle"
+                    style="@style/GjStatus"
+                    android:text="Vehicle:?"/>
+                <TextView
                     android:id="@+id/GjStatusRadio"
                     style="@style/GjStatus"
                     android:text="Radio"/>
@@ -47,6 +51,14 @@
                     android:id="@+id/GjStatusGps"
                     style="@style/GjStatus"
                     android:text="GPS"/>
+                <TextView
+                    android:id="@+id/GjStatusSeqNumber"
+                    style="@style/GjStatus"
+                    android:text=":?"/>
+                <Button
+                    android:id="@+id/GjTestMessageStatus"
+                    style="@style/GjButton"
+                    android:text="Stt"/>
             </TableRow>
         </TableLayout>
 
@@ -59,37 +71,6 @@
         <TextView
             style="@style/GjText.title"
             android:text="@string/gj_settings_messages"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/GjTestMessageStatus"
-                style="@style/GjButton"
-                android:text="Stt"/>
-
-            <Button
-                android:id="@+id/GjMessageRequestGps"
-                style="@style/GjButton"
-                android:text="Rq G"/>
-
-            <Button
-                android:id="@+id/GjMessageReportGps"
-                style="@style/GjButton"
-                android:text="GPS"/>
-
-            <Button
-                android:id="@+id/GjMessageModeBuffered"
-                style="@style/GjButton"
-                android:text="M-B"/>
-
-            <Button
-                android:id="@+id/GjMessageModeNonBuffered"
-                style="@style/GjButton"
-                android:text="M-N"/>
-        </LinearLayout>
 
         <EditText
             android:id="@+id/GjMessageEditText"

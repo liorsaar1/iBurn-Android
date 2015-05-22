@@ -1,6 +1,9 @@
 package com.gaiagps.iburn.fragment;
 
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -21,6 +24,10 @@ import com.gaiagps.iburn.gj.message.GjMessageText;
 import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
 import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 /**
  * Created by liorsaar on 4/19/15
  */
@@ -34,6 +41,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     private Button messageTextButton;
     private static TextView statusUsb, statusFtdi;
     private static TextView statusRadio, statusVoltage, statusTemp, statusCompass, statusGps;
+    private static TextView statusSeqNumber, statusVehicle;
 
     public static SettingsFragment newInstance() {
         return new SettingsFragment();
@@ -65,22 +73,6 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
                 onClickTestMessageStatus(v);
             }
         });
-        view.findViewById(R.id.GjMessageRequestGps).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) { onClickRequestGps(v); }
-        });
-        view.findViewById(R.id.GjMessageReportGps).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) { onClickReportGps(v); }
-        });
-        view.findViewById(R.id.GjMessageModeBuffered).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) { onClickModeBuffered(v) ; }
-        });
-        view.findViewById(R.id.GjMessageModeNonBuffered).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) { onClickModeNonBuffered(v); }
-        });
         view.findViewById(R.id.GjMessageSendButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { onClickSendText(v); }
@@ -93,6 +85,11 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         statusTemp = (TextView)view.findViewById(R.id.GjStatusTemp);
         statusCompass = (TextView)view.findViewById(R.id.GjStatusCompass);
         statusGps = (TextView)view.findViewById(R.id.GjStatusGps);
+        statusVehicle = (TextView)view.findViewById(R.id.GjStatusVehicle);
+        statusSeqNumber = (TextView)view.findViewById(R.id.GjStatusSeqNumber);
+
+        checkUsb();
+        queueDispatch();
 
         return view;
     }
@@ -110,20 +107,15 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     private byte fakeStatus = 1;
 
     private void onClickTestMessageStatus(View v) {
-        broadcastMessage(new GjMessageFtdi(true));
         broadcastMessage(new GjMessageStatusResponse(fakeStatus++));
     }
-    private void onClickRequestGps(View v) {
-    }
+
     private void onClickReportGps(View v) {
 //        int id = 5;
 //        LatLng latLng = new LatLng(40.7888, -119.20315);
 //        send(new GjMessageReportGps(id, latLng));
     }
-    private void onClickModeBuffered(View v) {
-    }
-    private void onClickModeNonBuffered(View v) {
-    }
+
     private void onClickSendText(View v) {
         String text = messageEditText.getText().toString();
         messageEditText.setText("");
@@ -192,6 +184,16 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         statusGps.setBackgroundColor(getColorError(error));
     }
 
+    private void setStatusVehicle(int number) {
+        statusVehicle.setBackgroundColor(getColorError(false));
+        statusVehicle.setText("Vehicle:" + number);
+    }
+
+    private void setStatusSeqNumber(int number) {
+        statusSeqNumber.setBackgroundColor(0xFFCCCCCC);
+        statusSeqNumber.setText(""+number);
+    }
+
     private int getColorOnOff(boolean offOn) {
         return offOn ? 0xFF00FF00 : 0xFFFF0000;
     }
@@ -201,7 +203,13 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
 
     @Override
     public void onMessage(GjMessage message) {
+        if (messageConsole == null) {
+            queue(message);
+            return;
+        }
+
         console(message.toString());
+        setStatusSeqNumber(message.getSeqNumber());
 
         if (message instanceof GjMessageFtdi) {
             boolean status = ((GjMessageFtdi)message).getStatus();
@@ -218,6 +226,33 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             setStatusTemp(s.getErrorTemp());
             setStatusCompass(s.getErrorCompass());
             setStatusGps(s.getErrorGps());
+            setStatusVehicle(s.getVehicle());
         }
     }
+
+    private static List<GjMessage> queue = new ArrayList<>();
+
+    private void queue(GjMessage message) {
+        queue.add(message);
+    }
+
+    private void queueDispatch() {
+        for ( GjMessage message : queue) {
+            onMessage(message);
+        }
+    }
+
+    public void checkUsb() {
+        UsbManager manager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
+        HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
+        console("USB devices: " + deviceList.keySet().size());
+        for (String key : deviceList.keySet()) {
+            UsbDevice device = deviceList.get(key);
+            console(key + " " + device);
+        }
+        if (deviceList.keySet().size() > 0) {
+            onMessage(new GjMessageUsb(true));
+        }
+    }
+
 }
