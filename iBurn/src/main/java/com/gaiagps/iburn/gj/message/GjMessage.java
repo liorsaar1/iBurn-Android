@@ -182,6 +182,18 @@ public class GjMessage {
         return data[0];
     }
 
+    protected void setByte(byte value) {
+        data = new byte[] {value};
+    }
+
+    protected boolean getBoolean() {
+        return data[0] != 0;
+    }
+
+    protected void setByte(boolean value) {
+        setByte( value ? (byte)1 : (byte)0 );
+    }
+
     public byte getVehicle() {
         return vehicle;
     }
@@ -217,7 +229,7 @@ public class GjMessage {
             Type type = Type.valueOf(typeByte);
             switch (type) {
                 case Response:
-                    return new GjMessageResponse();
+                    return new GjMessageResponse(data[0] != 0 ? true : false);
                 case StatusResponse:
                     return new GjMessageStatusResponse(data[0]);
                 case Gps:

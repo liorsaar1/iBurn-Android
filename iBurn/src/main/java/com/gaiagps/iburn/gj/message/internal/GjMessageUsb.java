@@ -6,11 +6,11 @@ public class GjMessageUsb extends GjMessage {
 
     public GjMessageUsb(boolean attached) {
         super(Type.USB);
-        data = new byte[] { attached ? (byte)1 : (byte)0 };
+        setByte(attached);
     }
 
     public boolean getStatus() {
-        return data[0] != 0;
+        return getBoolean();
     }
 
     public String getStatusString() {

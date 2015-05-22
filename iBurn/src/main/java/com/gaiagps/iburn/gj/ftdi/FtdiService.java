@@ -232,7 +232,7 @@ public class FtdiService extends Service {
                 console("open: already opened");
                 if (mThreadIsStopped) {
                     console("open: thread stopped");
-                    SetConfig(9600, (byte) 8, (byte) 1, (byte) 0, (byte) 3);
+                    SetConfig(115200, (byte) 8, (byte) 1, (byte) 0, (byte) 3);
                     ftDev.purge((byte) (D2xxManager.FT_PURGE_TX | D2xxManager.FT_PURGE_RX));
                     ftDev.restartInTask();
                     new Thread(mLoop).start();
@@ -270,7 +270,7 @@ public class FtdiService extends Service {
         if (ftDev.isOpen()) {
             broadcastMessage(new GjMessageFtdi(true));
             if (mThreadIsStopped) {
-                SetConfig(9600, (byte) 8, (byte) 1, (byte) 0, (byte) 3);
+                SetConfig(115200, (byte) 8, (byte) 1, (byte) 0, (byte) 3);
                 ftDev.purge((byte) (D2xxManager.FT_PURGE_TX | D2xxManager.FT_PURGE_RX));
                 ftDev.restartInTask();
                 new Thread(mLoop).start();

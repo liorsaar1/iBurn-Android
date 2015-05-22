@@ -10,7 +10,7 @@ public class GjMessageStatusResponse extends GjMessage {
 
     public GjMessageStatusResponse(byte status) {
         super(Type.StatusResponse);
-        data = new byte[] {status};
+        setByte(status);
     }
 
     public boolean getErrorRadio() { return (getByte() & BITMASK_RADIO) != 0; }

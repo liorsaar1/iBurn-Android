@@ -154,7 +154,7 @@ public class FtdiServiceManager {
         return written;
     }
 
-    private int send(byte[] bytes) {
+    public int send(byte[] bytes) {
         return mService.send(bytes);
     }
 

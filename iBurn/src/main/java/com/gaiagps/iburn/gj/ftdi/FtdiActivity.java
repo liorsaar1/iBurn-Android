@@ -77,8 +77,6 @@ public class FtdiActivity extends Activity implements GjMessageListener {
         ftdiServiceManager.onResume(this);
     }
 
-
-
     public void onClickSend(View v) {
         if (!ftdiServiceManager.isBound()) {
             return;
@@ -134,21 +132,20 @@ public class FtdiActivity extends Activity implements GjMessageListener {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                console("Writing: 1000");
+                console("Writing: 1-1000");
             }
 
             @Override
             protected Object doInBackground(Object[] params) {
-//                for (int i = 0; i < 1000; i++) {
-//                    String s = counter + "-ABCDEFGHIJKLMNOP-" + counter++ + "\n";
-//                    int written = ftdiServiceManager.send(s.getBytes());
-//                    if (written != s.length()) {
-//                        return "ERROR: expected: " + s.length() + " written:" + written;
-//                    }
-//                    if (i % 100 == 0) {
-//                        onProgressUpdate(i);
-//                    }
-//                }
+                ByteBuffer bb = GjMessageFactory.create1();
+                byte[] bytes = new byte[bb.limit()];
+                bb.get(bytes, 0, bb.limit());
+                for (int i = 0; i < 1000; i++) {
+                    int written = ftdiServiceManager.send(bytes);
+                    if (written != bb.limit()) {
+                        return "ERROR: written " + written;
+                    }
+                }
                 return "DONE";
             }
 

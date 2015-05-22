@@ -42,8 +42,8 @@ public class GjMessageFactory {
         bb.put((byte) 0x04);
         bb.put((byte) 0xFF);
         bb.put((byte) 0x55);
-        bb.put(new GjMessageText("123456").toByteArray());
-        bb.put(new GjMessageText("abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ").toByteArray());
+        bb.put(new GjMessageText("1234567890").toByteArray());
+        bb.put(new GjMessageText("abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789").toByteArray());
         bb.put(new GjMessageStatusResponse((byte)0x1F).toByteArray());
         bb.put(new GjMessageGps(5, new LatLng(40.7888, -119.20315)).toByteArray());
 
@@ -62,7 +62,7 @@ public class GjMessageFactory {
     }
 
     public static ByteBuffer create3() {
-        ByteBuffer bb = ByteBuffer.allocate(13);
+        ByteBuffer bb = ByteBuffer.allocate(50);
         bb.put(new GjMessageText("123456").toByteArray());
 
         bb.flip(); // IMPORTANT !!!

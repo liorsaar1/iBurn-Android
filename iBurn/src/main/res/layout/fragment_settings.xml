@@ -20,6 +20,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <TextView
+                    android:id="@+id/GjStatusVersion"
+                    style="@style/GjStatus"
+                    android:text="Version"/>
+                <TextView
                     android:id="@+id/GjStatusUsb"
                     style="@style/GjStatus"
                     android:text="USB"/>
@@ -56,6 +60,7 @@
                     style="@style/GjStatus"
                     android:text=":?"/>
                 <Button
+                    android:visibility="gone"
                     android:id="@+id/GjTestMessageStatus"
                     style="@style/GjButton"
                     android:text="Stt"/>

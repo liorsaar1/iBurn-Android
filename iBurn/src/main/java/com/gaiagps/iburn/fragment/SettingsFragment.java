@@ -2,11 +2,14 @@ package com.gaiagps.iburn.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,7 +44,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     private Button messageTextButton;
     private static TextView statusUsb, statusFtdi;
     private static TextView statusRadio, statusVoltage, statusTemp, statusCompass, statusGps;
-    private static TextView statusSeqNumber, statusVehicle;
+    private static TextView statusSeqNumber, statusVehicle, statusVersion;
 
     public static SettingsFragment newInstance() {
         return new SettingsFragment();
@@ -87,23 +90,20 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         statusGps = (TextView)view.findViewById(R.id.GjStatusGps);
         statusVehicle = (TextView)view.findViewById(R.id.GjStatusVehicle);
         statusSeqNumber = (TextView)view.findViewById(R.id.GjStatusSeqNumber);
+        statusVersion = (TextView)view.findViewById(R.id.GjStatusVersion);
 
-        checkUsb();
+        setVersion(getActivity());
+        checkUsb(getActivity());
         queueDispatch();
 
         return view;
     }
 
-    ///////////////////////////////////////////////
-    // SEND
-    ///////////////////////////////////////////////
-    Handler sendHandler = new Handler();
     private void broadcastMessage(GjMessage message) {
         Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
         intent.putExtra("message", message.toByteArray());
         getActivity().sendBroadcast(intent);
     }
-
     private byte fakeStatus = 1;
 
     private void onClickTestMessageStatus(View v) {
@@ -194,15 +194,26 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         statusSeqNumber.setText(""+number);
     }
 
+    private void setStatusVersion(String version) {
+        statusVersion.setBackgroundColor(0xFFCCCCCC);
+        statusVersion.setText(version);
+    }
+
     private int getColorOnOff(boolean offOn) {
         return offOn ? 0xFF00FF00 : 0xFFFF0000;
     }
+
+    ///////////////////////////////////////////////
+    // SEND
+    ///////////////////////////////////////////////
+    Handler sendHandler = new Handler();
     private int getColorError(boolean error) {
         return error ? 0xFFFF0000 : 0xFF00FF00;
     }
 
     @Override
     public void onMessage(GjMessage message) {
+        // if UI not created yet - queue the messages
         if (messageConsole == null) {
             queue(message);
             return;
@@ -236,13 +247,17 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         queue.add(message);
     }
 
+    // once the UI is up - dispatch the queue
     private void queueDispatch() {
         for ( GjMessage message : queue) {
             onMessage(message);
         }
     }
 
-    public void checkUsb() {
+    // on launch, make sure a usb device is available
+    // it will not be available if the unit is off,
+    // and will generate a USB intention when attached/detached
+    private void checkUsb(FragmentActivity activity) {
         UsbManager manager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
         HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
         console("USB devices: " + deviceList.keySet().size());
@@ -255,4 +270,12 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         }
     }
 
+    private void setVersion(FragmentActivity activity) {
+        try {
+            PackageInfo pInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
+            setStatusVersion(pInfo.versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            setStatusVersion("666");
+        }
+    }
 }
