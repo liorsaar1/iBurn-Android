@@ -1,6 +1,7 @@
 package com.gaiagps.iburn.gj.ftdi;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -103,22 +104,21 @@ public class FtdiActivity extends Activity implements GjMessageListener {
             return;
         }
 
-        for (int i = 0 ; i < 10; i++) {
+        for (int i = 0 ; i < 1; i++) {
             sendGjMessage();
         }
     }
 
     private void sendGjMessage() {
-//        String s = counter + "-ABCDEFGHIJKLMNOP-" + counter++;
-//        GjMessageText msgText = new GjMessageText(s);
-//        console("send:" + msgText.toString());
-//        int written = ftdiServiceManager.send(msgText.toByteArray());
-//        int length = msgText.toByteArray().length;
-//        if (written == length) {
-//            console("Sent: written:" + written);
-//        } else {
-//            console("ERROR: expected: " + length + " written:" + written);
-//        }
+        ByteBuffer bb = GjMessageFactory.create4();
+        loopback(bb.array());
+        return;
+    }
+
+    private void loopback(byte[] bytes) {
+        Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
+        intent.putExtra(FtdiService.FTDI_SERVICE_MESSSAGE, bytes);
+        sendBroadcast(intent);
     }
 
     public void onClickSendMany(View v) {
@@ -192,8 +192,9 @@ public class FtdiActivity extends Activity implements GjMessageListener {
         scrollToEnd(messageConsole);
     }
 
-    private void incoming(byte[] bytes) {
-        bytesConsole.append(new String(bytes));
+    public void incoming(byte[] bytes) {
+        String hex = GjMessage.toHexString(bytes);
+        bytesConsole.append(hex + "\n");
         scrollToEnd(bytesConsole);
     }
 

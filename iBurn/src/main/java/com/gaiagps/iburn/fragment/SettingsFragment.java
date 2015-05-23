@@ -122,6 +122,11 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         send(new GjMessageText(text));
     }
 
+    ///////////////////////////////////////////////
+    // SEND
+    ///////////////////////////////////////////////
+    Handler sendHandler = new Handler();
+
     private void send( final GjMessage message ) {
         // queue requests to avoid ftdi jamming
         sendHandler.post(new Runnable() {
@@ -141,19 +146,8 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         if (messageConsole == null ) {
             return;
         }
-        messageConsole.append(">>> " + string + "\n");
-
-        messageConsole.post(new Runnable() {
-            @Override
-            public void run() {
-                final int scrollAmount = messageConsole.getLayout().getLineTop(messageConsole.getLineCount()) - messageConsole.getHeight();
-                // if there is no need to scroll, scrollAmount will be <=0
-                if (scrollAmount > 0)
-                    messageConsole.scrollTo(0, scrollAmount);
-                else
-                    messageConsole.scrollTo(0, 0);
-            }
-        });
+        messageConsole.append(string + "\n");
+        scrollToEnd(messageConsole);
     }
 
     private void setStatusUsb(boolean onOff) {
@@ -203,12 +197,22 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         return offOn ? 0xFF00FF00 : 0xFFFF0000;
     }
 
-    ///////////////////////////////////////////////
-    // SEND
-    ///////////////////////////////////////////////
-    Handler sendHandler = new Handler();
     private int getColorError(boolean error) {
         return error ? 0xFFFF0000 : 0xFF00FF00;
+    }
+
+    /*
+     * listener
+     */
+
+    @Override
+    public void incoming(byte[] bytes) {
+        // if UI not created yet - queue the messages
+        if (messageIncoming == null) {
+            return;
+        }
+        String hex = GjMessage.toHexString(bytes);
+        console( "Incoming:"+hex);
     }
 
     @Override
@@ -220,7 +224,10 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         }
 
         console(message.toString());
-        setStatusSeqNumber(message.getSeqNumber());
+//        if (true) return;
+
+
+        setStatusSeqNumber(message.getPacketNumber());
 
         if (message instanceof GjMessageFtdi) {
             boolean status = ((GjMessageFtdi)message).getStatus();
@@ -278,4 +285,19 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             setStatusVersion("666");
         }
     }
+
+    public static void scrollToEnd(final TextView tv) {
+        tv.post(new Runnable() {
+            @Override
+            public void run() {
+                final int scrollAmount = tv.getLayout().getLineTop(tv.getLineCount()) - tv.getHeight();
+                // if there is no need to scroll, scrollAmount will be <=0
+                if (scrollAmount > 0)
+                    tv.scrollTo(0, scrollAmount);
+                else
+                    tv.scrollTo(0, 0);
+            }
+        });
+    }
+
 }

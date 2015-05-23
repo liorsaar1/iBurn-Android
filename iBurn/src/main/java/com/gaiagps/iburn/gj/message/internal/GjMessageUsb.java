@@ -19,6 +19,6 @@ public class GjMessageUsb extends GjMessage {
 
     @Override
     public String toString() {
-        return Type.USB + ":" + getStatusString() ;
+        return super.toString() + ":" + getStatusString() ;
     }
 }

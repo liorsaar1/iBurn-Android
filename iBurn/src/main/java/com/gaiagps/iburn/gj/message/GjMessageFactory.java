@@ -2,6 +2,8 @@ package com.gaiagps.iburn.gj.message;
 
 import android.util.Log;
 
+import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
+import com.gaiagps.iburn.gj.message.internal.GjMessageError;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.EOFException;
@@ -27,8 +29,7 @@ public class GjMessageFactory {
         s = textMessage.toString();
 
         LatLng latLng = new LatLng(40.7888, -119.20315);
-        int id = 5;
-        GjMessageGps reportGpsMessage = new GjMessageGps(id, latLng);
+        GjMessageGps reportGpsMessage = new GjMessageGps(latLng);
         buf = reportGpsMessage.toByteArray();
         hex = reportGpsMessage.toHexString();
         s = reportGpsMessage.toString();
@@ -45,7 +46,7 @@ public class GjMessageFactory {
         bb.put(new GjMessageText("1234567890").toByteArray());
         bb.put(new GjMessageText("abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789").toByteArray());
         bb.put(new GjMessageStatusResponse((byte)0x1F).toByteArray());
-        bb.put(new GjMessageGps(5, new LatLng(40.7888, -119.20315)).toByteArray());
+        bb.put(new GjMessageGps(new LatLng(40.7888, -119.20315)).toByteArray());
 
         bb.flip(); // IMPORTANT !!!
         return bb;
@@ -67,6 +68,16 @@ public class GjMessageFactory {
 
         bb.flip(); // IMPORTANT !!!
         return bb;
+    }
+
+    public static ByteBuffer create4() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("bd ff 55 aa 35 00 01 01 00 35 ");
+        sb.append("ff 55 aa 36 00 04 10 80 30 78 1d 6a 3d 3c b7 15 06 a6 16 91 23 00 00 b2 ");
+        sb.append("");
+        sb.append("");
+        sb.append("");
+        return fromString(sb.toString());
     }
 
     public static void testStream() {
@@ -102,7 +113,7 @@ public class GjMessageFactory {
         bb.put(new GjMessageText("123456").toByteArray());
         bb.put(new GjMessageText("abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ").toByteArray());
         bb.put(new GjMessageStatusResponse((byte)0x1F).toByteArray());
-        bb.put(new GjMessageGps(5, new LatLng(40.7888, -119.20315)).toByteArray());
+        bb.put(new GjMessageGps(new LatLng(40.7888, -119.20315)).toByteArray());
 
         bb.limit(bb.position() - 5);  // IMPORTANT !!!
         bb.rewind(); // IMPORTANT !!!
@@ -129,16 +140,20 @@ public class GjMessageFactory {
             } catch (EOFException e) {
                 // rewind to pre-eof position
                 bb.position(savePosition);
+                list.add(new GjMessageConsole("EOF reached. Remaining " + bb.remaining()));
                 break;
             } catch (GjMessage.ChecksumException e) {
                 // too bad, but continue
+                list.add(new GjMessageError(e.getMessage()));
                 continue;
             } catch (GjMessage.PreambleNotFoundException e) {
                 // hmmm
                 bb.position(savePosition);
+                list.add(new GjMessageError(e.getMessage()));
                 break;
             } catch (GjMessage.ParserException e) {
                 // some parameter value is off, continue
+                list.add(new GjMessageError(e.getMessage()));
                 continue;
             }
         }
@@ -150,6 +165,17 @@ public class GjMessageFactory {
         bb.put(bytes);
         bb.rewind();
         return parseAll(bb);
+    }
+
+    public static ByteBuffer fromString(String string) {
+        String[] byteStrings = string.split(" ");
+        ByteBuffer bb = ByteBuffer.allocate(byteStrings.length);
+        for (String byteString : byteStrings) {
+            byte b = Integer.decode("0x"+byteString).byteValue();
+            bb.put(b);
+        }
+        bb.rewind();
+        return bb;
     }
 }
 

@@ -18,4 +18,9 @@ public class GjMessageStatusResponse extends GjMessage {
     public boolean getErrorTemp() { return (getByte() & BITMASK_TEMP) != 0; }
     public boolean getErrorCompass() { return (getByte() & BITMASK_COMPASS) != 0; }
     public boolean getErrorGps() { return (getByte() & BITMASK_GPS) != 0; }
+
+    @Override
+    public String toString() {
+        return super.toString()+":"+toHexString(data);
+    }
 }

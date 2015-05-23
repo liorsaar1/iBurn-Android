@@ -5,4 +5,5 @@ package com.gaiagps.iburn.gj.message;
  */
 public interface GjMessageListener {
     void onMessage(GjMessage message);
+    void incoming(byte[] bytes);
 }

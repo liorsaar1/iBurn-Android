@@ -26,6 +26,8 @@ import java.util.List;
 public class FtdiService extends Service {
     public static final int FTDI_BUFFER_SIZE = 1024 * 1024 * 4; // 4 meg
     private final static String TAG = "FtdiService";
+    public static final String FTDI_SERVICE_MESSSAGE = "message";
+    public static final String FTDI_SERVICE_BYTES = "bytes";
     private static D2xxManager ftD2xx = null;
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
@@ -50,6 +52,7 @@ public class FtdiService extends Service {
                         console("read:" + readSize);
                         byte[] inputBytes = new byte[readSize];
                         ftDev.read(inputBytes, readSize);
+                        incoming(inputBytes);
                         if (readSize > bb.remaining()) {
                             error("INPUT OVERFLOW !!! :( ");
                             bb.rewind();
@@ -61,16 +64,10 @@ public class FtdiService extends Service {
 
                 // after every read - process
                 if (readSize > 0) {
-//                    console("1:" + bb.position() + " " + bb.limit());
                     bb.limit(bb.position());
-//                    console("2:" + bb.position() + " " + bb.limit());
                     bb.rewind();
-//                    console("3:" + bb.position() + " " + bb.limit());
                     List<GjMessage> list = GjMessageFactory.parseAll(bb); // keeps unprocessed bytes in the buffer
-//                    console("4:" + bb.position() + " " + bb.limit());
                     bb.compact(); // remove only the used bytes
-//                    console("5:" + bb.position() + " " + bb.limit());
-//                    console("6:" + list.size());
                     broadcastMessage(list);
                 }
 
@@ -188,6 +185,12 @@ public class FtdiService extends Service {
         return write(bytes);
     }
 
+    private void incoming(byte[] bytes) {
+        Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
+        intent.putExtra(FTDI_SERVICE_BYTES, bytes);
+        sendBroadcast(intent);
+    }
+
     private void console(String string) {
         broadcastMessage(new GjMessageConsole(string));
     }
@@ -197,7 +200,7 @@ public class FtdiService extends Service {
 
     private void broadcastMessage(GjMessage message) {
         Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
-        intent.putExtra("message", message.toByteArray());
+        intent.putExtra(FTDI_SERVICE_MESSSAGE, message.toByteArray());
         sendBroadcast(intent);
     }
 

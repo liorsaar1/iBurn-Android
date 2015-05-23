@@ -166,15 +166,15 @@ public class GjMessage {
     private static final int DATA_LENGTH = 1;
     private static final int CHECKSUM_LENGTH = 1;
     protected byte type;
-    protected byte number;
+    protected byte packetNumber;
     protected byte vehicle;
     protected byte[] data = new byte[0];
 
-    private static byte fakeSeqNumber = 1;
+    private static byte fakePacketNumber = 1;
 
     public GjMessage(Type type) {
         this.type = type.getValue();
-        this.number = fakeSeqNumber++;
+        this.packetNumber = fakePacketNumber++;
         this.vehicle = 34;
     }
 
@@ -198,8 +198,8 @@ public class GjMessage {
         return vehicle;
     }
 
-    public byte getSeqNumber() {
-        return number;
+    public byte getPacketNumber() {
+        return packetNumber;
     }
 
     public static GjMessage create(ByteBuffer bb) throws ChecksumException, EOFException, PreambleNotFoundException, ParserException {
@@ -208,9 +208,9 @@ public class GjMessage {
             throw new PreambleNotFoundException();
         }
         // read body
-        byte typeByte = read(bb);
-        byte number = read(bb);
+        byte packetNumber = read(bb);
         byte vehicle = read(bb);
+        byte typeByte = read(bb);
         byte dataLength = read(bb);
         byte[] data = read(bb, dataLength);
         byte expectedChecksum = read(bb);
@@ -218,7 +218,7 @@ public class GjMessage {
         // verify checksum
         int messageLength = preamble.length + TYPE_LENGTH + NUMBER_LENGTH + VEHICLE_LENGTH + DATA_LENGTH + data.length;
         ByteBuffer tmp = ByteBuffer.allocate(messageLength);
-        tmp.put(preamble).put(typeByte).put(number).put(vehicle).put(dataLength).put(data);
+        tmp.put(preamble).put(packetNumber).put(vehicle).put(typeByte).put(dataLength).put(data);
         byte actualChecksum = checksum(tmp);
         if (actualChecksum != expectedChecksum) {
             throw new ChecksumException(expectedChecksum, actualChecksum);
@@ -233,7 +233,7 @@ public class GjMessage {
                 case StatusResponse:
                     return new GjMessageStatusResponse(data[0]);
                 case Gps:
-                    return new GjMessageGps(new String(data));
+                    return new GjMessageGps(data);
                 case Lighting:
                     return new GjMessageLighting(new String(data));
                 case Text:
@@ -310,14 +310,15 @@ public class GjMessage {
         ByteBuffer buffer = ByteBuffer.allocate(messageLength);
 
         buffer.put(preamble);
-        buffer.put(type);
-        buffer.put(number);
+        buffer.put(packetNumber);
         buffer.put(vehicle);
+        buffer.put(type);
         buffer.put((byte) data.length);
         if (data.length > 0) {
             buffer.put(data);
         }
-        // TODO make sure last byte is 0
+        buffer.put((byte)0x00); // clear last byte before checksome
+        buffer.position(buffer.position()-1);
         buffer.put(checksum(buffer));
 
         return buffer.array();
@@ -325,12 +326,16 @@ public class GjMessage {
 
     @Override
     public String toString() {
-        return Type.valueOf(type).toString();
+        return Type.valueOf(type).toString()+"["+vehicle+":"+packetNumber+"]";
     }
 
     public String toHexString() {
+        return toHexString(toByteArray());
+    }
+
+    public static String toHexString(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
-        for (byte b : toByteArray()) {
+        for (byte b : bytes) {
             sb.append(String.format("%02x ", b));
         }
         return sb.toString();

@@ -19,6 +19,6 @@ public class GjMessageFtdi extends GjMessage {
 
     @Override
     public String toString() {
-        return Type.FTDI + ":" + getStatusString() ;
+        return super.toString() + ":" + getStatusString() ;
     }
 }

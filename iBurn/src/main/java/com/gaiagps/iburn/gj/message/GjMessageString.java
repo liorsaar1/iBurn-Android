@@ -15,6 +15,6 @@ public class GjMessageString extends GjMessage {
 
     @Override
     public String toString() {
-        return Type.valueOf(type) + ":" + new String(data) ;
+        return super.toString() + ":" + new String(data) ;
     }
 }

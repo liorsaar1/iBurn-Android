@@ -35,15 +35,16 @@ public class FtdiServiceManager {
         public void onReceive(Context context, Intent intent) {
             System.out.println("BA intent:" + intent);
             String action = intent.getAction();
+            byte[] bytes;
             if (ACTION_VIEW.equals(action)) {
-                String error = intent.getStringExtra("error");
-                if (error != null) {
-                    console("Service: ERROR: " + error);
-                    return;
-                }
-                byte[] bytes = intent.getByteArrayExtra("message");
+                bytes = intent.getByteArrayExtra(FtdiService.FTDI_SERVICE_MESSSAGE);
                 if (bytes != null) {
                     dispatch(bytes);
+                    return;
+                }
+                bytes = intent.getByteArrayExtra(FtdiService.FTDI_SERVICE_BYTES);
+                if (bytes != null) {
+                    incoming(bytes);
                     return;
                 }
             }
@@ -108,6 +109,12 @@ public class FtdiServiceManager {
 
             Intent intent = new Intent(activity, FtdiService.class);
             activity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        }
+    }
+
+    private void incoming(byte[] bytes) {
+        for (GjMessageListener listener : ftdiListeners) {
+            listener.incoming(bytes);
         }
     }
 

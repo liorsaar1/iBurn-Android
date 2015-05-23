@@ -11,4 +11,8 @@ public class GjMessageResponse extends GjMessage {
         return getBoolean();
     }
 
+    @Override
+    public String toString() {
+        return super.toString()+": OK:" + getChecksumOk();
+    }
 }

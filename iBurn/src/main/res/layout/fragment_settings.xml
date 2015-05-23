@@ -96,7 +96,14 @@
             style="@style/GjText.title"
             android:text="Console"/>
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:weightSum="1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
         <TextView
+            android:layout_weight="0.5"
             android:id="@+id/GjMessageConsole"
             style="@style/GjText"
             android:layout_height="match_parent"
@@ -107,17 +114,16 @@
 
         <TextView
             android:visibility="gone"
-            style="@style/GjText.title"
-            android:text="Incoming"/>
-
-        <TextView
-            android:visibility="gone"
+            android:layout_weight="0.5"
             android:id="@+id/GjIncoming"
             style="@style/GjText"
             android:background="#ffffffff"
-            android:lines="10"
+            android:lines="25"
             android:scrollbars="vertical|horizontal"
             android:text="Ready\n"
             android:textColor="@android:color/black"/>
+
+
+    </LinearLayout>
 
     </LinearLayout>
