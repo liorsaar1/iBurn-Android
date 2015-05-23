@@ -39,7 +39,7 @@ public class GjMessageFactory {
         bb.put((byte) 0x55);
         bb.put(new GjMessageText("1234567890").toByteArray());
         bb.put(new GjMessageText("abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789").toByteArray());
-        bb.put(new GjMessageStatusResponse((byte)0x1F).toByteArray());
+        bb.put(new GjMessageStatusResponse((byte) 0x1F).toByteArray());
 
         bb.flip(); // IMPORTANT !!!
         return bb;
@@ -102,7 +102,7 @@ public class GjMessageFactory {
         bb.put((byte) 0x55);
         bb.put(new GjMessageText("123456").toByteArray());
         bb.put(new GjMessageText("abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ").toByteArray());
-        bb.put(new GjMessageStatusResponse((byte)0x1F).toByteArray());
+        bb.put(new GjMessageStatusResponse((byte) 0x1F).toByteArray());
 
         bb.limit(bb.position() - 5);  // IMPORTANT !!!
         bb.rewind(); // IMPORTANT !!!
@@ -160,7 +160,7 @@ public class GjMessageFactory {
         String[] byteStrings = string.split(" ");
         ByteBuffer bb = ByteBuffer.allocate(byteStrings.length);
         for (String byteString : byteStrings) {
-            byte b = Integer.decode("0x"+byteString).byteValue();
+            byte b = Integer.decode("0x" + byteString).byteValue();
             bb.put(b);
         }
         bb.rewind();

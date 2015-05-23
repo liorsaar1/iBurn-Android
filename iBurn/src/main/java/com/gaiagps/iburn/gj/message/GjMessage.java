@@ -165,41 +165,16 @@ public class GjMessage {
     private static final int VEHICLE_LENGTH = 1;
     private static final int DATA_LENGTH = 1;
     private static final int CHECKSUM_LENGTH = 1;
+    private static byte fakePacketNumber = 1;
     protected byte type;
     protected byte packetNumber;
     protected byte vehicle;
     protected byte[] data = new byte[0];
 
-    private static byte fakePacketNumber = 1;
-
     public GjMessage(Type type) {
         this.type = type.getValue();
         this.packetNumber = fakePacketNumber++;
         this.vehicle = 34;
-    }
-
-    public byte getByte() {
-        return data[0];
-    }
-
-    protected void setByte(byte value) {
-        data = new byte[] {value};
-    }
-
-    protected boolean getBoolean() {
-        return data[0] != 0;
-    }
-
-    protected void setByte(boolean value) {
-        setByte( value ? (byte)1 : (byte)0 );
-    }
-
-    public byte getVehicle() {
-        return vehicle;
-    }
-
-    public byte getPacketNumber() {
-        return packetNumber;
     }
 
     public static GjMessage create(ByteBuffer bb) throws ChecksumException, EOFException, PreambleNotFoundException, ParserException {
@@ -243,9 +218,9 @@ public class GjMessage {
                 case Error:
                     return new GjMessageError(new String(data));
                 case USB:
-                    return new GjMessageUsb( data[0] != 0 ? true : false);
+                    return new GjMessageUsb(data[0] != 0 ? true : false);
                 case FTDI:
-                    return new GjMessageFtdi( data[0] != 0 ? true : false);
+                    return new GjMessageFtdi(data[0] != 0 ? true : false);
             }
         } catch (RuntimeException e) {
             throw new ParserException(e.getMessage());
@@ -304,6 +279,38 @@ public class GjMessage {
         return data;
     }
 
+    public static String toHexString(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x ", b));
+        }
+        return sb.toString();
+    }
+
+    public byte getByte() {
+        return data[0];
+    }
+
+    protected void setByte(boolean value) {
+        setByte(value ? (byte) 1 : (byte) 0);
+    }
+
+    protected void setByte(byte value) {
+        data = new byte[]{value};
+    }
+
+    protected boolean getBoolean() {
+        return data[0] != 0;
+    }
+
+    public byte getVehicle() {
+        return vehicle;
+    }
+
+    public byte getPacketNumber() {
+        return packetNumber;
+    }
+
     public byte[] toByteArray() {
         int messageLength = preamble.length + TYPE_LENGTH + NUMBER_LENGTH + VEHICLE_LENGTH + DATA_LENGTH + data.length + CHECKSUM_LENGTH;
 
@@ -317,8 +324,8 @@ public class GjMessage {
         if (data.length > 0) {
             buffer.put(data);
         }
-        buffer.put((byte)0x00); // clear last byte before checksome
-        buffer.position(buffer.position()-1);
+        buffer.put((byte) 0x00); // clear last byte before checksome
+        buffer.position(buffer.position() - 1);
         buffer.put(checksum(buffer));
 
         return buffer.array();
@@ -326,19 +333,11 @@ public class GjMessage {
 
     @Override
     public String toString() {
-        return Type.valueOf(type).toString()+"["+vehicle+":"+packetNumber+"]";
+        return Type.valueOf(type).toString() + "[" + vehicle + ":" + packetNumber + "]";
     }
 
     public String toHexString() {
         return toHexString(toByteArray());
-    }
-
-    public static String toHexString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x ", b));
-        }
-        return sb.toString();
     }
 
     public enum Type {
@@ -360,15 +359,24 @@ public class GjMessage {
 
         public static Type valueOf(byte b) {
             switch (b) {
-                case 0x00: return Response;
-                case 0x01: return StatusResponse;
-                case 0x04: return Gps;
-                case 0x05: return Lighting;
-                case 0x06: return Text;
-                case 0x10: return Console;
-                case 0x11: return Error;
-                case 0x12: return USB;
-                case 0x13: return FTDI;
+                case 0x00:
+                    return Response;
+                case 0x01:
+                    return StatusResponse;
+                case 0x04:
+                    return Gps;
+                case 0x05:
+                    return Lighting;
+                case 0x06:
+                    return Text;
+                case 0x10:
+                    return Console;
+                case 0x11:
+                    return Error;
+                case 0x12:
+                    return USB;
+                case 0x13:
+                    return FTDI;
             }
             throw new RuntimeException("Type: Illegal Value: " + b);
         }
