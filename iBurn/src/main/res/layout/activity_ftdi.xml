@@ -59,24 +59,25 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btSendMessage"
+            android:id="@+id/ftdiSendStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dip"
             android:background="#FF333333"
-            android:onClick="onClickSendMessage"
-            android:text="Msg"/>
+            android:onClick="onClickSendStatus"
+            android:text="Status"/>
 
         <Button
-            android:id="@+id/ftdiRead"
+            android:id="@+id/ftdiSendGps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dip"
             android:background="#FF333333"
-            android:onClick="onClickRead"
-            android:text="Read"/>
+            android:onClick="onClickSendGps"
+            android:text="GPS"/>
 
         <Button
+            android:visibility="gone"
             android:id="@+id/ftdiReadLoop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

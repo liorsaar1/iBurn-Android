@@ -165,16 +165,21 @@ public class GjMessage {
     private static final int VEHICLE_LENGTH = 1;
     private static final int DATA_LENGTH = 1;
     private static final int CHECKSUM_LENGTH = 1;
-    private static byte fakePacketNumber = 1;
+    protected static byte vehicle = 7; // preset to non existing
+    private static byte outgoingPacketNumber = 1;
     protected byte type;
     protected byte packetNumber;
-    protected byte vehicle;
     protected byte[] data = new byte[0];
 
     public GjMessage(Type type) {
         this.type = type.getValue();
-        this.packetNumber = fakePacketNumber++;
-        this.vehicle = 34;
+        this.packetNumber = outgoingPacketNumber++;
+    }
+
+    public GjMessage(Type type, byte packetNumber, byte vehicle) {
+        this.type = type.getValue();
+        this.packetNumber = packetNumber;
+        this.vehicle = vehicle;
     }
 
     public static GjMessage create(ByteBuffer bb) throws ChecksumException, EOFException, PreambleNotFoundException, ParserException {
@@ -204,23 +209,23 @@ public class GjMessage {
             Type type = Type.valueOf(typeByte);
             switch (type) {
                 case Response:
-                    return new GjMessageResponse(data[0] != 0 ? true : false);
+                    return new GjMessageResponse(packetNumber, vehicle, data);
                 case StatusResponse:
-                    return new GjMessageStatusResponse(data[0]);
+                    return new GjMessageStatusResponse(packetNumber, vehicle, data);
                 case Gps:
-                    return new GjMessageGps(data);
+                    return new GjMessageGps(packetNumber, vehicle, data);
                 case Lighting:
-                    return new GjMessageLighting(new String(data));
+                    return new GjMessageLighting(packetNumber, vehicle, data);
                 case Text:
-                    return new GjMessageText(new String(data));
+                    return new GjMessageText(packetNumber, vehicle, data);
                 case Console:
-                    return new GjMessageConsole(new String(data));
+                    return new GjMessageConsole(packetNumber, vehicle, data);
                 case Error:
-                    return new GjMessageError(new String(data));
+                    return new GjMessageError(packetNumber, vehicle, data);
                 case USB:
-                    return new GjMessageUsb(data[0] != 0 ? true : false);
+                    return new GjMessageUsb(packetNumber, vehicle, data);
                 case FTDI:
-                    return new GjMessageFtdi(data[0] != 0 ? true : false);
+                    return new GjMessageFtdi(packetNumber, vehicle, data);
             }
         } catch (RuntimeException e) {
             throw new ParserException(e.getMessage());
@@ -291,12 +296,16 @@ public class GjMessage {
         return data[0];
     }
 
+    protected void setByte(byte value) {
+        data = new byte[]{value};
+    }
+
     protected void setByte(boolean value) {
         setByte(value ? (byte) 1 : (byte) 0);
     }
 
-    protected void setByte(byte value) {
-        data = new byte[]{value};
+    protected void setData(byte[] data) {
+        this.data = data;
     }
 
     protected boolean getBoolean() {
@@ -305,6 +314,10 @@ public class GjMessage {
 
     public byte getVehicle() {
         return vehicle;
+    }
+
+    public static void setVehicle(byte vehicle) {
+        GjMessage.vehicle = vehicle;
     }
 
     public byte getPacketNumber() {

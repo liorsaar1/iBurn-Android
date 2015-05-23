@@ -9,6 +9,11 @@ public class GjMessageUsb extends GjMessage {
         setByte(attached);
     }
 
+    public GjMessageUsb(byte packetNumber, byte vehicle, byte[] data) {
+        super(Type.USB, packetNumber, vehicle);
+        setByte(data[0]);
+    }
+
     public boolean getStatus() {
         return getBoolean();
     }

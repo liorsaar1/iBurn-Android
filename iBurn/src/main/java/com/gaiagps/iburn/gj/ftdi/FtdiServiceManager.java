@@ -164,9 +164,4 @@ public class FtdiServiceManager {
     public int send(byte[] bytes) {
         return mService.send(bytes);
     }
-
-    public int read(byte[] bytes) {
-        return mService.read(bytes);
-    }
-
 }

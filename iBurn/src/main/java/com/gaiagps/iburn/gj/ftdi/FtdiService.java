@@ -138,34 +138,6 @@ public class FtdiService extends Service {
         return mBinder;
     }
 
-    public int read(byte[] bytes) {
-        try {
-            if (ftDev == null) {
-                openDevice();
-                if (ftDev == null) {
-                    error("FTDI device not found");
-                    return -1;
-                }
-            }
-
-            synchronized (ftDev) {
-                int length = bb.position();
-                console("read: " + length);
-                if (length > bytes.length) {
-                    error("Input buffer too small. Required " + length);
-                    length = bytes.length - 100;
-                }
-                bb.flip();
-                bb.get(bytes, 0, length);
-                bb.compact();
-                return length;
-            }
-        } catch (Throwable t) {
-            broadcastException(bytes, t);
-            return -1;
-        }
-    }
-
     private void broadcastException(byte[] bytes, Throwable t) {
         error("Exception: " + t.getMessage());
         StringWriter stringWriter = new StringWriter();

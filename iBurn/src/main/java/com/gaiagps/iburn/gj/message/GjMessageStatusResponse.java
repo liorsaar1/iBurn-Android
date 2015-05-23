@@ -8,9 +8,14 @@ public class GjMessageStatusResponse extends GjMessage {
     private static final byte BITMASK_COMPASS = 0x08;
     private static final byte BITMASK_GPS = 0x10;
 
-    public GjMessageStatusResponse(byte status) {
+    public GjMessageStatusResponse(byte status) { // used for testing only
         super(Type.StatusResponse);
         setByte(status);
+    }
+
+    public GjMessageStatusResponse(byte packetNumber, byte vehicle, byte[] data) {
+        super(Type.StatusResponse, packetNumber, vehicle);
+        setByte(data[0]);
     }
 
     public boolean getErrorRadio() { return (getByte() & BITMASK_RADIO) != 0; }

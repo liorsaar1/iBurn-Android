@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.gaiagps.iburn.R;
 import com.gaiagps.iburn.gj.ftdi.FtdiServiceManager;
 import com.gaiagps.iburn.gj.message.GjMessage;
+import com.gaiagps.iburn.gj.message.GjMessageGps;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageStatusResponse;
 import com.gaiagps.iburn.gj.message.GjMessageText;
@@ -183,7 +184,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         statusVehicle.setText("Vehicle:" + number);
     }
 
-    private void setStatusSeqNumber(int number) {
+    private void setStatusPacketNumber(int number) {
         statusSeqNumber.setBackgroundColor(0xFFCCCCCC);
         statusSeqNumber.setText(""+number);
     }
@@ -212,7 +213,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             return;
         }
         String hex = GjMessage.toHexString(bytes);
-        console( "Incoming:"+hex);
+        console("<<< Incoming:" + hex);
     }
 
     @Override
@@ -223,19 +224,17 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             return;
         }
 
-        console(message.toString());
-//        if (true) return;
-
-
-        setStatusSeqNumber(message.getPacketNumber());
-
         if (message instanceof GjMessageFtdi) {
             boolean status = ((GjMessageFtdi)message).getStatus();
             setStatusFtdi(status);
+            console("### " + message.toString());
+            return;
         }
         if (message instanceof GjMessageUsb) {
             boolean status = ((GjMessageUsb)message).getStatus();
             setStatusUsb(status);
+            console("### " + message.toString());
+            return;
         }
         if (message instanceof GjMessageStatusResponse) {
             GjMessageStatusResponse s = (GjMessageStatusResponse)message;
@@ -245,7 +244,18 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             setStatusCompass(s.getErrorCompass());
             setStatusGps(s.getErrorGps());
             setStatusVehicle(s.getVehicle());
+            setStatusPacketNumber(s.getPacketNumber());
+            // store my own vehcile ID as reported by the controller
+            GjMessage.setVehicle(s.getVehicle());
+            console("<<< " + message.toString());
+            return;
         }
+        if (message instanceof GjMessageGps) {
+            console("<<< " + message.toString());
+            return;
+        }
+        // otherwise
+        console(message.toString());
     }
 
     private static List<GjMessage> queue = new ArrayList<>();

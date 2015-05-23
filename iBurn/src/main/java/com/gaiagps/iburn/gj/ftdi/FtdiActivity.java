@@ -13,6 +13,7 @@ import com.gaiagps.iburn.R;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
+import com.gaiagps.iburn.gj.message.GjMessageStatusResponse;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class FtdiActivity extends Activity implements GjMessageListener {
 
     private int counter = 1;
     private Button manyButton;
-    private Button readButton;
+    private Button statusButton, gpsButton;
 
     private static FtdiServiceManager ftdiServiceManager;
 
@@ -39,13 +40,15 @@ public class FtdiActivity extends Activity implements GjMessageListener {
         bytesConsole.setMovementMethod(new ScrollingMovementMethod());
 
         manyButton = (Button) findViewById(R.id.ftdiSendMany);
-        readButton = (Button) findViewById(R.id.ftdiRead);
+        statusButton = (Button) findViewById(R.id.ftdiSendStatus);
+        gpsButton = (Button) findViewById(R.id.ftdiSendGps);
 
         console("onCreate");
         // service manager
         if (ftdiServiceManager == null) {
             ftdiServiceManager = new FtdiServiceManager(getFtdiListeners());
         }
+        GjMessage.setVehicle((byte)9); // fake
     }
 
     private List<GjMessageListener> getFtdiListeners() {
@@ -99,20 +102,17 @@ public class FtdiActivity extends Activity implements GjMessageListener {
         }
     }
 
-    public void onClickSendMessage(View v) {
+    private static int status = 0;
+
+    public void onClickSendStatus(View v) {
         if (!ftdiServiceManager.isBound()) {
             return;
         }
+        statusButton.setEnabled(false);
+        GjMessageStatusResponse m = new GjMessageStatusResponse((byte)status++);
+        int written = ftdiServiceManager.send(m.toByteArray());
+        statusButton.setEnabled(true);
 
-        for (int i = 0 ; i < 1; i++) {
-            sendGjMessage();
-        }
-    }
-
-    private void sendGjMessage() {
-        ByteBuffer bb = GjMessageFactory.create4();
-        loopback(bb.array());
-        return;
     }
 
     private void loopback(byte[] bytes) {
@@ -160,31 +160,17 @@ public class FtdiActivity extends Activity implements GjMessageListener {
         sendManyTask.execute();
     }
 
-    public void onClickRead(View v) {
+    public void onClickSendGps(View v) {
         if (!ftdiServiceManager.isBound()) {
             return;
         }
-        readButton.setEnabled(false);
-        try {
-            byte[] bytes = new byte[4096];
-            int length = ftdiServiceManager.read(bytes);
-            console("Bytes read: " + length);
-            if (length > 0) {
-                incoming(bytes);
-            }
-        } catch (Throwable t) {
-            console("ERROR:" + t.getMessage());
-        }
-        readButton.setEnabled(true);
+        gpsButton.setEnabled(false);
+        int written = ftdiServiceManager.send(GjMessageFactory.createGps());
+        //loopback(GjMessageFactory.createGps().array());
+        gpsButton.setEnabled(true);
     }
 
     public void onClickReadLoop(View v) {
-//        if (!ftdiServiceManager.isBound()) {
-//            return;
-//        }
-//        readLoopButton.setEnabled(false);
-//
-//        ftdiServiceManager.scheduleRead(FtdiActivity.this);
     }
 
     public void console(String string) {

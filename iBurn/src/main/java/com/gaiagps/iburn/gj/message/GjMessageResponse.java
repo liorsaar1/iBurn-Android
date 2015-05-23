@@ -2,9 +2,9 @@ package com.gaiagps.iburn.gj.message;
 
 public class GjMessageResponse extends GjMessage {
 
-    public GjMessageResponse(boolean checksumOk) {
-        super(Type.Response);
-        setByte(checksumOk);
+    public GjMessageResponse(byte packetNumber, byte vehicle, byte[] data) {
+        super(Type.Response, packetNumber, vehicle);
+        setByte(data[0]); // true == checksum OK
     }
 
     public boolean getChecksumOk() {

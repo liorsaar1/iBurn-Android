@@ -70,6 +70,12 @@ public class GjMessageFactory {
         return fromString(sb.toString());
     }
 
+    public static ByteBuffer createGps() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("ff 55 aa 36 00 04 10 80 30 78 1d 6a 3d 3c b7 15 06 a6 16 91 23 00 00 b2 ");
+        return fromString(sb.toString());
+    }
+
     public static void testStream() {
 
         ByteBuffer bb = create1();

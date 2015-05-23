@@ -12,7 +12,17 @@ public class GjMessageGps extends GjMessage {
 
     public GjMessageGps(byte[] data) {
         super(Type.Gps);
+        setData(data);
+    }
 
+    public GjMessageGps(byte packetNumber, byte vehicle, byte[] data) {
+        super(Type.Gps, packetNumber, vehicle);
+        setData(data);
+    }
+
+    @Override
+    protected void setData(byte[] data) {
+        super.setData(data);
         time = ByteBuffer.wrap(data,  0, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
         lat  = ByteBuffer.wrap(data,  4, 4).order(ByteOrder.LITTLE_ENDIAN).getInt()*0.0000001;
         lng  = ByteBuffer.wrap(data,  8, 4).order(ByteOrder.LITTLE_ENDIAN).getInt()*0.0000001;

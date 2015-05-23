@@ -9,6 +9,11 @@ public class GjMessageFtdi extends GjMessage {
         setByte(attached);
     }
 
+    public GjMessageFtdi(byte packetNumber, byte vehicle, byte[] data) {
+        super(Type.FTDI, packetNumber, vehicle);
+        setByte(data[0]);
+    }
+
     public boolean getStatus() {
         return getBoolean();
     }
