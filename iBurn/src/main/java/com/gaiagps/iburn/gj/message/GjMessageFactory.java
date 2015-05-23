@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
 import com.gaiagps.iburn.gj.message.internal.GjMessageError;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.io.EOFException;
 import java.nio.ByteBuffer;
@@ -28,11 +27,6 @@ public class GjMessageFactory {
         hex = textMessage.toHexString();
         s = textMessage.toString();
 
-        LatLng latLng = new LatLng(40.7888, -119.20315);
-        GjMessageGps reportGpsMessage = new GjMessageGps(latLng);
-        buf = reportGpsMessage.toByteArray();
-        hex = reportGpsMessage.toHexString();
-        s = reportGpsMessage.toString();
     }
 
     public static ByteBuffer create1() {
@@ -46,7 +40,6 @@ public class GjMessageFactory {
         bb.put(new GjMessageText("1234567890").toByteArray());
         bb.put(new GjMessageText("abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789").toByteArray());
         bb.put(new GjMessageStatusResponse((byte)0x1F).toByteArray());
-        bb.put(new GjMessageGps(new LatLng(40.7888, -119.20315)).toByteArray());
 
         bb.flip(); // IMPORTANT !!!
         return bb;
@@ -74,9 +67,6 @@ public class GjMessageFactory {
         StringBuffer sb = new StringBuffer();
         sb.append("bd ff 55 aa 35 00 01 01 00 35 ");
         sb.append("ff 55 aa 36 00 04 10 80 30 78 1d 6a 3d 3c b7 15 06 a6 16 91 23 00 00 b2 ");
-        sb.append("");
-        sb.append("");
-        sb.append("");
         return fromString(sb.toString());
     }
 
@@ -113,7 +103,6 @@ public class GjMessageFactory {
         bb.put(new GjMessageText("123456").toByteArray());
         bb.put(new GjMessageText("abcdefghijklmnopqrstuvwxysABCDEFGHIJKLMNOPQRSTUVWXYZ").toByteArray());
         bb.put(new GjMessageStatusResponse((byte)0x1F).toByteArray());
-        bb.put(new GjMessageGps(new LatLng(40.7888, -119.20315)).toByteArray());
 
         bb.limit(bb.position() - 5);  // IMPORTANT !!!
         bb.rewind(); // IMPORTANT !!!
@@ -178,4 +167,3 @@ public class GjMessageFactory {
         return bb;
     }
 }
-
