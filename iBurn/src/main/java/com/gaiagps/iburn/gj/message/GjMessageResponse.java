@@ -11,8 +11,12 @@ public class GjMessageResponse extends GjMessage {
         return getBoolean();
     }
 
+    private String checksumStatus() {
+        return getChecksumOk() ? "No error" : "Checksum Error. packet " + getPacketNumber();
+    }
+
     @Override
     public String toString() {
-        return super.toString()+": OK:" + getChecksumOk();
+        return super.toString()+": " + checksumStatus();
     }
 }

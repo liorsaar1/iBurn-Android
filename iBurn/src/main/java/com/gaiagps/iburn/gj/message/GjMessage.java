@@ -18,6 +18,7 @@ https://docs.google.com/document/d/1COgntcMCB9yj2noEOQpfmL1X5a2sasidZgQr8DDS_bY/
 
 (ROUGH DRAFT)
 
+
 Protocol definition
 * Fully asynchronous. No tablet->controller requests. Packet number used to determine sequence and identification
 * Tablet refreshes every 2 seconds (subject to experimentation)
@@ -31,7 +32,6 @@ Protocol definition
    * Tablet->controller: reported as an error with packet ID - retransmitted
    * Controller->tablet: ignored  (Zach say yes)
 
-================================================================================================
 
 Packet sent to the controller (wireless module)
 
@@ -79,9 +79,6 @@ This will be a single byte sum (truncated to the LSB) that includes ALL bytes in
 Sample packet:
 0xFF 0x55 0xAA 0x06 0x02 0x48 0x49 0x97
 This is a text message sending "HI".
-
-
-============================================================================================
 
 Packet received from the wireless module
 
@@ -136,23 +133,45 @@ Bit 7 (MSB) -  TBD
 
 [Buffered GPS locations]
 Multiple packets will be returned, one for each vehicle that has reported its location.
+
+
 The GPS data string will be be formated like:
-Byte 0          Vehicle number
-Bytes 1-4     Number of milliseconds from the beginning of the week (Unsigned long)
-Bytes 5-8     Longitude  (Signed Long)
-Bytes 9-12   Latitude  (Signed Long)
-Bytes 13-16 Heading (0.0 to 360.0 deg, four byte float)
+Bytes 0-2 Preamble
+Bytes 3 Packet number (0-255 incrementing each message)
+Bytes 4 Vehicle number (0-15)
+Bytes 5 Message type (0x04 for GPS)
+Bytes 6 Data length (for regular packets 18, for last packet in vehicle list 0)
+Bytes 7-10     Number of milliseconds from the beginning of the week (Unsigned long)
+Bytes 12-14   Longitude  (Signed Long scaled by 1e-7)
+Bytes 15-18   Latitude  (Signed Long scaled by 1e-7)
+Bytes 19-22   Heading (Unsigned long 0.0 to 360.0 deg, scaled by 1e-2)
+Bytes 23        Checksum
 
 
 A packet with a type 0x04 and a data length of 0 will notify the app that the entire list has been transmitted.
 
 
+Here is a python code snippet that parses the GPS packet:
+packetType = thePacket[5]
+if(packetType==0x04):
+        print(">>>>>>>>>>>>GPS Packet 0x04<<<<<<<<<<<<<<")
+        print ("Vehicle %d" % (thePacket[4]))
+        print ("Time %d" % (thePacket[7]+(thePacket[8]<<8)+(thePacket[9]<<16)+(thePacket[10]<<24)))
+        lat=thePacket[11]+(thePacket[12]<<8)+(thePacket[13]<<16)+(thePacket[14]<<24)
+        lat = twos_comp(lat, 32)
+        print ("LAT %f" % (lat*.0000001))
+        long=thePacket[15]+(thePacket[16]<<8)+(thePacket[17]<<16)+(thePacket[18]<<24)
+        long = twos_comp(long, 32)
+        print ("LON %f" % (long*.0000001))
+        print ("HEAD %f" % ((thePacket[19]+(thePacket[20]<<8)+(thePacket[21]<<16)+(thePacket[22]<<24))*.01))
+
 [Lighting cues] and [Text messages]
 The format will be determined by the app.  These messages will be reported to the app as soon as they are received.  If a message is received during communications with the host, the new message will be buffered just long enough for the current communication to be finished.
 
-
 Notes:
+
 The update rate for data is TBD depending on system bandwidth (i.e. not sure how often we can send GPS updates, maybe 1 per second, maybe less)
+
 System latency is TBD
 
  */
@@ -165,15 +184,13 @@ public class GjMessage {
     private static final int VEHICLE_LENGTH = 1;
     private static final int DATA_LENGTH = 1;
     private static final int CHECKSUM_LENGTH = 1;
-    protected static byte vehicle = 7; // preset to non existing
-    private static byte outgoingPacketNumber = 1;
+    protected byte vehicle;
     protected byte type;
     protected byte packetNumber;
     protected byte[] data = new byte[0];
 
     public GjMessage(Type type) {
         this.type = type.getValue();
-        this.packetNumber = outgoingPacketNumber++;
     }
 
     public GjMessage(Type type, byte packetNumber, byte vehicle) {
@@ -316,10 +333,6 @@ public class GjMessage {
         return vehicle;
     }
 
-    public static void setVehicle(byte vehicle) {
-        GjMessage.vehicle = vehicle;
-    }
-
     public byte getPacketNumber() {
         return packetNumber;
     }
@@ -351,6 +364,10 @@ public class GjMessage {
 
     public String toHexString() {
         return toHexString(toByteArray());
+    }
+
+    public void setPacketNumber(byte packetNumber) {
+        this.packetNumber = packetNumber;
     }
 
     public enum Type {

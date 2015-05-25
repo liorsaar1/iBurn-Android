@@ -117,7 +117,7 @@
     </style>
 
     <style name="GjButton" parent="GjText">
-        <item name="android:layout_width">60dp</item>
+        <item name="android:layout_width">100dp</item>
     </style>
 
     <style name="GjText.title">

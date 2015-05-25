@@ -19,10 +19,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.gaiagps.iburn.R;
+import com.gaiagps.iburn.activity.MainActivity;
 import com.gaiagps.iburn.gj.ftdi.FtdiServiceManager;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageGps;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
+import com.gaiagps.iburn.gj.message.GjMessageResponse;
 import com.gaiagps.iburn.gj.message.GjMessageStatusResponse;
 import com.gaiagps.iburn.gj.message.GjMessageText;
 import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
@@ -42,10 +44,11 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     private EditText messageEditText;
     private static TextView messageConsole;
     private static TextView messageIncoming;
-    private Button messageTextButton;
     private static TextView statusUsb, statusFtdi;
     private static TextView statusRadio, statusVoltage, statusTemp, statusCompass, statusGps;
     private static TextView statusSeqNumber, statusVehicle, statusVersion;
+    private static Button testSendResponse, testSendText;
+    public static byte vehicleNumber;
 
     public static SettingsFragment newInstance() {
         return new SettingsFragment();
@@ -71,15 +74,19 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         messageIncoming = (TextView) view.findViewById(R.id.GjIncoming);
         messageIncoming.setMovementMethod(new ScrollingMovementMethod());
 
-        view.findViewById(R.id.GjTestMessageStatus).setOnClickListener(new View.OnClickListener() {
+        testSendResponse = (Button)view.findViewById(R.id.GjTestSendResponse);
+        testSendResponse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onClickTestMessageStatus(v);
+                onClickTestSendResponse(v);
             }
         });
-        view.findViewById(R.id.GjMessageSendButton).setOnClickListener(new View.OnClickListener() {
+        testSendText = (Button)view.findViewById(R.id.GjTestSendText);
+        testSendText.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { onClickSendText(v); }
+            public void onClick(View v) {
+                onClickTestSendText(v);
+            }
         });
 
         statusUsb = (TextView)view.findViewById(R.id.GjStatusUsb);
@@ -184,14 +191,15 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         statusVehicle.setText("Vehicle:" + number);
     }
 
-    private void setStatusPacketNumber(int number) {
+    private void setStatusPacketNumber(byte packetNumber) {
         statusSeqNumber.setBackgroundColor(0xFFCCCCCC);
+        int number = (int)packetNumber & 0x000000FF;
         statusSeqNumber.setText(""+number);
     }
 
     private void setStatusVersion(String version) {
         statusVersion.setBackgroundColor(0xFFCCCCCC);
-        statusVersion.setText(version);
+        statusVersion.setText("Ver " + version);
     }
 
     private int getColorOnOff(boolean offOn) {
@@ -215,6 +223,8 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         String hex = GjMessage.toHexString(bytes);
         console("<<< Incoming:" + hex);
     }
+
+    private static int lastPacket = -1;
 
     @Override
     public void onMessage(GjMessage message) {
@@ -246,11 +256,16 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             setStatusVehicle(s.getVehicle());
             setStatusPacketNumber(s.getPacketNumber());
             // store my own vehcile ID as reported by the controller
-            GjMessage.setVehicle(s.getVehicle());
+            vehicleNumber = s.getVehicle();
             console("<<< " + message.toString());
             return;
         }
         if (message instanceof GjMessageGps) {
+            console("<<< " + message.toString());
+            return;
+        }
+        if (message instanceof GjMessageText) {
+            lastPacket = message.getPacketNumber();
             console("<<< " + message.toString());
             return;
         }
@@ -309,5 +324,26 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             }
         });
     }
+
+    public void onClickTestSendResponse(View v) {
+        if (!MainActivity.ftdiServiceManager.isBound()) {
+            return;
+        }
+        console( "Fake Checksum Error for packet " + lastPacket);
+        int written = MainActivity.ftdiServiceManager.send(new GjMessageResponse((byte)lastPacket, (byte)9, new byte[]{0} ));
+    }
+
+    public void onClickTestSendText(View v) {
+        if (!MainActivity.ftdiServiceManager.isBound()) {
+            return;
+        }
+        int written = MainActivity.ftdiServiceManager.send(new GjMessageText("*** " + FtdiServiceManager.outgoingPacketNumber + " ****************"));
+    }
+
+//    public void loopback(byte[] bytes) {
+//        Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
+//        intent.putExtra(FtdiService.FTDI_SERVICE_MESSSAGE, bytes);
+//        getActivity().sendBroadcast(intent);
+//    }
 
 }

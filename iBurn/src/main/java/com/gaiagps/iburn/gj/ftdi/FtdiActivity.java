@@ -1,7 +1,6 @@
 package com.gaiagps.iburn.gj.ftdi;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -13,11 +12,15 @@ import com.gaiagps.iburn.R;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
+import com.gaiagps.iburn.gj.message.GjMessageResponse;
 import com.gaiagps.iburn.gj.message.GjMessageStatusResponse;
+import com.gaiagps.iburn.gj.message.GjMessageText;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FtdiActivity extends Activity implements GjMessageListener {
     private TextView messageConsole;
@@ -25,7 +28,7 @@ public class FtdiActivity extends Activity implements GjMessageListener {
 
     private int counter = 1;
     private Button manyButton;
-    private Button statusButton, gpsButton;
+    private Button statusButton, gpsButton, checksumButton;
 
     private static FtdiServiceManager ftdiServiceManager;
 
@@ -42,13 +45,13 @@ public class FtdiActivity extends Activity implements GjMessageListener {
         manyButton = (Button) findViewById(R.id.ftdiSendMany);
         statusButton = (Button) findViewById(R.id.ftdiSendStatus);
         gpsButton = (Button) findViewById(R.id.ftdiSendGps);
+        checksumButton = (Button) findViewById(R.id.ftdiChecksumError);
 
         console("onCreate");
         // service manager
         if (ftdiServiceManager == null) {
             ftdiServiceManager = new FtdiServiceManager(getFtdiListeners());
         }
-        GjMessage.setVehicle((byte)9); // fake
     }
 
     private List<GjMessageListener> getFtdiListeners() {
@@ -115,12 +118,6 @@ public class FtdiActivity extends Activity implements GjMessageListener {
 
     }
 
-    private void loopback(byte[] bytes) {
-        Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
-        intent.putExtra(FtdiService.FTDI_SERVICE_MESSSAGE, bytes);
-        sendBroadcast(intent);
-    }
-
     public void onClickSendMany(View v) {
         if (!ftdiServiceManager.isBound()) {
             return;
@@ -170,7 +167,13 @@ public class FtdiActivity extends Activity implements GjMessageListener {
         gpsButton.setEnabled(true);
     }
 
-    public void onClickReadLoop(View v) {
+    public void onClickChecksumError(View v) {
+        if (!ftdiServiceManager.isBound()) {
+            return;
+        }
+        checksumButton.setEnabled(false);
+        int written = ftdiServiceManager.send(new GjMessageResponse((byte)8, (byte)7, new byte[] {0x00}));
+        checksumButton.setEnabled(true);
     }
 
     public void console(String string) {
@@ -198,9 +201,16 @@ public class FtdiActivity extends Activity implements GjMessageListener {
         });
     }
 
+    int lastPacketNumber = -1;
+
+    Map<String, GjMessage> packetHistory = new HashMap<String, GjMessage>();
 
     @Override
     public void onMessage(GjMessage message) {
         console(message.toString());
+
+        if (message instanceof GjMessageText) {
+            lastPacketNumber = message.getPacketNumber();
+        }
     }
 }

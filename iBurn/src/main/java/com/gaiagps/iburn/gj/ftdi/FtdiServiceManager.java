@@ -12,10 +12,12 @@ import android.os.IBinder;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
+import com.gaiagps.iburn.gj.message.GjMessageResponse;
 import com.gaiagps.iburn.gj.message.GjMessageText;
 import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -124,6 +126,9 @@ public class FtdiServiceManager {
     }
 
     private void dispatch(GjMessage message) {
+        if (message instanceof GjMessageResponse) {
+            historyHandle((GjMessageResponse)message);
+        }
         for (GjMessageListener listener : ftdiListeners) {
             listener.onMessage(message);
         }
@@ -139,12 +144,19 @@ public class FtdiServiceManager {
         }
     }
 
+    public static int outgoingPacketNumber = 1;
+
     public int send(GjMessage message) {
+        // save in history
+        if (! (message instanceof GjMessageResponse))
+            message.setPacketNumber((byte) outgoingPacketNumber++);
+        historyPut(message);
+        // send
         int written = send(message.toByteArray());
         if (written == message.toByteArray().length) {
-            console("Sent: written:" + written);
+            console("Sent: bytes written :" + written);
         } else {
-            console("ERROR: expected: " + message.toByteArray().length + " written:" + written);
+            console("Send ERROR: expected: " + message.toByteArray().length + " written:" + written);
         }
         return written;
     }
@@ -163,5 +175,41 @@ public class FtdiServiceManager {
 
     public int send(byte[] bytes) {
         return mService.send(bytes);
+    }
+
+    // history
+    private List<GjMessage> history = new ArrayList<>();
+
+    private void historyPut(GjMessage message) {
+        console("History: put:" + message.getPacketNumber());
+        history.add(message);
+        if (history.size() > 20) {
+            history.remove(0);
+        }
+    }
+
+    private void historyHandle(GjMessageResponse response) {
+        // why did we get this ?
+        if (response.getChecksumOk()) {
+            console("CHEKSUM OK: " + response.getPacketNumber());
+            return;
+        }
+        // error
+        console("CHEKSUM ERROR: " + response.getPacketNumber());
+        GjMessage resend = historyGet(response.getPacketNumber());
+        if (resend == null) {
+            console("CHEKSUM ERROR: not found" + response.getPacketNumber());
+            return;
+        }
+        send(resend);
+    }
+
+    private GjMessage historyGet(byte packetNumber) {
+        for (GjMessage message : history) {
+            if (message.getPacketNumber() == packetNumber) {
+                return message;
+            }
+        }
+        return null;
     }
 }

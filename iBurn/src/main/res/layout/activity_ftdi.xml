@@ -77,13 +77,12 @@
             android:text="GPS"/>
 
         <Button
-            android:visibility="gone"
-            android:id="@+id/ftdiReadLoop"
+            android:id="@+id/ftdiChecksumError"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="#FF333333"
-            android:onClick="onClickReadLoop"
-            android:text="Read Loop"/>
+            android:onClick="onClickChecksumError"
+            android:text="Checksum"/>
 
     </LinearLayout>
 
