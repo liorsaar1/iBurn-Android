@@ -46,9 +46,11 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     private static TextView messageIncoming;
     private static TextView statusUsb, statusFtdi;
     private static TextView statusRadio, statusVoltage, statusTemp, statusCompass, statusGps;
-    private static TextView statusSeqNumber, statusVehicle, statusVersion;
+    private static TextView statusPacketNumber, statusVehicle, statusVersion, statusChecksumErrorCounter;
     private static Button testSendResponse, testSendText;
-    public static byte vehicleNumber;
+    public static byte sVehicleNumber =0;
+    public static int sChecksumErrorCounter =0;
+
 
     public static SettingsFragment newInstance() {
         return new SettingsFragment();
@@ -97,12 +99,14 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         statusCompass = (TextView)view.findViewById(R.id.GjStatusCompass);
         statusGps = (TextView)view.findViewById(R.id.GjStatusGps);
         statusVehicle = (TextView)view.findViewById(R.id.GjStatusVehicle);
-        statusSeqNumber = (TextView)view.findViewById(R.id.GjStatusSeqNumber);
+        statusPacketNumber = (TextView)view.findViewById(R.id.GjStatusPacketNumber);
         statusVersion = (TextView)view.findViewById(R.id.GjStatusVersion);
+        statusChecksumErrorCounter = (TextView)view.findViewById(R.id.GjStatusChecksumErrorCounter);
 
         setVersion(getActivity());
         checkUsb(getActivity());
         queueDispatch();
+        setStatusChecksumErrorCounter(sChecksumErrorCounter);
 
         return view;
     }
@@ -186,15 +190,22 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         statusGps.setBackgroundColor(getColorError(error));
     }
 
-    private void setStatusVehicle(int number) {
+    private void setStatusVehicle(byte number) {
+        sVehicleNumber = number;
         statusVehicle.setBackgroundColor(getColorError(false));
         statusVehicle.setText("Vehicle:" + number);
     }
 
     private void setStatusPacketNumber(byte packetNumber) {
-        statusSeqNumber.setBackgroundColor(0xFFCCCCCC);
+        statusPacketNumber.setBackgroundColor(0xFFCCCCCC);
         int number = (int)packetNumber & 0x000000FF;
-        statusSeqNumber.setText(""+number);
+        statusPacketNumber.setText("Packet:" + number);
+    }
+
+    private void setStatusChecksumErrorCounter(int counter) {
+        int color = getColorError(counter!=0);
+        statusChecksumErrorCounter.setBackgroundColor(color);
+        statusChecksumErrorCounter.setText("Checksum:" + counter);
     }
 
     private void setStatusVersion(String version) {
@@ -246,6 +257,13 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             console("### " + message.toString());
             return;
         }
+        if (message instanceof GjMessageResponse) {
+            GjMessageResponse response = (GjMessageResponse)message;
+            if (!response.isOK()) {
+                sChecksumErrorCounter++;
+                setStatusChecksumErrorCounter(sChecksumErrorCounter);
+            }
+        }
         if (message instanceof GjMessageStatusResponse) {
             GjMessageStatusResponse s = (GjMessageStatusResponse)message;
             setStatusRadio(s.getErrorRadio());
@@ -256,15 +274,22 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             setStatusVehicle(s.getVehicle());
             setStatusPacketNumber(s.getPacketNumber());
             // store my own vehcile ID as reported by the controller
-            vehicleNumber = s.getVehicle();
+            setStatusVehicle(s.getVehicle());
+            // report packet number
+            setStatusPacketNumber(s.getPacketNumber());
             console("<<< " + message.toString());
             return;
         }
         if (message instanceof GjMessageGps) {
+            // report packet number
+            setStatusPacketNumber(message.getPacketNumber());
             console("<<< " + message.toString());
             return;
         }
         if (message instanceof GjMessageText) {
+            // report packet number
+            setStatusPacketNumber(message.getPacketNumber());
+            // DEBUG save last text #
             lastPacket = message.getPacketNumber();
             console("<<< " + message.toString());
             return;

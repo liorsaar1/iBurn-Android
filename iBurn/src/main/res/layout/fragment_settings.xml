@@ -66,9 +66,15 @@
                 android:text="GPS"/>
 
             <TextView
-                android:id="@+id/GjStatusSeqNumber"
+                android:id="@+id/GjStatusChecksumErrorCounter"
                 style="@style/GjStatus"
-                android:text=":?"/>
+                android:text="Checksum:?"/>
+
+            <TextView
+                android:id="@+id/GjStatusPacketNumber"
+                style="@style/GjStatus"
+                android:text="Packet:?"/>
+
         </TableRow>
     </TableLayout>
 

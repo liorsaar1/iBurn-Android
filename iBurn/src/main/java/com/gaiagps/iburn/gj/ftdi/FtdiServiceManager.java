@@ -190,7 +190,7 @@ public class FtdiServiceManager {
 
     private void historyHandle(GjMessageResponse response) {
         // why did we get this ?
-        if (response.getChecksumOk()) {
+        if (response.isOK()) {
             console("CHEKSUM OK: " + response.getPacketNumber());
             return;
         }

@@ -7,12 +7,12 @@ public class GjMessageResponse extends GjMessage {
         setByte(data[0]); // true == checksum OK
     }
 
-    public boolean getChecksumOk() {
+    public boolean isOK() {
         return getBoolean();
     }
 
     private String checksumStatus() {
-        return getChecksumOk() ? "No error" : "Checksum Error. packet " + getPacketNumber();
+        return isOK() ? "No error" : "Checksum Error. packet " + getPacketNumber();
     }
 
     @Override
