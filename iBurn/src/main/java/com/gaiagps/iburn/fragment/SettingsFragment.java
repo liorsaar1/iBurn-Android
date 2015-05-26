@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -20,8 +19,10 @@ import android.widget.TextView;
 
 import com.gaiagps.iburn.R;
 import com.gaiagps.iburn.activity.MainActivity;
+import com.gaiagps.iburn.gj.ftdi.FtdiService;
 import com.gaiagps.iburn.gj.ftdi.FtdiServiceManager;
 import com.gaiagps.iburn.gj.message.GjMessage;
+import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageGps;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageResponse;
@@ -40,14 +41,14 @@ import java.util.List;
 public class SettingsFragment extends Fragment implements GjMessageListener {
     private static final String TAG = "SettingsFragment";
 
-    private View messageEditTextContainer;
-    private EditText messageEditText;
+    private static EditText sendTextEditText;
+    private static Button sendTextButton;
     private static TextView messageConsole;
     private static TextView messageIncoming;
     private static TextView statusUsb, statusFtdi;
     private static TextView statusRadio, statusVoltage, statusTemp, statusCompass, statusGps;
     private static TextView statusPacketNumber, statusVehicle, statusVersion, statusChecksumErrorCounter;
-    private static Button testSendResponse, testSendText;
+    private static Button testSendResponse, testSendStatus, testSendGps;
     public static byte sVehicleNumber =0;
     public static int sChecksumErrorCounter =0;
 
@@ -70,7 +71,14 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        messageEditText = (EditText) view.findViewById(R.id.GjMessageEditText);
+        sendTextEditText = (EditText) view.findViewById(R.id.GjMessageEditText);
+        sendTextButton = (Button)view.findViewById(R.id.GjMessageSendTextButton);
+        sendTextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClickSendText(v);
+            }
+        });
         messageConsole = (TextView) view.findViewById(R.id.GjMessageConsole);
         messageConsole.setMovementMethod(new ScrollingMovementMethod());
         messageIncoming = (TextView) view.findViewById(R.id.GjIncoming);
@@ -83,11 +91,18 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
                 onClickTestSendResponse(v);
             }
         });
-        testSendText = (Button)view.findViewById(R.id.GjTestSendText);
-        testSendText.setOnClickListener(new View.OnClickListener() {
+        testSendStatus = (Button)view.findViewById(R.id.GjTestSendStatus);
+        testSendStatus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onClickTestSendText(v);
+                onClickTestSendStatus(v);
+            }
+        });
+        testSendGps = (Button)view.findViewById(R.id.GjTestSendGps);
+        testSendGps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClickTestSendGps(v);
             }
         });
 
@@ -107,51 +122,34 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         checkUsb(getActivity());
         queueDispatch();
         setStatusChecksumErrorCounter(sChecksumErrorCounter);
+        setOutgoingText();
 
         return view;
     }
 
-    private void broadcastMessage(GjMessage message) {
-        Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
-        intent.putExtra("message", message.toByteArray());
-        getActivity().sendBroadcast(intent);
-    }
     private byte fakeStatus = 1;
 
-    private void onClickTestMessageStatus(View v) {
-        broadcastMessage(new GjMessageStatusResponse(fakeStatus++));
+    private void onClickTestSendStatus(View v) {
+        MainActivity.ftdiServiceManager.send(new GjMessageStatusResponse(fakeStatus++));
     }
 
-    private void onClickReportGps(View v) {
-//        int id = 5;
-//        LatLng latLng = new LatLng(40.7888, -119.20315);
-//        send(new GjMessageReportGps(id, latLng));
+    private void onClickTestSendGps(View v) {
+//        MainActivity.ftdiServiceManager.send(GjMessageFactory.createGps());
+        loopback(GjMessageFactory.createGps().array());
+
     }
 
     private void onClickSendText(View v) {
-        String text = messageEditText.getText().toString();
-        messageEditText.setText("");
-        send(new GjMessageText(text));
+        String text = sendTextEditText.getText().toString();
+        GjMessageText message = new GjMessageText(text);
+        MainActivity.ftdiServiceManager.send(message);
+        console(">>> " + message);
+        setOutgoingText();
     }
 
-    ///////////////////////////////////////////////
-    // SEND
-    ///////////////////////////////////////////////
-    Handler sendHandler = new Handler();
-
-    private void send( final GjMessage message ) {
-        // queue requests to avoid ftdi jamming
-        sendHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                console(message);
-            }
-        });
-    }
-
-    public void console(GjMessage message) {
-        console(message.toString());
-        console(message.toHexString());
+    private void setOutgoingText() {
+        String defaultText = "Text Message # " + FtdiServiceManager.outgoingPacketNumber + " ";
+        sendTextEditText.setText(defaultText);
     }
 
     public void console(String string) {
@@ -263,6 +261,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
                 sChecksumErrorCounter++;
                 setStatusChecksumErrorCounter(sChecksumErrorCounter);
             }
+            return;
         }
         if (message instanceof GjMessageStatusResponse) {
             GjMessageStatusResponse s = (GjMessageStatusResponse)message;
@@ -358,17 +357,10 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         int written = MainActivity.ftdiServiceManager.send(new GjMessageResponse((byte)lastPacket, (byte)9, new byte[]{0} ));
     }
 
-    public void onClickTestSendText(View v) {
-        if (!MainActivity.ftdiServiceManager.isBound()) {
-            return;
-        }
-        int written = MainActivity.ftdiServiceManager.send(new GjMessageText("*** " + FtdiServiceManager.outgoingPacketNumber + " ****************"));
+    public void loopback(byte[] bytes) {
+        Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
+        intent.putExtra(FtdiService.FTDI_SERVICE_MESSSAGE, bytes);
+        getActivity().sendBroadcast(intent);
     }
-
-//    public void loopback(byte[] bytes) {
-//        Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
-//        intent.putExtra(FtdiService.FTDI_SERVICE_MESSSAGE, bytes);
-//        getActivity().sendBroadcast(intent);
-//    }
 
 }

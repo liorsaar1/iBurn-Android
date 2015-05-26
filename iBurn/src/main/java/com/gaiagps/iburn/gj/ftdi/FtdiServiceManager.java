@@ -13,7 +13,6 @@ import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageResponse;
-import com.gaiagps.iburn.gj.message.GjMessageText;
 import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
 
 import java.nio.ByteBuffer;
@@ -99,7 +98,7 @@ public class FtdiServiceManager {
                     mService = binder.getService();
                     mBound = true;
                     console("Service Bound");
-                    send(new GjMessageText("Online"));
+//                    send(new GjMessageText("Online"));
                 }
 
                 @Override
@@ -181,7 +180,6 @@ public class FtdiServiceManager {
     private List<GjMessage> history = new ArrayList<>();
 
     private void historyPut(GjMessage message) {
-        console("History: put:" + message.getPacketNumber());
         history.add(message);
         if (history.size() > 20) {
             history.remove(0);
@@ -195,12 +193,13 @@ public class FtdiServiceManager {
             return;
         }
         // error
-        console("CHEKSUM ERROR: " + response.getPacketNumber());
+        //console("CHEKSUM ERROR: " + response.getPacketNumber());
         GjMessage resend = historyGet(response.getPacketNumber());
         if (resend == null) {
             console("CHEKSUM ERROR: not found" + response.getPacketNumber());
             return;
         }
+        console("CHEKSUM ERROR: resending " + response.getPacketNumber());
         send(resend);
     }
 

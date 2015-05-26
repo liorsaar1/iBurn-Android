@@ -6,6 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.gaiagps.iburn.gj.message.GjMessage;
+import com.gaiagps.iburn.gj.message.GjMessageGps;
+import com.gaiagps.iburn.gj.message.GjMessageListener;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -17,7 +21,7 @@ import java.util.List;
 /**
  * Created by liorsaar on 4/18/15.
  */
-public class GalacticJungleFragment extends GoogleMapFragment {
+public class GalacticJungleFragment extends GoogleMapFragment implements GjMessageListener {
     private static final String TAG = "GalacticJungleFragment";
 
     public static GalacticJungleFragment newInstance() {
@@ -63,7 +67,10 @@ public class GalacticJungleFragment extends GoogleMapFragment {
 
     private List<Marker> markers;
 
+    static GoogleMap gjMap ;
+
     private void initGJ() {
+        gjMap = getMap();
 //        40.7888
 //        -119.20315
 //        lat=40.7843037788468
@@ -98,4 +105,22 @@ public class GalacticJungleFragment extends GoogleMapFragment {
         }, 5000);
     }
 
+    @Override
+    public void onMessage(GjMessage message) {
+        if (message instanceof GjMessageGps) {
+            GjMessageGps gps = (GjMessageGps)message;
+            LatLng latLng = new LatLng(gps.getLat(), gps.getLong());
+            LatLng ll = new LatLng(37.9979285, -122.0788886);
+            MarkerOptions mops = new MarkerOptions()
+                    .position(ll)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                    .title("Vehicle " + gps.getVehicle() );
+            gjMap.addMarker(mops);
+        }
+    }
+
+    @Override
+    public void incoming(byte[] bytes) {
+        // notin'
+    }
 }

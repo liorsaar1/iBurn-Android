@@ -93,14 +93,22 @@
                 android:layout_height="wrap_content">
 
                 <Button
-                    android:id="@+id/GjTestSendText"
+                    android:id="@+id/GjTestSendStatus"
+                    android:layout_width="wrap_content"
                     style="@style/GjButton"
-                    android:text="Send Text"/>
+                    android:text="Send Status"/>
 
                 <Button
                     android:id="@+id/GjTestSendResponse"
+                    android:layout_width="wrap_content"
                     style="@style/GjButton"
                     android:text="Checksum Error"/>
+
+                <Button
+                    android:id="@+id/GjTestSendGps"
+                    android:layout_width="wrap_content"
+                    style="@style/GjButton"
+                    android:text="Send GPS"/>
             </TableRow>
         </TableLayout>
 
@@ -108,13 +116,12 @@
             android:id="@+id/GjMessageEditText"
             style="@style/GjText"
             android:background="#ffffffff"
-            android:hint="Enter Text"
             android:maxLength="100"
             android:textColor="#000000"
             android:textSize="20sp"/>
 
         <Button
-            android:id="@+id/GjMessageSendButton"
+            android:id="@+id/GjMessageSendTextButton"
             style="@style/GjText"
             android:text="Text"/>
     </LinearLayout>
