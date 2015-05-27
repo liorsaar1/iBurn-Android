@@ -77,7 +77,7 @@ public class GjMessageFactory {
 
     public static ByteBuffer createGps() {
         StringBuffer sb = new StringBuffer();
-        sb.append("ff 55 aa 36 00 04 10 80 30 78 1d 6a 3d 3c b7 15 06 a6 16 91 23 00 00 b2 ");
+        sb.append("ff 55 aa 36 00 04 10 80 30 78 1d 15 06 a6 16 6a 3d 3c b7 91 23 00 00 b2 ");
         return fromString(sb.toString());
     }
 

@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.gaiagps.iburn.R;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageGps;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
@@ -16,7 +17,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by liorsaar on 4/18/15.
@@ -95,7 +98,7 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
             markers.add( getMap().addMarker(mops) );
         }
 
-        new Handler().postDelayed( new Runnable() {
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 for (Marker marker : markers) {
@@ -105,19 +108,48 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
         }, 5000);
     }
 
+    private static int fakegps = 1;
     @Override
     public void onMessage(GjMessage message) {
         if (message instanceof GjMessageGps) {
             GjMessageGps gps = (GjMessageGps)message;
-            LatLng latLng = new LatLng(gps.getLat(), gps.getLong());
-            LatLng ll = new LatLng(37.9979285, -122.0788886);
-            MarkerOptions mops = new MarkerOptions()
-                    .position(ll)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                    .title("Vehicle " + gps.getVehicle() );
-            gjMap.addMarker(mops);
+            final Marker marker = getMarker(message.getVehicle());
+            final LatLng latLng = new LatLng(gps.getLat(), gps.getLong()+(0.001*fakegps++));
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    marker.setPosition(latLng);
+                }
+            }, 500);
         }
     }
+
+    private Map<String, Marker> vehicles = new HashMap<String, Marker>();
+    private LatLng bmLatLong = new LatLng(40.7888, -119.20315);
+
+    private Marker getMarker(int vehicle) {
+        if (vehicles.containsKey(""+vehicle)) {
+            return vehicles.get(""+vehicle);
+        }
+        MarkerOptions mops = new MarkerOptions()
+                .position(bmLatLong)
+                .icon(BitmapDescriptorFactory.fromResource(vehicleResId[vehicle]))
+                .anchor(0.5f, 0.5f)
+                .title("Vehicle " + vehicle );
+        Marker marker = gjMap.addMarker(mops);
+        vehicles.put(""+vehicle, marker);
+        return marker;
+    }
+
+    private int vehicleResId[] = new int[] {
+            R.drawable.vehicle_0,
+            R.drawable.vehicle_0,
+            R.drawable.vehicle_0,
+            R.drawable.vehicle_0,
+            R.drawable.vehicle_0,
+            R.drawable.vehicle_0,
+            R.drawable.vehicle_0,
+    };
 
     @Override
     public void incoming(byte[] bytes) {
