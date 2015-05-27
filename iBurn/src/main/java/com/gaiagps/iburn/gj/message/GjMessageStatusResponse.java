@@ -26,6 +26,11 @@ public class GjMessageStatusResponse extends GjMessage {
 
     @Override
     public String toString() {
-        return super.toString()+":"+toHexString(data);
+        StringBuffer sb = new StringBuffer();
+        sb.append(super.toString()).append(": ");
+        sb.append("Vehicle:" + getVehicle() +", ");
+        sb.append("Packet:" + getPacketNumber() + ", ");
+        sb.append("Status: 0x" + toHexString(data));
+        return sb.toString();
     }
 }

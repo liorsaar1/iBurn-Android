@@ -105,10 +105,6 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        GjMessageFactory.testChecksumError();
-
-
         DataUtils.checkAndSetupDB(getApplicationContext());
 
         setContentView(R.layout.activity_main);

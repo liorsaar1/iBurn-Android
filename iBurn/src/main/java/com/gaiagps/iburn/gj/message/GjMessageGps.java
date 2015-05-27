@@ -47,6 +47,13 @@ public class GjMessageGps extends GjMessage {
 
     @Override
     public String toString() {
-        return super.toString()+": time:" + getTime() + " lat:" + getLat() + " long:"+getLong() + " head:" + getHead();
+        StringBuffer sb = new StringBuffer();
+        sb.append(super.toString()).append(": ");
+        sb.append("Vehicle:" + getVehicle() + ", ");
+        sb.append("time:" + getTime() + ", ");
+        sb.append("lat:" + getLat() + ", ");
+        sb.append("long:" + getLong() + ", ");
+        sb.append("head:" + getHead());
+        return sb.toString();
     }
 }

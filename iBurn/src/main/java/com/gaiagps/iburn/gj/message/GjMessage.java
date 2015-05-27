@@ -362,7 +362,7 @@ public class GjMessage {
 
     @Override
     public String toString() {
-        return Type.valueOf(type).toString() + "[" + vehicle + ":" + packetNumber + "]";
+        return Type.valueOf(type).toString();
     }
 
     public String toHexString() {

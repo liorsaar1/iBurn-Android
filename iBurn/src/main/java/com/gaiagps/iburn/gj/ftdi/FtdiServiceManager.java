@@ -13,6 +13,7 @@ import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageResponse;
+import com.gaiagps.iburn.gj.message.GjMessageText;
 import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
 
 import java.nio.ByteBuffer;
@@ -98,7 +99,7 @@ public class FtdiServiceManager {
                     mService = binder.getService();
                     mBound = true;
                     console("Service Bound");
-//                    send(new GjMessageText("Online"));
+                    send(new GjMessageText("Online"));
                 }
 
                 @Override

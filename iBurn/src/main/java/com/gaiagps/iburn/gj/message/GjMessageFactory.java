@@ -65,13 +65,13 @@ public class GjMessageFactory {
 
     public static ByteBuffer createBadChecksum() {
         StringBuffer sb = new StringBuffer();
-        sb.append("ff 55 aa 35 00 01 01 00 35 ");
-        sb.append("ff 55 aa 36 00 04 12 80 30 78 1d 6a 3d 3c b7 15 06 a6 16 91 23 00 00 b2 ");
-        sb.append("ff 55 aa 35 00 01 01 00 35 ");
-        sb.append("ff 55 aa 36 00 04 12 80 30 78 1d 6a 3d 3c b7 15 06 a6 16 91 23 00 00 b2 ");
-        sb.append("ff 55 aa 35 00 01 01 00 35 ");
-        sb.append("ff 55 aa 36 00 04 10 80 30 78 1d 6a 3d 3c b7 15 06 a6 16 91 23 00 00 b4 ");
-        sb.append("ff 55 aa 35 00 01 01 00 35 ");
+        sb.append("ff 55 aa 35 00 01 01 00 35 "); //ok
+        sb.append("ff 55 aa 36 00 04 12 80 30 78 1d 6a 3d 3c b7 15 06 a6 16 91 23 00 00 b2 "); // error
+        sb.append("ff 55 aa 36 00 01 01 00 36 "); // ok
+        sb.append("ff 55 aa 36 00 04 12 80 30 78 1d 6a 3d 3c b7 15 06 a6 16 91 23 00 00 b2 "); // error
+        sb.append("ff 55 aa 37 00 01 01 00 07 "); // error
+        sb.append("ff 55 aa 36 00 04 10 80 30 78 1d 6a 3d 3c b7 15 06 a6 16 91 23 00 00 b4 "); // error
+        sb.append("ff 55 aa 38 00 01 01 00 38 "); //ok
         return fromString(sb.toString());
     }
 
