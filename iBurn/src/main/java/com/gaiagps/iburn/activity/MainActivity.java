@@ -46,6 +46,7 @@ import com.gaiagps.iburn.fragment.EventListViewFragment;
 import com.gaiagps.iburn.fragment.GalacticJungleFragment;
 import com.gaiagps.iburn.fragment.GoogleMapFragment;
 import com.gaiagps.iburn.fragment.SettingsFragment;
+import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.ftdi.FtdiServiceManager;
 import com.gaiagps.iburn.gj.message.GjMessage;
@@ -104,6 +105,10 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        GjMessageFactory.testChecksumError();
+
+
         DataUtils.checkAndSetupDB(getApplicationContext());
 
         setContentView(R.layout.activity_main);

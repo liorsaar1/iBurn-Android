@@ -204,6 +204,8 @@ public class GjMessage {
         if (!findFirst(bb, preamble)) {
             throw new PreambleNotFoundException();
         }
+        // save position in case of checksum error
+        int savePosition = bb.position();
         // read body
         byte packetNumber = read(bb);
         byte vehicle = read(bb);
@@ -218,6 +220,7 @@ public class GjMessage {
         tmp.put(preamble).put(packetNumber).put(vehicle).put(typeByte).put(dataLength).put(data);
         byte actualChecksum = checksum(tmp);
         if (actualChecksum != expectedChecksum) {
+            bb.position(savePosition); // rewind until right after the preamble
             throw new ChecksumException(expectedChecksum, actualChecksum);
         }
 

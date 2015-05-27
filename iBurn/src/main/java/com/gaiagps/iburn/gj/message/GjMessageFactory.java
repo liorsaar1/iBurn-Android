@@ -63,10 +63,15 @@ public class GjMessageFactory {
         return bb;
     }
 
-    public static ByteBuffer create4() {
+    public static ByteBuffer createBadChecksum() {
         StringBuffer sb = new StringBuffer();
-        sb.append("bd ff 55 aa 35 00 01 01 00 35 ");
-        sb.append("ff 55 aa 36 00 04 10 80 30 78 1d 6a 3d 3c b7 15 06 a6 16 91 23 00 00 b2 ");
+        sb.append("ff 55 aa 35 00 01 01 00 35 ");
+        sb.append("ff 55 aa 36 00 04 12 80 30 78 1d 6a 3d 3c b7 15 06 a6 16 91 23 00 00 b2 ");
+        sb.append("ff 55 aa 35 00 01 01 00 35 ");
+        sb.append("ff 55 aa 36 00 04 12 80 30 78 1d 6a 3d 3c b7 15 06 a6 16 91 23 00 00 b2 ");
+        sb.append("ff 55 aa 35 00 01 01 00 35 ");
+        sb.append("ff 55 aa 36 00 04 10 80 30 78 1d 6a 3d 3c b7 15 06 a6 16 91 23 00 00 b4 ");
+        sb.append("ff 55 aa 35 00 01 01 00 35 ");
         return fromString(sb.toString());
     }
 
@@ -95,6 +100,12 @@ public class GjMessageFactory {
                 Log.e(TAG, message.toString());
             }
         }
+    }
+
+    public static void testChecksumError() {
+        ByteBuffer bb = createBadChecksum();
+        List<GjMessage> list = parseAll(bb);
+        return;
     }
 
     public static void testStream2() {
@@ -138,12 +149,12 @@ public class GjMessageFactory {
                 list.add(new GjMessageConsole("EOF reached. Remaining " + bb.remaining()));
                 break;
             } catch (GjMessage.ChecksumException e) {
-                // too bad, but continue
+                // output an error
                 list.add(new GjMessageError(e.getMessage()));
+                // skip this message, try to recover the next one
                 continue;
             } catch (GjMessage.PreambleNotFoundException e) {
-                // hmmm
-                bb.position(savePosition);
+                // bb.position(savePosition);   TODO make sure this is not needed
                 list.add(new GjMessageError(e.getMessage()));
                 break;
             } catch (GjMessage.ParserException e) {
