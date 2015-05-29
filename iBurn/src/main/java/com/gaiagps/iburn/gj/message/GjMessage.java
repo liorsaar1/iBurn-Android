@@ -196,7 +196,7 @@ public class GjMessage {
     public GjMessage(Type type, byte packetNumber, byte vehicle) {
         this.type = type.getValue();
         this.packetNumber = packetNumber;
-        this.vehicle = vehicle;
+        this.vehicle = (vehicle < 0 || vehicle > 15) ? 0 : vehicle;
     }
 
     public static GjMessage create(ByteBuffer bb) throws ChecksumException, EOFException, PreambleNotFoundException, ParserException {
@@ -210,14 +210,14 @@ public class GjMessage {
         byte packetNumber = read(bb);
         byte vehicle = read(bb);
         byte typeByte = read(bb);
-        byte dataLength = read(bb);
+        int dataLength = readUnsigned(bb);
         byte[] data = read(bb, dataLength);
         byte expectedChecksum = read(bb);
 
         // verify checksum
         int messageLength = preamble.length + TYPE_LENGTH + NUMBER_LENGTH + VEHICLE_LENGTH + DATA_LENGTH + data.length;
         ByteBuffer tmp = ByteBuffer.allocate(messageLength);
-        tmp.put(preamble).put(packetNumber).put(vehicle).put(typeByte).put(dataLength).put(data);
+        tmp.put(preamble).put(packetNumber).put(vehicle).put(typeByte).put((byte)dataLength).put(data);
         byte actualChecksum = checksum(tmp);
         if (actualChecksum != expectedChecksum) {
             bb.position(savePosition); // rewind until right after the preamble
@@ -295,7 +295,12 @@ public class GjMessage {
         return bb.get();
     }
 
-    protected static byte[] read(ByteBuffer bb, byte dataLength) throws EOFException {
+    protected static int readUnsigned(ByteBuffer bb) throws EOFException {
+        byte b = read(bb);
+        return b & 0xFF;
+    }
+
+    protected static byte[] read(ByteBuffer bb, int dataLength) throws EOFException {
         if (bb.remaining() < dataLength) {
             throw new EOFException("Reading bytes " + dataLength);
         }

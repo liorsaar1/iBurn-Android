@@ -108,6 +108,19 @@ public class GjMessageFactory {
         return;
     }
 
+    public static void testLongString() {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0 ; i < 13; i++) {
+            sb.append("0123456789");
+        }
+        sb.append("abcdefghijklmnopqrstuv");
+        ByteBuffer bb = ByteBuffer.allocate(4096);
+        bb.put(new GjMessageText(sb.toString()).toByteArray());
+        bb.rewind(); // IMPORTANT !!!
+
+        List<GjMessage> list = parseAll(bb);
+    }
+
     public static void testStream2() {
 
         ByteBuffer bb = ByteBuffer.allocate(4096);
