@@ -114,7 +114,7 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
         if (message instanceof GjMessageGps) {
             GjMessageGps gps = (GjMessageGps)message;
             final Marker marker = getMarker(message.getVehicle());
-            final LatLng latLng = new LatLng(gps.getLat(), gps.getLong()+(0.001*fakegps++));
+            final LatLng latLng = new LatLng(gps.getLat(), gps.getLong()+(0.01*fakegps++));
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {

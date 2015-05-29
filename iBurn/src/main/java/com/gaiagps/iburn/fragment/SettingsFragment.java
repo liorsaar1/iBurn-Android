@@ -156,7 +156,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         if (messageConsole == null ) {
             return;
         }
-        messageConsole.append(string + "\n");
+        messageConsole.append(string + "\n\n");
         scrollToEnd(messageConsole);
     }
 
@@ -230,7 +230,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             return;
         }
         String hex = GjMessage.toHexString(bytes);
-        console("<<< Incoming:" + hex);
+        console("<<< Incoming:" + hex +"\n\n");
     }
 
     private static int lastPacket = -1;
