@@ -134,15 +134,16 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     }
 
     private void onClickTestSendGps(View v) {
-//        MainActivity.ftdiServiceManager.send(GjMessageFactory.createGps());
-        loopback(GjMessageFactory.createGps().array());
+        MainActivity.ftdiServiceManager.send(GjMessageFactory.createGps());
+//        loopback(GjMessageFactory.createGps().array());
 
     }
 
     private void onClickSendText(View v) {
         String text = sendTextEditText.getText().toString();
         GjMessageText message = new GjMessageText(text);
-        MainActivity.ftdiServiceManager.send(message);
+//        MainActivity.ftdiServiceManager.send(message);
+        loopback(message.toByteArray());
         console(">>> " + message);
         setOutgoingText();
     }
@@ -230,7 +231,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             return;
         }
         String hex = GjMessage.toHexString(bytes);
-        console("<<< Incoming:" + hex +"\n\n");
+        console("<<< Incoming:" + hex +"\n");
     }
 
     private static int lastPacket = -1;

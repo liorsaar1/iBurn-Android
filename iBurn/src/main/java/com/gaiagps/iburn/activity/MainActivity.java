@@ -10,9 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -46,10 +43,9 @@ import com.gaiagps.iburn.fragment.EventListViewFragment;
 import com.gaiagps.iburn.fragment.GalacticJungleFragment;
 import com.gaiagps.iburn.fragment.GoogleMapFragment;
 import com.gaiagps.iburn.fragment.SettingsFragment;
-import com.gaiagps.iburn.gj.message.GjMessageFactory;
-import com.gaiagps.iburn.gj.message.GjMessageListener;
+import com.gaiagps.iburn.fragment.TextFragment;
 import com.gaiagps.iburn.gj.ftdi.FtdiServiceManager;
-import com.gaiagps.iburn.gj.message.GjMessage;
+import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.model.LatLng;
@@ -95,8 +91,9 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
     private static List<IBurnPagerAdapter.IBurnTab> sTabs
             = new ArrayList<IBurnPagerAdapter.IBurnTab>() {{
         add(IBurnPagerAdapter.IBurnTab.GJ);
+        add(IBurnPagerAdapter.IBurnTab.TEXT);
         add(IBurnPagerAdapter.IBurnTab.SET);
-        add(IBurnPagerAdapter.IBurnTab.MAP);
+//        add(IBurnPagerAdapter.IBurnTab.MAP);
         add(IBurnPagerAdapter.IBurnTab.ART);
         add(IBurnPagerAdapter.IBurnTab.CAMPS);
         add(IBurnPagerAdapter.IBurnTab.EVENTS);
@@ -442,8 +439,9 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
 
         public static enum IBurnTab {
             GJ      (R.string.gj_tab,     R.drawable.ic_gj,       GalacticJungleFragment.class),
+            TEXT    (R.string.text_tab,   R.drawable.ic_text,     TextFragment.class),
             SET     (R.string.set_tab,    R.drawable.ic_settings, SettingsFragment.class),
-            MAP     (R.string.map_tab,    R.drawable.ic_brc,      GoogleMapFragment.class),
+//            MAP     (R.string.map_tab,    R.drawable.ic_brc,      GoogleMapFragment.class),
             ART     (R.string.art_tab,    R.drawable.ic_monument, ArtListViewFragment.class),
             CAMPS   (R.string.camps_tab,  R.drawable.ic_camp,     CampListViewFragment.class),
             EVENTS  (R.string.events_tab, R.drawable.ic_calendar, EventListViewFragment.class);
