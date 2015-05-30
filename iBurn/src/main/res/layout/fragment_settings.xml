@@ -11,7 +11,6 @@
         style="@style/GjText.title"
         android:text="@string/gj_settings_status"/>
 
-
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -94,20 +93,20 @@
 
                 <Button
                     android:id="@+id/GjTestSendStatus"
-                    android:layout_width="wrap_content"
                     style="@style/GjButton"
+                    android:layout_width="wrap_content"
                     android:text="Send Status"/>
 
                 <Button
                     android:id="@+id/GjTestSendResponse"
-                    android:layout_width="wrap_content"
                     style="@style/GjButton"
+                    android:layout_width="wrap_content"
                     android:text="Checksum Error"/>
 
                 <Button
                     android:id="@+id/GjTestSendGps"
-                    android:layout_width="wrap_content"
                     style="@style/GjButton"
+                    android:layout_width="wrap_content"
                     android:text="Send GPS"/>
             </TableRow>
         </TableLayout>

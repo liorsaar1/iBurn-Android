@@ -42,6 +42,7 @@ import com.gaiagps.iburn.fragment.CampListViewFragment;
 import com.gaiagps.iburn.fragment.EventListViewFragment;
 import com.gaiagps.iburn.fragment.GalacticJungleFragment;
 import com.gaiagps.iburn.fragment.GoogleMapFragment;
+import com.gaiagps.iburn.fragment.LightingFragment;
 import com.gaiagps.iburn.fragment.SettingsFragment;
 import com.gaiagps.iburn.fragment.TextFragment;
 import com.gaiagps.iburn.gj.ftdi.FtdiServiceManager;
@@ -93,6 +94,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         add(IBurnPagerAdapter.IBurnTab.GJ);
         add(IBurnPagerAdapter.IBurnTab.TEXT);
         add(IBurnPagerAdapter.IBurnTab.SET);
+        add(IBurnPagerAdapter.IBurnTab.LIGHT);
 //        add(IBurnPagerAdapter.IBurnTab.MAP);
         add(IBurnPagerAdapter.IBurnTab.ART);
         add(IBurnPagerAdapter.IBurnTab.CAMPS);
@@ -441,7 +443,8 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
             GJ      (R.string.gj_tab,     R.drawable.ic_gj,       GalacticJungleFragment.class),
             TEXT    (R.string.text_tab,   R.drawable.ic_text,     TextFragment.class),
             SET     (R.string.set_tab,    R.drawable.ic_settings, SettingsFragment.class),
-//            MAP     (R.string.map_tab,    R.drawable.ic_brc,      GoogleMapFragment.class),
+            LIGHT   (R.string.light_tab,  R.drawable.ic_light,    LightingFragment.class),
+//          MAP     (R.string.map_tab,    R.drawable.ic_brc,      GoogleMapFragment.class),
             ART     (R.string.art_tab,    R.drawable.ic_monument, ArtListViewFragment.class),
             CAMPS   (R.string.camps_tab,  R.drawable.ic_camp,     CampListViewFragment.class),
             EVENTS  (R.string.events_tab, R.drawable.ic_calendar, EventListViewFragment.class);

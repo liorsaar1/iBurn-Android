@@ -32,21 +32,15 @@ import java.util.Date;
  */
 public class TextFragment extends Fragment implements GjMessageListener {
     private static final String TAG = "TextFragment";
-    private static String[] values = new String[] { "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890",
-            "Android", "iPhone", "WindowsMobile",
-            "Android", "iPhone", "WindowsMobile",
-            "Blackberry", "WebOS", "Ubuntu" };
+    private static String[] values = new String[] { "Be Awesome.  No Drama."};
 
-    private static final ArrayList<TextMessage> list = new ArrayList<TextMessage>();
+    private static final ArrayList<TextMessage> list = new ArrayList<>();
 
     private static ArrayAdapter adapter;
     private static ListView listView;
-    private static LinearLayout sendTextContainer;
     private static EditText sendTextEditText;
     private static Button sendTextButton;
     private static byte sVehicle = 0;
-    private boolean sFtdiStatus = false;
-
 
     public static TextFragment newInstance() {
         return new TextFragment();
@@ -66,7 +60,6 @@ public class TextFragment extends Fragment implements GjMessageListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_text, container, false);
 
-        sendTextContainer = (LinearLayout) view.findViewById(R.id.GjTextContainer);
         sendTextEditText = (EditText) view.findViewById(R.id.GjTextEditText);
         sendTextEditText.setPadding(20,0,0,0); //must be here, doesnt work in xml
 
@@ -78,7 +71,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
             }
         });
 
-        setSendTextEnabled(sFtdiStatus);
+        setSendTextEnabled(false);
 
         listView = (ListView) view.findViewById(R.id.textListView);
         for (int i = 0; i < values.length; ++i) {
@@ -91,7 +84,6 @@ public class TextFragment extends Fragment implements GjMessageListener {
     }
 
     private void setSendTextEnabled(boolean enabled) {
-//        sendTextContainer.setEnabled(enabled);
         sendTextEditText.setEnabled(enabled);
         sendTextButton.setEnabled(enabled);
         sendTextEditText.setVisibility(enabled?View.VISIBLE:View.INVISIBLE);
@@ -119,8 +111,8 @@ public class TextFragment extends Fragment implements GjMessageListener {
             return;
         }
         if (message instanceof GjMessageFtdi) {
-            sFtdiStatus = ((GjMessageFtdi)message).getStatus();
-            setSendTextEnabled(sFtdiStatus);
+            boolean status = ((GjMessageFtdi)message).getStatus();
+            setSendTextEnabled(status);
         }
         if (message instanceof GjMessageText) {
             GjMessageText m = (GjMessageText)message;
@@ -141,7 +133,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
     }
 
     public boolean isMe(int vehicle) {
-        return (vehicle == 0);
+        return (vehicle == sVehicle);
     }
 
     public class TextArrayAdapter extends ArrayAdapter<TextMessage> {
