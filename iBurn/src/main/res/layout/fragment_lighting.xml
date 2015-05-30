@@ -4,155 +4,177 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="horizontal"
     android:paddingLeft="20dp"
     android:paddingRight="20dp"
-    android:paddingTop="10dp"
-    android:orientation="vertical"    >
+    android:paddingTop="10dp">
 
-
-    <TextView
-        style="@style/GjLightSliderLabel"
-        android:text="Mode"/>
-
-    <TableLayout
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <TableRow
-            style="@style/GjLightTableRow">
+        <TextView
+            style="@style/GjLightSliderLabel"
+            android:text="Mode"/>
 
-            <Button
-                android:id="@+id/lightEffect_1_1"
-                style="@style/GjLightButton"
-                android:text="1 / 1"/>
+        <TableLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-            <Button
-                android:id="@+id/lightEffect_1_2"
-                style="@style/GjLightButton"
-                android:text="1 / 2"/>
+            <TableRow
+                style="@style/GjLightTableRow">
 
-            <Button
-                android:id="@+id/lightEffect_1_3"
-                style="@style/GjLightButton"
-                android:text="1 / 3"/>
+                <Button
+                    android:id="@+id/lightEffect_1_1"
+                    style="@style/GjLightButton"
+                    android:text="1 / 1"/>
 
-            <Button
-                android:id="@+id/lightEffect_1_4"
-                style="@style/GjLightButton"
-                android:text="1 / 4"/>
-        </TableRow>
+                <Button
+                    android:id="@+id/lightEffect_1_2"
+                    style="@style/GjLightButton"
+                    android:text="1 / 2"/>
 
-        <TableRow
-            style="@style/GjLightTableRow">
+                <Button
+                    android:id="@+id/lightEffect_1_3"
+                    style="@style/GjLightButton"
+                    android:text="1 / 3"/>
 
-            <Button
-                android:id="@+id/lightEffect_2_1"
-                style="@style/GjLightButton"
-                android:text="2 / 1"/>
+                <Button
+                    android:id="@+id/lightEffect_1_4"
+                    style="@style/GjLightButton"
+                    android:text="1 / 4"/>
+            </TableRow>
 
-            <Button
-                android:id="@+id/lightEffect_2_2"
-                style="@style/GjLightButton"
-                android:text="2 / 2"/>
+            <TableRow
+                style="@style/GjLightTableRow">
 
-            <Button
-                android:id="@+id/lightEffect_2_3"
-                style="@style/GjLightButton"
-                android:text="2 / 3"/>
+                <Button
+                    android:id="@+id/lightEffect_2_1"
+                    style="@style/GjLightButton"
+                    android:text="2 / 1"/>
 
-            <Button
-                android:id="@+id/lightEffect_2_4"
-                style="@style/GjLightButton"
-                android:text="2 / 4"/>
-        </TableRow>
-    </TableLayout>
+                <Button
+                    android:id="@+id/lightEffect_2_2"
+                    style="@style/GjLightButton"
+                    android:text="2 / 2"/>
 
-    <View
+                <Button
+                    android:id="@+id/lightEffect_2_3"
+                    style="@style/GjLightButton"
+                    android:text="2 / 3"/>
+
+                <Button
+                    android:id="@+id/lightEffect_2_4"
+                    style="@style/GjLightButton"
+                    android:text="2 / 4"/>
+            </TableRow>
+        </TableLayout>
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="40dp"/>
+
+        <TableLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TableRow
+                style="@style/GjLightTableRow">
+
+                <TextView
+                    style="@style/GjLightSliderLabel"
+                    android:text="Hue"
+                    />
+
+                <SeekBar
+                    android:id="@+id/lightHue"
+                    style="@style/GjLightSlider"
+                    android:background="@drawable/light_hsb"/>
+            </TableRow>
+
+            <TableRow
+                style="@style/GjLightTableRow">
+
+                <TextView
+                    style="@style/GjLightSliderLabel"
+                    android:text="Brightness"/>
+
+                <SeekBar
+                    android:id="@+id/lightBrightness"
+                    style="@style/GjLightSlider"
+                    />
+            </TableRow>
+
+            <TableRow
+                style="@style/GjLightTableRow">
+
+                <TextView
+                    style="@style/GjLightSliderLabel"
+                    android:text="Saturation"/>
+
+                <SeekBar
+                    android:id="@+id/lightSaturation"
+                    style="@style/GjLightSlider"/>
+            </TableRow>
+
+            <TableRow
+                style="@style/GjLightTableRow">
+
+                <TextView
+                    style="@style/GjLightSliderLabel"
+                    android:text="Speed"/>
+
+                <SeekBar
+                    android:id="@+id/lightSpeed"
+                    style="@style/GjLightSlider"
+                    />
+            </TableRow>
+
+            <TableRow
+                style="@style/GjLightTableRow">
+
+                <TextView
+                    style="@style/GjLightSliderLabel"
+                    android:text="Parameter 1"/>
+
+                <SeekBar
+                    android:id="@+id/lightParameter1"
+                    style="@style/GjLightSlider"
+                    />
+            </TableRow>
+
+            <TableRow
+                style="@style/GjLightTableRow">
+
+                <TextView
+                    style="@style/GjLightSliderLabel"
+                    android:text="Parameter 2"/>
+
+                <SeekBar
+                    android:id="@+id/lightParameter2"
+                    style="@style/GjLightSlider"
+                    />
+            </TableRow>
+
+        </TableLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginLeft="40dp"
         android:layout_width="wrap_content"
-        android:layout_height="40dp"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-    <TableLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        <TextView
+            style="@style/GjLightSliderLabel"
+            android:text="Palette"/>
 
-        <TableRow
-            style="@style/GjLightTableRow">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/light_palette"/>
+    </LinearLayout>
 
-            <TextView
-                style="@style/GjLightSliderLabel"
-                android:text="Hue"
-                />
-
-            <SeekBar
-                android:id="@+id/lightHue"
-                style="@style/GjLightSlider"
-                android:background="@drawable/light_hsb"/>
-        </TableRow>
-
-        <TableRow
-            style="@style/GjLightTableRow">
-
-            <TextView
-                style="@style/GjLightSliderLabel"
-                android:text="Brightness"/>
-
-            <SeekBar
-                android:id="@+id/lightBrightness"
-                style="@style/GjLightSlider"
-                />
-        </TableRow>
-
-        <TableRow
-            style="@style/GjLightTableRow">
-
-            <TextView
-                style="@style/GjLightSliderLabel"
-                android:text="Saturation"/>
-
-            <SeekBar
-                android:id="@+id/lightSaturation"
-                style="@style/GjLightSlider"/>
-        </TableRow>
-
-        <TableRow
-            style="@style/GjLightTableRow">
-
-            <TextView
-                style="@style/GjLightSliderLabel"
-                android:text="Speed"/>
-
-            <SeekBar
-                android:id="@+id/lightSpeed"
-                style="@style/GjLightSlider"
-                />
-        </TableRow>
-
-        <TableRow
-            style="@style/GjLightTableRow">
-
-            <TextView
-                style="@style/GjLightSliderLabel"
-                android:text="Parameter 1"/>
-
-            <SeekBar
-                android:id="@+id/lightParameter1"
-                style="@style/GjLightSlider"
-                />
-        </TableRow>
-
-        <TableRow
-            style="@style/GjLightTableRow">
-
-            <TextView
-                style="@style/GjLightSliderLabel"
-                android:text="Parameter 2"/>
-
-            <SeekBar
-                android:id="@+id/lightParameter2"
-                style="@style/GjLightSlider"
-                />
-        </TableRow>
-
-    </TableLayout>
 
 </LinearLayout>
