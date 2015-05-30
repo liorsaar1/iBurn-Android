@@ -212,4 +212,12 @@ public class FtdiServiceManager {
         }
         return null;
     }
+
+    public static void loopback(Activity activity, byte[] bytes) {
+        FtdiServiceManager.outgoingPacketNumber++;
+
+        Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
+        intent.putExtra(FtdiService.FTDI_SERVICE_MESSSAGE, bytes);
+        activity.sendBroadcast(intent);
+    }
 }

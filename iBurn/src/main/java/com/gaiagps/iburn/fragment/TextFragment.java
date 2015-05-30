@@ -8,14 +8,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.gaiagps.iburn.R;
+import com.gaiagps.iburn.activity.MainActivity;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
+import com.gaiagps.iburn.gj.message.GjMessageStatusResponse;
 import com.gaiagps.iburn.gj.message.GjMessageText;
 
 import java.text.SimpleDateFormat;
@@ -36,6 +40,9 @@ public class TextFragment extends Fragment implements GjMessageListener {
 
     private static ArrayAdapter adapter;
     private static ListView listView;
+    private static EditText sendTextEditText;
+    private static Button sendTextButton;
+    private static byte sVehicle = 0;
 
 
     public static TextFragment newInstance() {
@@ -56,6 +63,17 @@ public class TextFragment extends Fragment implements GjMessageListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_text, container, false);
 
+        sendTextEditText = (EditText) view.findViewById(R.id.GjTextEditText);
+        sendTextEditText.setPadding(20,0,0,0); //must be here, doesnt work in xml
+
+        sendTextButton = (Button)view.findViewById(R.id.GjTextSendButton);
+        sendTextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClickSendText(v);
+            }
+        });
+
         listView = (ListView) view.findViewById(R.id.textListView);
         for (int i = 0; i < values.length; ++i) {
             list.add(new TextMessage(values[i]));
@@ -66,8 +84,27 @@ public class TextFragment extends Fragment implements GjMessageListener {
         return view;
     }
 
+    private void onClickSendText(View v) {
+        String text = sendTextEditText.getText().toString();
+        sendTextEditText.setText("");
+        if (text.trim().length() ==0) {
+            return;
+        }
+        GjMessageText message = new GjMessageText(text);
+        MainActivity.ftdiServiceManager.send(message);
+        onMessage(message);
+//        FtdiServiceManager.loopback(getActivity(), message.toByteArray());
+    }
+
+
     @Override
     public void onMessage(GjMessage message) {
+        if (message instanceof GjMessageStatusResponse) {
+            GjMessageStatusResponse s = (GjMessageStatusResponse)message;
+            // store my own vehcile ID as reported by the controller
+            sVehicle = s.getVehicle();
+            return;
+        }
         if (message instanceof GjMessageText) {
             GjMessageText m = (GjMessageText)message;
             list.add(new TextMessage(m.getVehicle(), m.getString()));
@@ -77,7 +114,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
                 public void run() {
                     listView.setSelection(adapter.getCount() - 1);
                 }
-            },2000);
+            },250);
         }
     }
 
@@ -113,26 +150,40 @@ public class TextFragment extends Fragment implements GjMessageListener {
             LinearLayout.LayoutParams textParams = (LinearLayout.LayoutParams) text.getLayoutParams();
             LinearLayout.LayoutParams dateParams = (LinearLayout.LayoutParams) date.getLayoutParams();
 
-            TextMessage textMessage = values.get(position);
-            if(isMe(position % 2)) {//textMessage.vehicle)) {
+            TextMessage message = values.get(position);
+            if(isMe(message.vehicle)) {
+                text.setGravity(Gravity.RIGHT);
                 avatarLeft.setVisibility(View.GONE);
                 avatarRight.setVisibility(View.VISIBLE);
-                avatarRight.setImageResource(R.drawable.ic_v0);
+                avatarRight.setImageResource(getAvatarResId(message.vehicle));
                 textParams.gravity = Gravity.RIGHT;
                 dateParams.gravity = Gravity.RIGHT;
             } else {
+                text.setGravity(Gravity.LEFT);
                 avatarLeft.setVisibility(View.VISIBLE);
-                avatarLeft.setImageResource(R.drawable.ic_v1);
+                avatarLeft.setImageResource(getAvatarResId(message.vehicle));
                 avatarRight.setVisibility(View.GONE);
                 textParams.gravity = Gravity.LEFT;
                 dateParams.gravity = Gravity.LEFT;
             }
 
-            text.setText( textMessage.text );
-            date.setText( textMessage.date );
+            text.setText( message.text );
+            date.setText( message.date );
 
             return rowView;
         }
+    }
+
+    private int getAvatarResId(byte vehicle) {
+        switch(vehicle) {
+            case 0: return R.drawable.ic_v0;
+            case 1: return R.drawable.ic_v1;
+            case 2: return R.drawable.ic_v2;
+            case 3: return R.drawable.ic_v3;
+            case 4: return R.drawable.ic_v4;
+            case 5: return R.drawable.ic_v5;
+        }
+        return R.drawable.ic_v0;
     }
 
     SimpleDateFormat format = new SimpleDateFormat("EEE, HH:mm a");
@@ -140,7 +191,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
     class TextMessage {
         public String text;
         public String date;
-        public int vehicle;
+        public byte vehicle;
 
         public TextMessage(String text) {
             this.text = text;

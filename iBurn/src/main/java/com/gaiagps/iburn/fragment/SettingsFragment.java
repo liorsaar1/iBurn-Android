@@ -140,11 +140,12 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     }
 
     private void onClickSendText(View v) {
+        int vehicle = (int)(5*Math.random());
         String text = sendTextEditText.getText().toString();
-        GjMessageText message = new GjMessageText(text);
-//        MainActivity.ftdiServiceManager.send(message);
-        loopback(message.toByteArray());
+        GjMessageText message = new GjMessageText(text, (byte)vehicle);
+        MainActivity.ftdiServiceManager.send(message);
         console(">>> " + message);
+//        loopback(message.toByteArray());
         setOutgoingText();
     }
 
@@ -359,6 +360,8 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     }
 
     public void loopback(byte[] bytes) {
+        FtdiServiceManager.outgoingPacketNumber++;
+
         Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
         intent.putExtra(FtdiService.FTDI_SERVICE_MESSSAGE, bytes);
         getActivity().sendBroadcast(intent);

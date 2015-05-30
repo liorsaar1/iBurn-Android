@@ -6,7 +6,17 @@ public class GjMessageText extends GjMessageString {
         super(Type.Text, dataString);
     }
 
+    public GjMessageText(String dataString, byte vehicle) {
+        super(Type.Text, dataString);
+        this.vehicle = vehicle;
+    }
+
     public GjMessageText(byte packetNumber, byte vehicle, byte[] data) {
         super(Type.Text, packetNumber, vehicle, data);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + ":" + vehicle + ":" +new String(data);
     }
 }
