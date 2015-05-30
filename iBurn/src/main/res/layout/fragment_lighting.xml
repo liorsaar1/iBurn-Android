@@ -9,12 +9,13 @@
     android:paddingTop="10dp"
     android:orientation="vertical"    >
 
+
     <TextView
         style="@style/GjLightSliderLabel"
-        android:text="Effects"/>
+        android:text="Mode"/>
 
     <TableLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
         <TableRow
@@ -75,7 +76,20 @@
         android:layout_height="wrap_content">
 
         <TableRow
-            android:background="#ff00ff"
+            style="@style/GjLightTableRow">
+
+            <TextView
+                style="@style/GjLightSliderLabel"
+                android:text="Hue"
+                />
+
+            <SeekBar
+                android:id="@+id/lightHue"
+                style="@style/GjLightSlider"
+                android:background="@drawable/light_hsb"/>
+        </TableRow>
+
+        <TableRow
             style="@style/GjLightTableRow">
 
             <TextView
@@ -84,7 +98,8 @@
 
             <SeekBar
                 android:id="@+id/lightBrightness"
-                style="@style/GjLightSlider"/>
+                style="@style/GjLightSlider"
+                />
         </TableRow>
 
         <TableRow
@@ -104,11 +119,12 @@
 
             <TextView
                 style="@style/GjLightSliderLabel"
-                android:text="Hue"/>
+                android:text="Speed"/>
 
             <SeekBar
-                android:id="@+id/lightHue"
-                style="@style/GjLightSlider"/>
+                android:id="@+id/lightSpeed"
+                style="@style/GjLightSlider"
+                />
         </TableRow>
 
         <TableRow
@@ -116,12 +132,27 @@
 
             <TextView
                 style="@style/GjLightSliderLabel"
-                android:text="Speed"/>
+                android:text="Parameter 1"/>
 
             <SeekBar
-                android:id="@+id/lightSpeed"
-                style="@style/GjLightSlider"/>
+                android:id="@+id/lightParameter1"
+                style="@style/GjLightSlider"
+                />
         </TableRow>
+
+        <TableRow
+            style="@style/GjLightTableRow">
+
+            <TextView
+                style="@style/GjLightSliderLabel"
+                android:text="Parameter 2"/>
+
+            <SeekBar
+                android:id="@+id/lightParameter2"
+                style="@style/GjLightSlider"
+                />
+        </TableRow>
+
     </TableLayout>
 
 </LinearLayout>
