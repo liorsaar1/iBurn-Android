@@ -21,6 +21,7 @@ import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageStatusResponse;
 import com.gaiagps.iburn.gj.message.GjMessageText;
+import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,9 +41,11 @@ public class TextFragment extends Fragment implements GjMessageListener {
 
     private static ArrayAdapter adapter;
     private static ListView listView;
+    private static LinearLayout sendTextContainer;
     private static EditText sendTextEditText;
     private static Button sendTextButton;
     private static byte sVehicle = 0;
+    private boolean sFtdiStatus = false;
 
 
     public static TextFragment newInstance() {
@@ -63,6 +66,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_text, container, false);
 
+        sendTextContainer = (LinearLayout) view.findViewById(R.id.GjTextContainer);
         sendTextEditText = (EditText) view.findViewById(R.id.GjTextEditText);
         sendTextEditText.setPadding(20,0,0,0); //must be here, doesnt work in xml
 
@@ -74,6 +78,8 @@ public class TextFragment extends Fragment implements GjMessageListener {
             }
         });
 
+        setSendTextEnabled(sFtdiStatus);
+
         listView = (ListView) view.findViewById(R.id.textListView);
         for (int i = 0; i < values.length; ++i) {
             list.add(new TextMessage(values[i]));
@@ -82,6 +88,13 @@ public class TextFragment extends Fragment implements GjMessageListener {
         listView.setAdapter(adapter);
 
         return view;
+    }
+
+    private void setSendTextEnabled(boolean enabled) {
+//        sendTextContainer.setEnabled(enabled);
+        sendTextEditText.setEnabled(enabled);
+        sendTextButton.setEnabled(enabled);
+        sendTextEditText.setVisibility(enabled?View.VISIBLE:View.INVISIBLE);
     }
 
     private void onClickSendText(View v) {
@@ -104,6 +117,10 @@ public class TextFragment extends Fragment implements GjMessageListener {
             // store my own vehcile ID as reported by the controller
             sVehicle = s.getVehicle();
             return;
+        }
+        if (message instanceof GjMessageFtdi) {
+            sFtdiStatus = ((GjMessageFtdi)message).getStatus();
+            setSendTextEnabled(sFtdiStatus);
         }
         if (message instanceof GjMessageText) {
             GjMessageText m = (GjMessageText)message;

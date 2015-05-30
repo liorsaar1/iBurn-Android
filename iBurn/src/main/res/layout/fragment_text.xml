@@ -15,6 +15,7 @@
         android:divider="#00000000"/>
 
     <LinearLayout
+        android:id="@+id/GjTextContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.1"
@@ -24,19 +25,34 @@
         android:padding="2dp"
         android:weightSum="1">
 
-        <EditText
-            android:id="@+id/GjTextEditText"
-            style="@style/GjText"
+        <RelativeLayout
             android:layout_weight="0.9"
-            android:background="@drawable/text_message_background"
-            android:hint="Enter Text:"
-            android:lines="2"
-            android:paddingLeft="6dp"
-            android:paddingRight="6dp"
-            android:maxLength="140"
-            android:textColor="#000000"
-            android:textColorHint="#ffcccccc"
-            android:textSize="20sp"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="30sp"
+                android:gravity="center"
+                android:textColor="#ff000000"
+                android:text="No Connection"/>
+
+            <EditText
+                android:id="@+id/GjTextEditText"
+                style="@style/GjText"
+                android:background="@drawable/text_message_background"
+                android:hint="Enter Text:"
+                android:lines="2"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:maxLength="140"
+                android:textColor="#000000"
+                android:textColorHint="#ffcccccc"
+                android:textSize="20sp"/>
+
+
+        </RelativeLayout>
 
         <Button
             android:id="@+id/GjTextSendButton"
