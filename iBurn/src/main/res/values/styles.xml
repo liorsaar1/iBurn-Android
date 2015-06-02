@@ -175,4 +175,10 @@
         <item name="android:paddingTop">8dp</item>
     </style>
 
+    <style name="GjPaletteColor">
+        <item name="android:layout_width">36dip</item>
+        <item name="android:layout_height">60dip</item>
+        <item name="android:background">#ff000000</item>
+    </style>
+
 </resources>

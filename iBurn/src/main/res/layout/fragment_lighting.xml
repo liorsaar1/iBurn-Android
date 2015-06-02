@@ -180,17 +180,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:weightSum="1">
-
-        <TextView
-            style="@style/GjLightSliderLabel"
-            android:text="Palette"/>
-
-        <ImageView
-            android:layout_width="600dp"
-            android:layout_height="400dp"
-            android:src="@drawable/light_palette_less"
-            />
+        <include layout="@layout/lighting_palette" />
     </LinearLayout>
-
 
 </LinearLayout>

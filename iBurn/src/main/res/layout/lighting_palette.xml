@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/GjLightSliderLabel"
+        android:text="Palette"/>
+
+    <include
+        android:id="@+id/lightPaletteRow0"
+        layout="@layout/lighting_palette_row"/>
+
+    <include
+        android:id="@+id/lightPaletteRow1"
+        layout="@layout/lighting_palette_row"/>
+
+    <include
+        android:id="@+id/lightPaletteRow2"
+        layout="@layout/lighting_palette_row"/>
+
+    <include
+        android:id="@+id/lightPaletteRow3"
+        layout="@layout/lighting_palette_row"/>
+
+
+</LinearLayout>
