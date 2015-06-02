@@ -150,7 +150,7 @@
     </style>
 
     <style name="GjLightButton" parent="GjLightText">
-        <item name="android:background">@drawable/light_button_background</item>
+        <item name="android:background">@drawable/light_button</item>
         <item name="android:layout_margin">4dp</item>
         <item name="android:layout_width">140dp</item>
         <item name="android:layout_height">80dp</item>
@@ -167,7 +167,7 @@
         <item name="android:background">@drawable/light_slider_background</item>
         <item name="android:layout_marginLeft">20dp</item>
         <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:layout_width">330dp</item>
+        <item name="android:layout_width">340dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingLeft">20dp</item>
         <item name="android:paddingRight">20dp</item>
