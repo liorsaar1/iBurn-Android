@@ -6,7 +6,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.SeekBar;
 
 import com.gaiagps.iburn.R;
@@ -140,6 +142,9 @@ public class LightingFragment extends Fragment implements GjMessageListener {
         // select palette
         paletteSelect(0);
 
+        GridView grid = (GridView) view.findViewById(R.id.lightModeGrid);
+        grid.setAdapter(new lightModeAdapter());
+
         return view;
     }
 
@@ -248,6 +253,32 @@ public class LightingFragment extends Fragment implements GjMessageListener {
     @Override
     public void incoming(byte[] bytes) {
         // notin'
+    }
+
+    public class lightModeAdapter extends BaseAdapter {
+
+        public View getView(int position, View convertView, ViewGroup parent) {
+            Button button = new Button(getActivity());
+            button.setLayoutParams(new GridView.LayoutParams((int)(120*1.8), 60));
+            int color = 0xFF000000 + ((position*10)<<16) + ((position*5)<<8) + 128 ;
+            button.setBackgroundColor(color);
+            button.setTag(position);
+            return button;
+        }
+
+        public final int getCount() {
+            return 5*4;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public final long getItemId(int position) {
+            return position;
+        }
     }
 
 }

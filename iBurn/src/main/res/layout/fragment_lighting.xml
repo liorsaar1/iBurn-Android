@@ -12,11 +12,25 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="#FFcccccc"
         android:orientation="vertical">
 
         <TextView
             style="@style/GjLightSliderLabel"
             android:text="Mode"/>
+
+        <GridView
+            android:background="#FFcccc00"
+            android:id="@+id/lightModeGrid"
+            android:layout_width="600dip"
+            android:layout_height="wrap_content"
+            android:columnWidth="120dp"
+            android:gravity="left"
+            android:horizontalSpacing="0dp"
+            android:numColumns="5"
+            android:padding="0dp"
+            android:stretchMode="none"
+            android:verticalSpacing="4dp"/>
 
         <TableLayout
             android:layout_width="wrap_content"
@@ -98,8 +112,8 @@
                 <SeekBar
                     android:id="@+id/lightHue"
                     style="@style/GjLightSlider"
-                    android:progress="20"
-                    android:background="@drawable/light_hsb"/>
+                    android:background="@drawable/light_hsb"
+                    android:progress="20"/>
             </TableRow>
 
             <TableRow
@@ -110,9 +124,9 @@
                     android:text="Brightness"/>
 
                 <SeekBar
-                    android:progress="30"
                     android:id="@+id/lightBrightness"
                     style="@style/GjLightSlider"
+                    android:progress="30"
                     />
             </TableRow>
 
@@ -124,9 +138,9 @@
                     android:text="Saturation"/>
 
                 <SeekBar
-                    android:progress="40"
                     android:id="@+id/lightSaturation"
-                    style="@style/GjLightSlider"/>
+                    style="@style/GjLightSlider"
+                    android:progress="40"/>
             </TableRow>
 
             <TableRow
@@ -137,9 +151,9 @@
                     android:text="Speed"/>
 
                 <SeekBar
-                    android:progress="50"
                     android:id="@+id/lightSpeed"
                     style="@style/GjLightSlider"
+                    android:progress="50"
                     />
             </TableRow>
 
@@ -151,9 +165,9 @@
                     android:text="Tweak"/>
 
                 <SeekBar
-                    android:progress="60"
                     android:id="@+id/lightParameter1"
                     style="@style/GjLightSlider"
+                    android:progress="60"
                     />
             </TableRow>
 
@@ -165,9 +179,9 @@
                     android:text="Freak"/>
 
                 <SeekBar
-                    android:progress="70"
                     android:id="@+id/lightParameter2"
                     style="@style/GjLightSlider"
+                    android:progress="70"
                     />
             </TableRow>
 
@@ -175,12 +189,13 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_marginLeft="40dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
         android:orientation="vertical"
         android:weightSum="1">
-        <include layout="@layout/lighting_palette" />
+
+        <include layout="@layout/lighting_palette"/>
     </LinearLayout>
 
 </LinearLayout>
