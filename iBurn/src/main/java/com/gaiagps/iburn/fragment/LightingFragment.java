@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
@@ -35,19 +36,18 @@ Effect parameter 2 - slider
  */
 public class LightingFragment extends Fragment implements GjMessageListener {
     private static final String TAG = "LightingFragment";
-    private static Button[] effectButton = new Button[8];
     private static SeekBar[] seekBar = new SeekBar[8];
     private static View[] paletteRow = new View[4];
-    private static int effectSelected;
+    private static int modeSelected;
     private static int paletteSelected;
 
-    private View.OnClickListener effectOnClick = new View.OnClickListener() {
+    private View.OnClickListener modeOnClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            int index = Integer.parseInt((String) v.getTag());
-            effectButton[effectSelected].setSelected(false);
-            effectSelected = index;
-            v.setSelected(true);
+            int index = (int) v.getTag();
+//            effectButton[modeSelected].setSelected(false);
+            modeSelected = index;
+//            v.setSelected(true);
             onChange();
         }
     };
@@ -94,17 +94,6 @@ public class LightingFragment extends Fragment implements GjMessageListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_lighting, container, false);
-        effectButton[0] = (Button) view.findViewById(R.id.lightEffect_1_1);
-        effectButton[1] = (Button) view.findViewById(R.id.lightEffect_1_2);
-        effectButton[2] = (Button) view.findViewById(R.id.lightEffect_1_3);
-        effectButton[3] = (Button) view.findViewById(R.id.lightEffect_1_4);
-        effectButton[4] = (Button) view.findViewById(R.id.lightEffect_2_1);
-        effectButton[5] = (Button) view.findViewById(R.id.lightEffect_2_2);
-        effectButton[6] = (Button) view.findViewById(R.id.lightEffect_2_3);
-        effectButton[7] = (Button) view.findViewById(R.id.lightEffect_2_4);
-        for (int i = 0; i < 8; i++) {
-            effectButton[i].setOnClickListener(effectOnClick);
-        }
 
         seekBar[0] = (SeekBar) view.findViewById(R.id.lightHue);
         seekBar[1] = (SeekBar) view.findViewById(R.id.lightBrightness);
@@ -125,10 +114,8 @@ public class LightingFragment extends Fragment implements GjMessageListener {
             paletteRow[i].setTag(""+i);
         }
 
-
         // select effect
-        effectSelected = 0;
-        effectButton[effectSelected].setSelected(true);
+        modeSelected = 0;
 
         // create palettes
         for (int row = 0 ; row < 4; row++) {
@@ -142,10 +129,24 @@ public class LightingFragment extends Fragment implements GjMessageListener {
         // select palette
         paletteSelect(0);
 
-        GridView grid = (GridView) view.findViewById(R.id.lightModeGrid);
-        grid.setAdapter(new lightModeAdapter());
+        GridView modeGrid = (GridView) view.findViewById(R.id.lightModeGrid);
+        modeGrid.setAdapter(new lightModeAdapter());
+        modeGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ((Button)parent.getItemAtPosition(modeSelected)).setSelected(false);
+                modeOnClick(position);
+                ((Button)parent.getItemAtPosition(modeSelected)).setSelected(true);
+            }
+        });
 
         return view;
+    }
+
+    private void modeOnClick(int position) {
+        modeSelected = position;
+        onChange();
+
     }
 
     private void paletteSelect(int newSelection) {
@@ -259,10 +260,11 @@ public class LightingFragment extends Fragment implements GjMessageListener {
 
         public View getView(int position, View convertView, ViewGroup parent) {
             Button button = new Button(getActivity());
-            button.setLayoutParams(new GridView.LayoutParams((int)(120*1.8), 60));
-            int color = 0xFF000000 + ((position*10)<<16) + ((position*5)<<8) + 128 ;
-            button.setBackgroundColor(color);
+            button.setLayoutParams(new GridView.LayoutParams((int) (116 * 2.0), (int) (80 * 2.0)));
+            button.setBackgroundResource(R.drawable.light_button);
             button.setTag(position);
+            button.setText("" + (position + 1));
+            button.setOnClickListener(modeOnClick);
             return button;
         }
 

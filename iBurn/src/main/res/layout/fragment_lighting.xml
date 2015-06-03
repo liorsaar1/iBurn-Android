@@ -15,89 +15,20 @@
         android:background="#FFcccccc"
         android:orientation="vertical">
 
-        <TextView
-            style="@style/GjLightSliderLabel"
-            android:text="Mode"/>
-
         <GridView
-            android:background="#FFcccc00"
             android:id="@+id/lightModeGrid"
             android:layout_width="600dip"
             android:layout_height="wrap_content"
-            android:columnWidth="120dp"
+            android:columnWidth="116dp"
             android:gravity="left"
-            android:horizontalSpacing="0dp"
+            android:horizontalSpacing="4dp"
             android:numColumns="5"
             android:padding="0dp"
             android:stretchMode="none"
             android:verticalSpacing="4dp"/>
 
         <TableLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <TableRow
-                style="@style/GjLightTableRow">
-
-                <Button
-                    android:id="@+id/lightEffect_1_1"
-                    style="@style/GjLightButton"
-                    android:tag="0"
-                    android:text="1 / 1"/>
-
-                <Button
-                    android:id="@+id/lightEffect_1_2"
-                    style="@style/GjLightButton"
-                    android:tag="1"
-                    android:text="1 / 2"/>
-
-                <Button
-                    android:id="@+id/lightEffect_1_3"
-                    style="@style/GjLightButton"
-                    android:tag="2"
-                    android:text="1 / 3"/>
-
-                <Button
-                    android:id="@+id/lightEffect_1_4"
-                    style="@style/GjLightButton"
-                    android:tag="3"
-                    android:text="1 / 4"/>
-            </TableRow>
-
-            <TableRow
-                style="@style/GjLightTableRow">
-
-                <Button
-                    android:id="@+id/lightEffect_2_1"
-                    style="@style/GjLightButton"
-                    android:tag="4"
-                    android:text="2 / 1"/>
-
-                <Button
-                    android:id="@+id/lightEffect_2_2"
-                    style="@style/GjLightButton"
-                    android:tag="5"
-                    android:text="2 / 2"/>
-
-                <Button
-                    android:id="@+id/lightEffect_2_3"
-                    style="@style/GjLightButton"
-                    android:tag="6"
-                    android:text="2 / 3"/>
-
-                <Button
-                    android:id="@+id/lightEffect_2_4"
-                    style="@style/GjLightButton"
-                    android:tag="7"
-                    android:text="2 / 4"/>
-            </TableRow>
-        </TableLayout>
-
-        <View
-            android:layout_width="10dp"
-            android:layout_height="10dp"/>
-
-        <TableLayout
+            android:layout_marginTop="10dip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
