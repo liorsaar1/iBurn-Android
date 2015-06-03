@@ -24,6 +24,7 @@ import com.gaiagps.iburn.gj.ftdi.FtdiServiceManager;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageGps;
+import com.gaiagps.iburn.gj.message.GjMessageLighting;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageResponse;
 import com.gaiagps.iburn.gj.message.GjMessageStatusResponse;
@@ -293,6 +294,10 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             // DEBUG save last text #
             lastPacket = message.getPacketNumber();
             console("<<< " + message.toString());
+            return;
+        }
+        if (message instanceof GjMessageLighting) {
+            console("<<< " + message.getTime() + ":" + message.toString());
             return;
         }
         // otherwise

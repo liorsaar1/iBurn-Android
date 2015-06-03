@@ -1,6 +1,7 @@
 package com.gaiagps.iburn.fragment;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +10,9 @@ import android.widget.Button;
 import android.widget.SeekBar;
 
 import com.gaiagps.iburn.R;
+import com.gaiagps.iburn.activity.MainActivity;
 import com.gaiagps.iburn.gj.message.GjMessage;
+import com.gaiagps.iburn.gj.message.GjMessageLighting;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageStatusResponse;
 import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
@@ -59,7 +62,10 @@ public class LightingFragment extends Fragment implements GjMessageListener {
     private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            onChange();
+            // throttle the sliders to 30 messages per second
+            if (isOkToSendNextMessage()) {
+                onChange();
+            }
         }
 
         @Override
@@ -198,13 +204,36 @@ public class LightingFragment extends Fragment implements GjMessageListener {
         return R.id.lightPaletteColor0;
     }
 
+    private Handler seekbarHandler = new Handler();
+
     private void onChange() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 6; i++) {
             int value = seekBar[i].getProgress();
             sb.append(value).append(",");
         }
+        final GjMessageLighting message = new GjMessageLighting("   "+System.currentTimeMillis());
+
+        seekbarHandler.post(new Runnable() {
+            @Override
+            public void run() {
+//        System.out.println(System.currentTimeMillis() + ":" + message.toString());
+        MainActivity.ftdiServiceManager.send(message);
+//                FtdiServiceManager.loopback(getActivity(), message.toByteArray());
+            }
+        });
     }
+
+    private long seekbarTimeOfLastUpdate = 0;
+    private boolean isOkToSendNextMessage() {
+        if (System.currentTimeMillis() - seekbarTimeOfLastUpdate > 200) {
+            seekbarTimeOfLastUpdate = System.currentTimeMillis();
+            return true;
+        }
+        return false;
+    }
+
+
 
     @Override
     public void onMessage(GjMessage message) {

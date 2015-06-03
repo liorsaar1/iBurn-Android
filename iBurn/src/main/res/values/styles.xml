@@ -128,9 +128,9 @@
     </style>
 
     <style name="GjStatus">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:layout_margin">2dip</item>
-        <item name="android:padding">3dip</item>
+        <item name="android:padding">16dip</item>
         <item name="android:gravity">center</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">#FF000000</item>

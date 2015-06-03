@@ -188,6 +188,7 @@ public class GjMessage {
     protected byte type;
     protected byte packetNumber;
     protected byte[] data = new byte[0];
+    private long milli;
 
     public GjMessage(Type type) {
         this.type = type.getValue();
@@ -197,6 +198,7 @@ public class GjMessage {
         this.type = type.getValue();
         this.packetNumber = packetNumber;
         this.vehicle = (vehicle < 0 || vehicle > 15) ? 0 : vehicle;
+        this.milli = System.currentTimeMillis();
     }
 
     public static GjMessage create(ByteBuffer bb) throws ChecksumException, EOFException, PreambleNotFoundException, ParserException {
@@ -343,6 +345,14 @@ public class GjMessage {
 
     public byte getPacketNumber() {
         return packetNumber;
+    }
+
+    public long getTime() {
+        return milli;
+    }
+
+    public void setTime(long milli) {
+        this.milli = milli;
     }
 
     public byte[] toByteArray() {

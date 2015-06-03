@@ -17,6 +17,7 @@
 
         <TableRow
             android:layout_width="match_parent"
+            android:gravity="center"
             android:layout_height="wrap_content">
 
             <TextView
@@ -37,7 +38,7 @@
             <TextView
                 android:id="@+id/GjStatusVehicle"
                 style="@style/GjStatus"
-                android:text="Vehicle:?"/>
+                android:text="Vehicle:-"/>
 
             <TextView
                 android:id="@+id/GjStatusRadio"
@@ -67,12 +68,12 @@
             <TextView
                 android:id="@+id/GjStatusChecksumErrorCounter"
                 style="@style/GjStatus"
-                android:text="Checksum:?"/>
+                android:text="Checksum:-"/>
 
             <TextView
                 android:id="@+id/GjStatusPacketNumber"
                 style="@style/GjStatus"
-                android:text="Packet:?"/>
+                android:text="Packet:-"/>
 
         </TableRow>
     </TableLayout>
@@ -81,7 +82,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <TableLayout
             android:layout_width="match_parent"
