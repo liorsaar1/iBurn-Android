@@ -221,6 +221,19 @@ public class LightingFragment extends Fragment implements GjMessageListener {
         }
     }
 
+    private static String[] palettePresets = {
+            "0x000080,0x000a80,0x001480,0x001e80,0x002880,0x003280,0x003c80,0x004680,0x005080,0x005a80,0x006480,0x006e80,0x007880,0x008280,0x008c80,0x009680",
+            "0x0a0080,0x0a0a80,0x0a1480,0x0a1e80,0x0a2880,0x0a3280,0x0a3c80,0x0a4680,0x0a5080,0x0a5a80,0x0a6480,0x0a6e80,0x0a7880,0x0a8280,0x0a8c80,0x0a9680",
+            "0x140080,0x140a80,0x141480,0x141e80,0x142880,0x143280,0x143c80,0x144680,0x145080,0x145a80,0x146480,0x146e80,0x147880,0x148280,0x148c80,0x149680",
+            "0x1e0080,0x1e0a80,0x1e1480,0x1e1e80,0x1e2880,0x1e3280,0x1e3c80,0x1e4680,0x1e5080,0x1e5a80,0x1e6480,0x1e6e80,0x1e7880,0x1e8280,0x1e8c80,0x1e9680",
+            "0x280080,0x280a80,0x281480,0x281e80,0x282880,0x283280,0x283c80,0x284680,0x285080,0x285a80,0x286480,0x286e80,0x287880,0x288280,0x288c80,0x289680",
+            "0x320080,0x320a80,0x321480,0x321e80,0x322880,0x323280,0x323c80,0x324680,0x325080,0x325a80,0x326480,0x326e80,0x327880,0x328280,0x328c80,0x329680",
+            "0x3c0080,0x3c0a80,0x3c1480,0x3c1e80,0x3c2880,0x3c3280,0x3c3c80,0x3c4680,0x3c5080,0x3c5a80,0x3c6480,0x3c6e80,0x3c7880,0x3c8280,0x3c8c80,0x3c9680",
+            "0x460080,0x460a80,0x461480,0x461e80,0x462880,0x463280,0x463c80,0x464680,0x465080,0x465a80,0x466480,0x466e80,0x467880,0x468280,0x468c80,0x469680",
+            "0x500080,0x500a80,0x501480,0x501e80,0x502880,0x503280,0x503c80,0x504680,0x505080,0x505a80,0x506480,0x506e80,0x507880,0x508280,0x508c80,0x509680",
+            "0x5a0080,0x5a0a80,0x5a1480,0x5a1e80,0x5a2880,0x5a3280,0x5a3c80,0x5a4680,0x5a5080,0x5a5a80,0x5a6480,0x5a6e80,0x5a7880,0x5a8280,0x5a8c80,0x5a9680"
+    };
+
     public class PaletteAdapter extends BaseAdapter {
 
         private static final int WIDTH = 1;
@@ -247,7 +260,7 @@ public class LightingFragment extends Fragment implements GjMessageListener {
                 LinearLayout view = (LinearLayout) inflater.inflate(R.layout.lighting_palette_row, null);
                 view.setTag(i);
                 view.setOnClickListener(onClick);
-                presetRow(view, i);
+                readRowPreset(view, i);
                 views.add(view);
             }
         }
@@ -277,18 +290,32 @@ public class LightingFragment extends Fragment implements GjMessageListener {
         public void setSelected(int index) {
             views.get(selected).setBackgroundColor(0x00000000);
             selected = index;
-            views.get(selected).setBackgroundColor(0xFFFFFFFF);
+            views.get(selected).setBackground(getActivity().getResources().getDrawable(R.drawable.light_palette_background));
+        }
+
+        private void readRowPreset(View rowView, int position) {
+            String presets = palettePresets[position];
+            String[] rgbStrings = presets.split(",");
+            for (int i = 0; i < rgbStrings.length; i++) {
+                int rgb = 0xFF000000 + Integer.decode(rgbStrings[i]);
+                View colorView = rowView.findViewById(getColResId(i));
+                colorView.setBackgroundColor(rgb);
+            }
         }
 
         private void presetRow(View rowView, int position) {
+            StringBuffer sb = new StringBuffer();
             for (int i = 0; i < 16; i++) {
                 int r = (position * 10) << 16;
                 int g = (i * 10) << 8;
                 int b = 128;
+                int rgb = r+g+b;
+                sb.append(String.format("0x%06x,", rgb));
                 int color = 0xFF000000 + r + g + b;
                 View colorView = rowView.findViewById(getColResId(i));
                 colorView.setBackgroundColor(color);
             }
+            System.out.println(sb.toString());
         }
 
         private int getColResId(int col) {
