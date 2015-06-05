@@ -18,10 +18,10 @@
             android:id="@+id/lightModeGrid"
             android:layout_width="600dip"
             android:layout_height="wrap_content"
-            android:columnWidth="116dp"
+            android:columnWidth="145dp"
             android:gravity="left"
             android:horizontalSpacing="4dp"
-            android:numColumns="5"
+            android:numColumns="4"
             android:padding="0dp"
             android:stretchMode="none"
             android:verticalSpacing="4dp"/>

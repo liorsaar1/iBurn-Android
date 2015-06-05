@@ -108,13 +108,16 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
         }, 5000);
     }
 
-    private static int fakegps = 1;
     @Override
     public void onMessage(GjMessage message) {
         if (message instanceof GjMessageGps) {
             GjMessageGps gps = (GjMessageGps)message;
+            int vehicle = message.getVehicle();
+            if (vehicle > 5) {
+                return;
+            }
             final Marker marker = getMarker(message.getVehicle());
-            final LatLng latLng = new LatLng(gps.getLat(), gps.getLong()+(0.01*fakegps++));
+            final LatLng latLng = new LatLng(gps.getLat(), gps.getLong());
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -128,9 +131,11 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
     private LatLng bmLatLong = new LatLng(40.7888, -119.20315);
 
     private Marker getMarker(int vehicle) {
+        // look for existing
         if (vehicles.containsKey(""+vehicle)) {
             return vehicles.get(""+vehicle);
         }
+        // if doesnt exist - create a new one
         MarkerOptions mops = new MarkerOptions()
                 .position(bmLatLong)
                 .icon(BitmapDescriptorFactory.fromResource(vehicleResId[vehicle]))
@@ -143,11 +148,11 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
 
     private int vehicleResId[] = new int[] {
             R.drawable.vehicle_0,
-            R.drawable.vehicle_0,
-            R.drawable.vehicle_0,
-            R.drawable.vehicle_0,
-            R.drawable.vehicle_0,
-            R.drawable.vehicle_0,
+            R.drawable.vehicle_1,
+            R.drawable.vehicle_2,
+            R.drawable.vehicle_3,
+            R.drawable.vehicle_4,
+            R.drawable.vehicle_5,
             R.drawable.vehicle_0,
     };
 
