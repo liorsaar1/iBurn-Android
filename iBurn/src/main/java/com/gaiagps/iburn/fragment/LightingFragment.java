@@ -41,8 +41,8 @@ public class LightingFragment extends Fragment implements GjMessageListener {
     private static final String TAG = "LightingFragment";
     private static SeekBar[] seekBar = new SeekBar[8];
 
-    private ModeAdapter modeAdapter;
-    private PaletteAdapter paletteAdapter;
+    private static ModeAdapter modeAdapter;
+    private static PaletteAdapter paletteAdapter;
     private Handler seekbarHandler = new Handler();
     private long seekbarTimeOfLastUpdate = 0;
     private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
@@ -83,7 +83,7 @@ public class LightingFragment extends Fragment implements GjMessageListener {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                modeAdapter.setSelected(0);
+                modeAdapter.setSelected(modeAdapter.getSelected());
             }
         }, 1000);
     }
@@ -104,15 +104,19 @@ public class LightingFragment extends Fragment implements GjMessageListener {
 
         // MODE
         GridView modeGrid = (GridView) view.findViewById(R.id.lightModeGrid);
-        modeAdapter = new ModeAdapter();
+        if (modeAdapter == null) {
+            modeAdapter = new ModeAdapter();
+            modeAdapter.setSelected(0);
+        }
         modeGrid.setAdapter(modeAdapter);
-        modeAdapter.setSelected(0);
 
         // PALETTE
         GridView paletteGrid = (GridView) view.findViewById(R.id.lightPaletteGrid);
-        paletteAdapter = new PaletteAdapter();
+        if (paletteAdapter == null) {
+            paletteAdapter = new PaletteAdapter();
+            paletteAdapter.setSelected(0);
+        }
         paletteGrid.setAdapter(paletteAdapter);
-        paletteAdapter.setSelected(0);
 
         return view;
     }

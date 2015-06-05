@@ -21,6 +21,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
@@ -403,7 +404,31 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         mTabs.setDividerColorResource(R.color.tab_selector);
         mViewPager.setAdapter(mPagerAdapter);
         mTabs.setViewPager(mViewPager);
-        mViewPager.setCurrentItem(3);
+        //mViewPager.setCurrentItem(1);
+        mTabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(mTabs.getWindowToken(), 0);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+        mViewPager.setOnTouchListener(new View.OnTouchListener() {
+
+            public boolean onTouch(View arg0, MotionEvent arg1) {
+                return true;
+            }
+        });
     }
 
     @Override
@@ -441,7 +466,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         private int mLastPosition = -1;
 
         public static enum IBurnTab {
-            GJ      (R.string.gj_tab,     R.drawable.ic_gj,       GalacticJungleFragment.class),
+            GJ      (R.string.gj_tab,     R.drawable.ic_brc,       GalacticJungleFragment.class),
             TEXT    (R.string.text_tab,   R.drawable.ic_text,     TextFragment.class),
             SET     (R.string.set_tab,    R.drawable.ic_settings, SettingsFragment.class),
             LIGHT   (R.string.light_tab,  R.drawable.ic_light,    LightingFragment.class),

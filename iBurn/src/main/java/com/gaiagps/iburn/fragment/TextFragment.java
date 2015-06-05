@@ -32,7 +32,6 @@ import java.util.Date;
  */
 public class TextFragment extends Fragment implements GjMessageListener {
     private static final String TAG = "TextFragment";
-    private static String[] values = new String[] { "Be Awesome.  No Drama."};
 
     private static final ArrayList<TextMessage> list = new ArrayList<>();
 
@@ -74,9 +73,9 @@ public class TextFragment extends Fragment implements GjMessageListener {
         setSendTextEnabled(false);
 
         listView = (ListView) view.findViewById(R.id.textListView);
-        for (int i = 0; i < values.length; ++i) {
-            list.add(new TextMessage(values[i]));
-        }
+        if (list.size() == 0)
+            list.add(new TextMessage("Be Awesome.  No Drama."));
+
         adapter = new TextArrayAdapter(getActivity(), list);
         listView.setAdapter(adapter);
 
