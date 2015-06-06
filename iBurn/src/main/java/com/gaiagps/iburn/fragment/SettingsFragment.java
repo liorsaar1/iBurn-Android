@@ -53,11 +53,6 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     public static byte sVehicleNumber =0;
     public static int sChecksumErrorCounter =0;
 
-
-    public static SettingsFragment newInstance() {
-        return new SettingsFragment();
-    }
-
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
@@ -68,8 +63,13 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         getActivity().setTheme(R.style.Theme_GJ);
     }
 
+    private static View sView;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (sView != null)
+            return sView;
+
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
         sendTextEditText = (EditText) view.findViewById(R.id.GjMessageEditText);
@@ -85,6 +85,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         messageIncoming = (TextView) view.findViewById(R.id.GjIncoming);
         messageIncoming.setMovementMethod(new ScrollingMovementMethod());
 
+        view.findViewById(R.id.GjTestContainer).setVisibility(View.GONE);
         testSendResponse = (Button)view.findViewById(R.id.GjTestSendResponse);
         testSendResponse.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,6 +126,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         setStatusChecksumErrorCounter(sChecksumErrorCounter);
         setOutgoingText();
 
+        sView = view;
         return view;
     }
 
@@ -135,8 +137,8 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     }
 
     private void onClickTestSendGps(View v) {
-        MainActivity.ftdiServiceManager.send(GjMessageFactory.createGps());
-//        loopback(GjMessageFactory.createGps().array());
+//        MainActivity.ftdiServiceManager.send(GjMessageFactory.createGps());
+        loopback(GjMessageFactory.createGps().array());
 
     }
 

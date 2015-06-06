@@ -404,7 +404,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         mTabs.setDividerColorResource(R.color.tab_selector);
         mViewPager.setAdapter(mPagerAdapter);
         mTabs.setViewPager(mViewPager);
-//        mViewPager.setCurrentItem(3);
+        mViewPager.setCurrentItem(3);
         mTabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -516,10 +516,14 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
             return mTabs.size();
         }
 
+        private static Fragment[] fragmentInstances = new Fragment[IBurnTab.values().length];
+
         @Override
         public Fragment getItem(int position) {
             try {
-                return mTabs.get(position).getFragmentClass().newInstance(); //.getMethod("newInstance", null).invoke(null, null);
+                if (fragmentInstances[position] == null)
+                    fragmentInstances[position] = mTabs.get(position).getFragmentClass().newInstance(); //.getMethod("newInstance", null).invoke(null, null);
+                return fragmentInstances[position];
             } catch (InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
                 throw new IllegalStateException("Unexpected ViewPager item requested: " + position);
