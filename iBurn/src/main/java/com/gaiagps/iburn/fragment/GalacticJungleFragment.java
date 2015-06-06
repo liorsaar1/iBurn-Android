@@ -117,6 +117,7 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
                 return;
             }
             final Marker marker = getMarker(message.getVehicle());
+            marker.setRotation((float) gps.getHead());
             final LatLng latLng = new LatLng(gps.getLat(), gps.getLong());
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -140,7 +141,7 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
                 .position(bmLatLong)
                 .icon(BitmapDescriptorFactory.fromResource(vehicleResId[vehicle]))
                 .anchor(0.5f, 0.5f)
-                .title("Vehicle " + vehicle );
+                .title("Vehicle " + vehicle);
         Marker marker = gjMap.addMarker(mops);
         vehicles.put(""+vehicle, marker);
         return marker;
