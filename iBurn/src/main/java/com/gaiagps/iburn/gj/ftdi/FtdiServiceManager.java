@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
@@ -15,7 +16,6 @@ import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageResponse;
 import com.gaiagps.iburn.gj.message.GjMessageText;
 import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
-import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -122,6 +122,7 @@ public class FtdiServiceManager {
     }
 
     private void console(String string) {
+        Log.e(TAG, string);
         GjMessageConsole message = new GjMessageConsole(string);
         dispatch(message);
     }

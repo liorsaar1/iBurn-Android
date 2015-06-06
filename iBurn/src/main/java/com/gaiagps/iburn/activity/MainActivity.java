@@ -404,7 +404,8 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         mTabs.setDividerColorResource(R.color.tab_selector);
         mViewPager.setAdapter(mPagerAdapter);
         mTabs.setViewPager(mViewPager);
-        mViewPager.setCurrentItem(3);
+//        mViewPager.setCurrentItem(3);
+        // hide the kbd when moving between pages
         mTabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -422,7 +423,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
 
             }
         });
-
+        // prevent swiping pages, to allow 'lighting' sliders to function properly
         mViewPager.setOnTouchListener(new View.OnTouchListener() {
 
             public boolean onTouch(View arg0, MotionEvent arg1) {
