@@ -16,9 +16,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -68,44 +66,8 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
         super.onDestroyView();
     }
 
-    private List<Marker> markers;
-
-    static GoogleMap gjMap ;
-
     private void initGJ() {
         gjMap = getMap();
-//        40.7888
-//        -119.20315
-//        lat=40.7843037788468
-//        lon=-119.19632155448197
-        final LatLng test1 = new LatLng(40.7888, -119.20315);
-        final LatLng test2 = new LatLng(40.7843, 119.1963);
-
-        getMap().addMarker(new MarkerOptions()
-                .position(test1)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                .title("Current Location"));
-
-        markers = new ArrayList<Marker>();
-
-        for (int i = 1; i < 5 ; i++) {
-            LatLng ll = new LatLng(40.7888+i*0.003, -119.20315+i*0.003);
-
-            MarkerOptions mops = new MarkerOptions()
-                    .position(ll)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                    .title("** " + i);
-            markers.add( getMap().addMarker(mops) );
-        }
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                for (Marker marker : markers) {
-                    marker.setPosition(test1);
-                }
-            }
-        }, 5000);
     }
 
     @Override
@@ -130,6 +92,7 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
 
     private Map<String, Marker> vehicles = new HashMap<String, Marker>();
     private LatLng bmLatLong = new LatLng(40.7888, -119.20315);
+    private static GoogleMap gjMap ;
 
     private Marker getMarker(int vehicle) {
         // look for existing
