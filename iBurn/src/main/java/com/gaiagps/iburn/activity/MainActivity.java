@@ -2,6 +2,8 @@ package com.gaiagps.iburn.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.SearchManager;
@@ -25,6 +27,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -129,6 +132,29 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         if (ftdiServiceManager == null) {
             ftdiServiceManager = new FtdiServiceManager(getFtdiListeners());
         }
+        starLogoAnimation(this);
+    }
+
+    private void starLogoAnimation(Activity activity) {
+        final View view = activity.findViewById(R.id.logoAnimation);
+
+        ObjectAnimator rotxAnim = ObjectAnimator.ofFloat(view, "rotationX", 0.0f, 720.0f);
+        rotxAnim.setInterpolator(new AccelerateInterpolator(0.2f));
+        rotxAnim.setDuration(3 * 1000);
+        rotxAnim.start();
+
+        ObjectAnimator alphaAnim = ObjectAnimator.ofFloat(view, "alpha", 1.0f, 0.0f);
+        alphaAnim.setInterpolator(new AccelerateInterpolator(1.6f));
+        alphaAnim.setDuration(5 * 1000);
+        alphaAnim.start();
+        alphaAnim.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                view.setVisibility(View.GONE);
+            }
+        });
+
     }
 
     private List<GjMessageListener> getFtdiListeners() {

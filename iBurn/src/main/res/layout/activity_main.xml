@@ -95,12 +95,25 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <com.gaiagps.iburn.view.MapViewPager
-        android:id="@+id/pager"
+    <RelativeLayout
         android:layout_below="@id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:minHeight="?attr/actionBarSize" />
+        android:layout_height="match_parent">
+
+        <com.gaiagps.iburn.view.MapViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minHeight="?attr/actionBarSize" />
+
+        <ImageView
+            android:id="@+id/logoAnimation"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/logo"/>
+
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/unlock_container"

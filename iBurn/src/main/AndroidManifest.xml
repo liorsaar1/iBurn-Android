@@ -61,7 +61,7 @@
         </activity>
         <activity
             android:name=".activity.PlayaItemViewActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="landscape" />
 <!--
         <activity
             android:name=".gj.ftdi.FtdiActivity"
