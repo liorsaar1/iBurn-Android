@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.gaiagps.iburn.R;
@@ -40,6 +41,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
     private static EditText sendTextEditText;
     private static Button sendTextButton;
     private static byte sVehicle = 0;
+    private Spinner targetSpinner;
 
     public static TextFragment newInstance() {
         return new TextFragment();
@@ -59,8 +61,12 @@ public class TextFragment extends Fragment implements GjMessageListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_text, container, false);
 
+        targetSpinner = (Spinner) view.findViewById(R.id.GjTextTargetSpinner);
+        String[] values = {"ALL", "0", "1", "2", "3", "4", "5"};
+        targetSpinner.setAdapter(new TargetAdapter(getActivity(), android.R.layout.simple_spinner_item, values));
+
         sendTextEditText = (EditText) view.findViewById(R.id.GjTextEditText);
-        sendTextEditText.setPadding(20,0,0,0); //must be here, doesnt work in xml
+        sendTextEditText.setPadding(20, 0, 0, 0); //must be here, doesnt work in xml
 
         sendTextButton = (Button)view.findViewById(R.id.GjTextSendButton);
         sendTextButton.setOnClickListener(new View.OnClickListener() {
@@ -85,7 +91,8 @@ public class TextFragment extends Fragment implements GjMessageListener {
     private void setSendTextEnabled(boolean enabled) {
         sendTextEditText.setEnabled(enabled);
         sendTextButton.setEnabled(enabled);
-        sendTextEditText.setVisibility(enabled?View.VISIBLE:View.INVISIBLE);
+        sendTextEditText.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
+        targetSpinner.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
     }
 
     private void onClickSendText(View v) {
@@ -211,6 +218,38 @@ public class TextFragment extends Fragment implements GjMessageListener {
             this.text = text;
             this.vehicle = vehicle;
             this.date = format.format(new Date());
+        }
+    }
+
+    public class TargetAdapter extends ArrayAdapter<String>{
+
+        public TargetAdapter(Context context, int textViewResourceId, String[] objects) {
+            super(context, textViewResourceId, objects);
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView,ViewGroup parent) {
+            return getCustomView(position, convertView, parent);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            return getCustomView(position, convertView, parent);
+        }
+
+        public View getCustomView(int position, View convertView, ViewGroup parent) {
+
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            View view = inflater.inflate(R.layout.fragment_text_target_item, parent, false);
+
+            ImageView icon = (ImageView)view.findViewById(R.id.textTargetIcon);
+            if (position == 0) {
+                icon.setImageResource(R.drawable.ic_vall);
+            } else {
+                icon.setImageResource(getAvatarResId((byte) (position-1)));
+            }
+
+            return view;
         }
     }
 }

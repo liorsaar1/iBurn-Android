@@ -25,8 +25,14 @@
         android:padding="2dp"
         android:weightSum="1">
 
+        <Spinner
+            android:layout_weight="0.1"
+            android:id="@+id/GjTextTargetSpinner"
+            android:layout_width="80dip"
+            android:layout_height="match_parent"/>
+
         <RelativeLayout
-            android:layout_weight="0.9"
+            android:layout_weight="0.8"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
