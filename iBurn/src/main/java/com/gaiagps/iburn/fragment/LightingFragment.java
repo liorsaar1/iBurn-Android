@@ -24,6 +24,11 @@ import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Created by liorsaar on 4/19/15
@@ -41,6 +46,7 @@ Effect parameter 2 - slider
  */
 public class LightingFragment extends Fragment implements GjMessageListener {
     private static final String TAG = "LightingFragment";
+    private static final int LIGHTING_MESSAGE_REFRESH_RATE = 5; // seconds
     private static SeekBar[] seekBar;
 
     private static ModeAdapter modeAdapter;
@@ -58,8 +64,11 @@ public class LightingFragment extends Fragment implements GjMessageListener {
             "0x500080,0x500a80,0x501480,0x501e80,0x502880,0x503280,0x503c80,0x504680,0x505080,0x505a80,0x506480,0x506e80,0x507880,0x508280,0x508c80,0x509680",
             "0x5a0080,0x5a0a80,0x5a1480,0x5a1e80,0x5a2880,0x5a3280,0x5a3c80,0x5a4680,0x5a5080,0x5a5a80,0x5a6480,0x5a6e80,0x5a7880,0x5a8280,0x5a8c80,0x5a9680"
     };
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private Handler seekbarHandler = new Handler();
     private long seekbarTimeOfLastUpdate = 0;
+    private ScheduledFuture scheduledFuture;
+    private GjMessage lastLightMessage;
     private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -128,6 +137,7 @@ public class LightingFragment extends Fragment implements GjMessageListener {
     }
 
     private void onChange() {
+
         StringBuilder sb = new StringBuilder();
         sb.append(modeAdapter.getSelected()).append(",");
         sb.append(paletteAdapter.getSelected()).append(",");
@@ -141,6 +151,7 @@ public class LightingFragment extends Fragment implements GjMessageListener {
             @Override
             public void run() {
                 MainActivity.ftdiServiceManager.send(message);
+                startRefresh(message);
                 //FtdiServiceManager.loopback(getActivity(), message.toByteArray());
             }
         });
@@ -156,10 +167,17 @@ public class LightingFragment extends Fragment implements GjMessageListener {
 
     @Override
     public void onMessage(GjMessage message) {
+        // noop
         if (message instanceof GjMessageStatusResponse) {
             GjMessageStatusResponse s = (GjMessageStatusResponse) message;
             return;
         }
+        // an external light command - we are not master anymore
+        if (message instanceof GjMessageLighting) {
+            // stop refreshing
+            stopRefresh();
+        }
+        // disable controls if ftdi stopped
         if (message instanceof GjMessageFtdi) {
         }
     }
@@ -167,6 +185,34 @@ public class LightingFragment extends Fragment implements GjMessageListener {
     @Override
     public void incoming(byte[] bytes) {
         // notin'
+    }
+
+    // the last unit to send a ligthing message is the master until another unit takes over
+    // the master is responsible to generate a refresh message every 5 seconds
+    // to sync any new addition to the pack
+    private void startRefresh(final GjMessage message) {
+        Log.e(TAG, "start Refresh");
+        // save the message
+        lastLightMessage = message;
+        // if a refresh is already scheduled, remove it
+        stopRefresh();
+        // arm the next update
+        scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                Log.e(TAG, "Refresh");
+                MainActivity.ftdiServiceManager.send(lastLightMessage);
+                //FtdiServiceManager.loopback(getActivity(), lastLightMessage.toByteArray());
+            }
+        }, LIGHTING_MESSAGE_REFRESH_RATE, LIGHTING_MESSAGE_REFRESH_RATE, SECONDS);
+
+    }
+
+    private void stopRefresh() {
+        Log.e(TAG, "stop Refresh");
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(false);
+        }
     }
 
     public class ModeAdapter extends BaseAdapter {
@@ -354,5 +400,4 @@ public class LightingFragment extends Fragment implements GjMessageListener {
             return R.id.lightPaletteColor0;
         }
     }
-
 }
