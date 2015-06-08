@@ -41,7 +41,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
     private static EditText sendTextEditText;
     private static Button sendTextButton;
     private static byte sVehicle = 0;
-    private Spinner targetSpinner;
+    private static Spinner targetSpinner;
 
     public static TextFragment newInstance() {
         return new TextFragment();
@@ -92,7 +92,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
         sendTextEditText.setEnabled(enabled);
         sendTextButton.setEnabled(enabled);
         sendTextEditText.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
-        targetSpinner.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
+        //targetSpinner.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
     }
 
     private void onClickSendText(View v) {

@@ -26,23 +26,24 @@
         android:weightSum="1">
 
         <Spinner
-            android:layout_weight="0.1"
             android:id="@+id/GjTextTargetSpinner"
             android:layout_width="80dip"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_weight="0.1"
+            android:visibility="gone"/>
 
         <RelativeLayout
-            android:layout_weight="0.8"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="30sp"
                 android:gravity="center"
+                android:text="No Connection"
                 android:textColor="#ff000000"
-                android:text="No Connection"/>
+                android:textSize="30sp"/>
 
             <EditText
                 android:id="@+id/GjTextEditText"
@@ -50,9 +51,9 @@
                 android:background="@drawable/text_message_background"
                 android:hint="Enter Text:"
                 android:lines="2"
+                android:maxLength="140"
                 android:paddingLeft="6dp"
                 android:paddingRight="6dp"
-                android:maxLength="140"
                 android:textColor="#000000"
                 android:textColorHint="#ffcccccc"
                 android:textSize="20sp"/>
@@ -62,9 +63,9 @@
 
         <Button
             android:id="@+id/GjTextSendButton"
-            android:layout_margin="4dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="4dp"
             android:layout_weight="0.1"
             android:background="@drawable/text_send_button"
             android:text="@string/gj_text_send"
