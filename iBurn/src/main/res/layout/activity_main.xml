@@ -113,6 +113,13 @@
             android:layout_centerInParent="true"
             android:src="@drawable/logo"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center">
+                <include layout="@layout/dialog_status_error"/>
+        </LinearLayout>
+
     </RelativeLayout>
 
     <RelativeLayout

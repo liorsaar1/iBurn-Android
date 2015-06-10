@@ -1,5 +1,8 @@
 package com.gaiagps.iburn.fragment;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -13,6 +16,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -134,6 +138,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
 
     private void onClickTestSendStatus(View v) {
         MainActivity.ftdiServiceManager.send(new GjMessageStatusResponse(fakeStatus++));
+        loopback(new GjMessageStatusResponse(fakeStatus++).toByteArray());
     }
 
     private void onClickTestSendGps(View v) {
@@ -235,7 +240,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             return;
         }
         String hex = GjMessage.toHexString(bytes);
-        console("<<< Incoming:" + hex +"\n");
+        console("<<< Incoming:" + hex + "\n");
     }
 
     private static int lastPacket = -1;
@@ -282,6 +287,8 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             // report packet number
             setStatusPacketNumber(s.getPacketNumber());
             console("<<< " + message.toString());
+            // display critical error dialog if needed
+            showStatusErrorDialog(getActivity(), s);
             return;
         }
         if (message instanceof GjMessageGps) {
@@ -305,6 +312,37 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         // otherwise
         console(message.toString());
     }
+
+    private void showStatusErrorDialog(Activity activity, GjMessageStatusResponse status) {
+        View view = getActivity().findViewById(R.id.GjErrorContainer);
+        if (!status.isCriticalError()) {
+            view.setVisibility(View.GONE);
+            stopStatusErrorAnimation();
+            return;
+        }
+        view.setVisibility(View.VISIBLE);
+        view.findViewById(R.id.GjErrorCompass).setVisibility(status.getErrorCompass() ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.GjErrorGps).setVisibility(status.getErrorGps() ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.GjErrorRadio).setVisibility(status.getErrorRadio() ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.GjErrorTemp).setVisibility(status.getErrorTemp() ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.GjErrorVoltage).setVisibility(status.getErrorVoltage() ? View.VISIBLE : View.GONE);
+        startStatusErrorAnimation(view);
+    }
+
+    ObjectAnimator statusErrorAnim;
+    private void startStatusErrorAnimation(View view) {
+        statusErrorAnim = ObjectAnimator.ofFloat(view, "alpha", 1.0f, 0.0f);
+        statusErrorAnim.setInterpolator(new AccelerateInterpolator(3f));
+        statusErrorAnim.setDuration(1000);
+        statusErrorAnim.setRepeatCount(ValueAnimator.INFINITE);
+        statusErrorAnim.start();
+    }
+    private void stopStatusErrorAnimation() {
+        if (statusErrorAnim != null)
+            statusErrorAnim.cancel();
+    }
+
+
 
     private static List<GjMessage> queue = new ArrayList<>();
 

@@ -137,6 +137,12 @@
         <item name="android:background">#FFFF0000</item>
     </style>
 
+    <style name="GjStatus.Error">
+        <item name="android:layout_width">160dip</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
     <!-- light -->
     <style name="GjLightTableRow">
         <item name="android:layout_width">match_parent</item>

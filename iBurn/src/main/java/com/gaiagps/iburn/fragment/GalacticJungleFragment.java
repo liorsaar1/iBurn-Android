@@ -10,6 +10,9 @@ import com.gaiagps.iburn.R;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageGps;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
+import com.gaiagps.iburn.gj.message.GjMessageStatusResponse;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -68,6 +71,16 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
 
     private void initGJ() {
         gjMap = getMap();
+        gjMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                Marker marker = getMarker(sGjVehicleId);
+                LatLng latLng = marker.getPosition();
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
+                gjMap.animateCamera(cameraUpdate);
+                return true;
+            }
+        });
     }
 
     @Override
@@ -88,7 +101,13 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
                 }
             }, 500);
         }
+        if (message instanceof GjMessageStatusResponse) {
+            GjMessageStatusResponse status = (GjMessageStatusResponse) message;
+            sGjVehicleId = status.getVehicle();
+        }
     }
+
+    private static int sGjVehicleId = 0;
 
     private Map<String, Marker> vehicles = new HashMap<String, Marker>();
     private LatLng bmLatLong = new LatLng(40.7888, -119.20315);

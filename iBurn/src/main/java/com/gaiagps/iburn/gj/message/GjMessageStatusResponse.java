@@ -23,6 +23,7 @@ public class GjMessageStatusResponse extends GjMessage {
     public boolean getErrorTemp() { return (getByte() & BITMASK_TEMP) != 0; }
     public boolean getErrorCompass() { return (getByte() & BITMASK_COMPASS) != 0; }
     public boolean getErrorGps() { return (getByte() & BITMASK_GPS) != 0; }
+    public boolean isCriticalError() { return getErrorCompass() | getErrorGps() | getErrorRadio() | getErrorTemp() | getErrorVoltage(); }
 
     @Override
     public String toString() {

@@ -145,7 +145,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
 
         ObjectAnimator alphaAnim = ObjectAnimator.ofFloat(view, "alpha", 1.0f, 0.0f);
         alphaAnim.setInterpolator(new AccelerateInterpolator(1.6f));
-        alphaAnim.setDuration(5 * 1000);
+        alphaAnim.setDuration(4 * 1000);
         alphaAnim.start();
         alphaAnim.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -430,7 +430,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         mTabs.setDividerColorResource(R.color.tab_selector);
         mViewPager.setAdapter(mPagerAdapter);
         mTabs.setViewPager(mViewPager);
-        mViewPager.setCurrentItem(1);
+        //mViewPager.setCurrentItem(1);
         // hide the kbd when moving between pages
         mTabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
