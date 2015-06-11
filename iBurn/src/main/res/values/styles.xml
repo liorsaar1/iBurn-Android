@@ -138,9 +138,25 @@
     </style>
 
     <style name="GjStatus.Error">
-        <item name="android:layout_width">160dip</item>
-        <item name="android:textSize">30sp</item>
+        <item name="android:layout_width">200dip</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:padding">12dip</item>
         <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="GjErrorRow">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginBottom">4dip</item>
+    </style>
+
+    <style name="GjErrorText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">#FF000000</item>
+        <item name="android:layout_marginLeft">6dip</item>
     </style>
 
     <!-- light -->

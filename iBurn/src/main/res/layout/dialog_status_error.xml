@@ -3,9 +3,10 @@
 <LinearLayout
     android:id="@+id/GjErrorContainer"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="900dip"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
+    android:layout_gravity="top|center_horizontal"
+    android:layout_marginTop="40dip"
     android:animateLayoutChanges="true"
     android:background="@drawable/light_palette_background"
     android:gravity="center"
@@ -20,39 +21,54 @@
         android:layout_marginBottom="10dp"
         android:text="     Critical Error     "
         android:textColor="@color/highlight_comp"
-        android:textSize="60sp"/>
+        android:textSize="40sp"/>
 
-    <LinearLayout
+    <TableLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/GjErrorRadio"
-            style="@style/GjStatus.Error"
-            android:text="Radio"/>
+        <TableRow android:id="@+id/GjErrorVoltage"
+                  style="@style/GjErrorRow">
+            <TextView
 
-        <TextView
-            android:id="@+id/GjErrorVoltage"
-            style="@style/GjStatus.Error"
-            android:text="Voltage"/>
+                style="@style/GjStatus.Error"
+                android:text="Low Voltage"/>
+            <TextView
+                style="@style/GjErrorText"
+                android:text="Cart batteries dangerously low, switch into charge \nmode immediately"/>
+        </TableRow>
 
-        <TextView
+        <TableRow
             android:id="@+id/GjErrorTemp"
-            style="@style/GjStatus.Error"
-            android:text="Temp"/>
+            style="@style/GjErrorRow">
+            <TextView
 
-        <TextView
-            android:id="@+id/GjErrorCompass"
-            style="@style/GjStatus.Error"
-            android:text="Compass"/>
+                style="@style/GjStatus.Error"
+                android:text="Overheat"/>
+            <TextView
+                style="@style/GjErrorText"
+                android:text="Wow dude !  Way too hot !! \nFind some shade and chill out for a few hours"/>
+        </TableRow>
 
-        <TextView
-            android:id="@+id/GjErrorGps"
-            style="@style/GjStatus.Error"
-            android:text="GPS"/>
+        <TableRow style="@style/GjErrorRow"
+                  android:id="@+id/GjErrorRadio">
+            <TextView
+                style="@style/GjStatus.Error"
+                android:text="Radio"/>
+            <TextView
+                style="@style/GjErrorText"
+                android:text="Thats it!  You broke it.  \nTake this thing to the shop"/>
+        </TableRow>
 
-    </LinearLayout>
-
+        <TableRow style="@style/GjErrorRow"
+                  android:id="@+id/GjErrorGps">
+            <TextView
+                style="@style/GjStatus.Error"
+                android:text="GPS/Compass"/>
+            <TextView
+                style="@style/GjErrorText"
+                android:text="GPS is broken. We are lost. They will never find us."/>
+        </TableRow>
+    </TableLayout>
 
 </LinearLayout>

@@ -56,6 +56,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     private static Button testSendResponse, testSendStatus, testSendGps;
     public static byte sVehicleNumber =0;
     public static int sChecksumErrorCounter =0;
+    private static int statusPacketClickCounter = 0;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +75,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         if (sView != null)
             return sView;
 
-        View view = inflater.inflate(R.layout.fragment_settings, container, false);
+        final View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
         sendTextEditText = (EditText) view.findViewById(R.id.GjMessageEditText);
         sendTextButton = (Button)view.findViewById(R.id.GjMessageSendTextButton);
@@ -89,7 +90,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         messageIncoming = (TextView) view.findViewById(R.id.GjIncoming);
         messageIncoming.setMovementMethod(new ScrollingMovementMethod());
 
-        view.findViewById(R.id.GjTestContainer).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.GjTestContainer).setVisibility(View.GONE);
         testSendResponse = (Button)view.findViewById(R.id.GjTestSendResponse);
         testSendResponse.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,6 +125,15 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         statusVersion = (TextView)view.findViewById(R.id.GjStatusVersion);
         statusChecksumErrorCounter = (TextView)view.findViewById(R.id.GjStatusChecksumErrorCounter);
 
+        statusPacketNumber.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (++statusPacketClickCounter >= 7) {
+                    view.findViewById(R.id.GjTestContainer).setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
         setVersion(getActivity());
         checkUsb(getActivity());
         queueDispatch();
@@ -137,8 +147,9 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     private byte fakeStatus = 1;
 
     private void onClickTestSendStatus(View v) {
-        MainActivity.ftdiServiceManager.send(new GjMessageStatusResponse(fakeStatus++));
-        loopback(new GjMessageStatusResponse(fakeStatus++).toByteArray());
+        GjMessageStatusResponse status = new GjMessageStatusResponse(fakeStatus++);
+        MainActivity.ftdiServiceManager.send(status);
+        loopback(status.toByteArray());
     }
 
     private void onClickTestSendGps(View v) {
@@ -321,8 +332,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             return;
         }
         view.setVisibility(View.VISIBLE);
-        view.findViewById(R.id.GjErrorCompass).setVisibility(status.getErrorCompass() ? View.VISIBLE : View.GONE);
-        view.findViewById(R.id.GjErrorGps).setVisibility(status.getErrorGps() ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.GjErrorGps).setVisibility(status.getErrorGps() | status.getErrorCompass() ? View.VISIBLE : View.GONE);
         view.findViewById(R.id.GjErrorRadio).setVisibility(status.getErrorRadio() ? View.VISIBLE : View.GONE);
         view.findViewById(R.id.GjErrorTemp).setVisibility(status.getErrorTemp() ? View.VISIBLE : View.GONE);
         view.findViewById(R.id.GjErrorVoltage).setVisibility(status.getErrorVoltage() ? View.VISIBLE : View.GONE);
