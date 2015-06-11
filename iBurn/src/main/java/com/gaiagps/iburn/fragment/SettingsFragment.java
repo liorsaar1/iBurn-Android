@@ -89,7 +89,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         messageIncoming = (TextView) view.findViewById(R.id.GjIncoming);
         messageIncoming.setMovementMethod(new ScrollingMovementMethod());
 
-        view.findViewById(R.id.GjTestContainer).setVisibility(View.GONE);
+        view.findViewById(R.id.GjTestContainer).setVisibility(View.VISIBLE);
         testSendResponse = (Button)view.findViewById(R.id.GjTestSendResponse);
         testSendResponse.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,7 +153,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         GjMessageText message = new GjMessageText(text, (byte)vehicle);
         MainActivity.ftdiServiceManager.send(message);
         console(">>> " + message);
-//        loopback(message.toByteArray());
+        loopback(message.toByteArray());
         setOutgoingText();
     }
 

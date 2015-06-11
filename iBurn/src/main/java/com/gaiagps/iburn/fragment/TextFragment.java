@@ -13,7 +13,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.gaiagps.iburn.R;
@@ -41,7 +40,8 @@ public class TextFragment extends Fragment implements GjMessageListener {
     private static EditText sendTextEditText;
     private static Button sendTextButton;
     private static byte sVehicle = 0;
-    private static Spinner targetSpinner;
+    //private static Spinner targetSpinner;
+    private static TextView unreadCounterView;
 
     public static TextFragment newInstance() {
         return new TextFragment();
@@ -61,9 +61,11 @@ public class TextFragment extends Fragment implements GjMessageListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_text, container, false);
 
-        targetSpinner = (Spinner) view.findViewById(R.id.GjTextTargetSpinner);
-        String[] values = {"ALL", "0", "1", "2", "3", "4", "5"};
-        targetSpinner.setAdapter(new TargetAdapter(getActivity(), android.R.layout.simple_spinner_item, values));
+        unreadCounterView = (TextView) getActivity().findViewById(R.id.GjTextUnreadCounter);
+
+//        targetSpinner = (Spinner) view.findViewById(R.id.GjTextTargetSpinner);
+//        String[] values = {"ALL", "0", "1", "2", "3", "4", "5"};
+//        targetSpinner.setAdapter(new TargetAdapter(getActivity(), android.R.layout.simple_spinner_item, values));
 
         sendTextEditText = (EditText) view.findViewById(R.id.GjTextEditText);
         sendTextEditText.setPadding(20, 0, 0, 0); //must be here, doesnt work in xml
@@ -89,6 +91,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
     }
 
     private void setSendTextEnabled(boolean enabled) {
+        if (true) return;
         sendTextEditText.setEnabled(enabled);
         sendTextButton.setEnabled(enabled);
         sendTextEditText.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
@@ -121,6 +124,10 @@ public class TextFragment extends Fragment implements GjMessageListener {
             setSendTextEnabled(status);
         }
         if (message instanceof GjMessageText) {
+            if (! isOnScreen) {
+                sUnreadCounter++;
+                updateUnreadCounter();
+            }
             GjMessageText m = (GjMessageText)message;
             list.add(new TextMessage(m.getVehicle(), m.getString()));
             adapter.notifyDataSetChanged();
@@ -131,6 +138,28 @@ public class TextFragment extends Fragment implements GjMessageListener {
                 }
             },250);
         }
+    }
+
+    private static int sUnreadCounter = 0;
+    private static boolean isOnScreen = false;
+
+    private static void updateUnreadCounter() {
+        if (sUnreadCounter == 0) {
+            unreadCounterView.setVisibility(View.GONE);
+        } else {
+            unreadCounterView.setVisibility(View.VISIBLE);
+            String counter = sUnreadCounter > 99 ? "99" : ""+sUnreadCounter;
+            unreadCounterView.setText(counter);
+        }
+    }
+
+    public static void setOnScreen(boolean isOnScreen) {
+        TextFragment.isOnScreen = isOnScreen;
+        if (isOnScreen) {
+            sUnreadCounter = 0 ;
+            updateUnreadCounter();
+        }
+
     }
 
     @Override

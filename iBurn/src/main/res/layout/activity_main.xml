@@ -91,6 +91,19 @@
                 app:pstsUnderlineHeight="0dp"
                 app:pstsIndicatorHeight="4dp"/>
 
+            <TextView
+                android:layout_marginTop="40dip"
+                android:id="@+id/GjTextUnreadCounter"
+                android:layout_marginLeft="290dip"
+                android:gravity="center"
+                android:layout_width="36dip"
+                android:layout_height="36dip"
+                android:background="@drawable/text_unread_counter"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                android:visibility="gone"/>
+
         </RelativeLayout>
 
     </android.support.v7.widget.Toolbar>

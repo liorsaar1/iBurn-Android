@@ -442,6 +442,10 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
             public void onPageSelected(int position) {
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(mTabs.getWindowToken(), 0);
+                Log.e(TAG, "position " + position);
+
+                IBurnPagerAdapter.IBurnTab tab = IBurnPagerAdapter.IBurnTab.values()[position];
+                TextFragment.setOnScreen( tab == IBurnPagerAdapter.IBurnTab.TEXT);
             }
 
             @Override
@@ -456,6 +460,10 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
                 return true;
             }
         });
+    }
+
+    private void onPageText() {
+        //
     }
 
     @Override
