@@ -130,7 +130,7 @@
     <style name="GjStatus">
         <item name="android:textSize">20sp</item>
         <item name="android:layout_margin">2dip</item>
-        <item name="android:padding">16dip</item>
+        <item name="android:padding">14dip</item>
         <item name="android:gravity">center</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">#FF000000</item>
@@ -152,11 +152,16 @@
     </style>
 
     <style name="GjErrorText">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">0.9</item>
         <item name="android:textSize">24sp</item>
-        <item name="android:textColor">#FF000000</item>
+        <item name="android:textColor">#FFFFFFFF</item>
+        <item name="android:text">ERROR</item>
         <item name="android:layout_marginLeft">6dip</item>
+        <item name="android:paddingLeft">6dip</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">@drawable/status_background_error</item>
     </style>
 
     <!-- light -->

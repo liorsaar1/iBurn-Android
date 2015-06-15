@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TableLayout
+        android:layout_width="800dip"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="40dip">
+
+        <TableRow
+            android:id="@+id/GjErrorTabletBatteryRow"
+            style="@style/GjErrorRow">
+
+            <TextView
+                android:id="@+id/GjErrorTabletBattery"
+                style="@style/GjStatus.Error"
+                android:text="Tablet"/>
+
+            <TextView
+                style="@style/GjErrorText"/>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/GjErrorVoltage"
+            style="@style/GjErrorRow">
+
+            <TextView
+                style="@style/GjStatus.Error"
+                android:text="Voltage"/>
+
+            <TextView
+                style="@style/GjErrorText"/>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/GjErrorTemp"
+            style="@style/GjErrorRow">
+
+            <TextView
+                style="@style/GjStatus.Error"
+                android:text="Temprature"/>
+
+            <TextView
+                style="@style/GjErrorText"/>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/GjErrorRadio"
+            style="@style/GjErrorRow">
+
+            <TextView
+                style="@style/GjStatus.Error"
+                android:text="Radio"/>
+
+            <TextView
+                style="@style/GjErrorText"/>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/GjErrorGps"
+            style="@style/GjErrorRow">
+
+            <TextView
+                style="@style/GjStatus.Error"
+                android:text="GPS"/>
+
+            <TextView
+                style="@style/GjErrorText"/>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/GjErrorCompass"
+            style="@style/GjErrorRow">
+
+            <TextView
+                style="@style/GjStatus.Error"
+                android:text="Compass"/>
+
+            <TextView
+                style="@style/GjErrorText"/>
+        </TableRow>
+    </TableLayout>
+</LinearLayout>

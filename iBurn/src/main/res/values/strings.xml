@@ -7,6 +7,7 @@
     <!-- MainActivity Tabs -->
     <string name="gj_tab">Galactic Jungle</string>
     <string name="set_tab">Settings</string>
+    <string name="status_tab">Status</string>
     <string name="text_tab">Messaging</string>
     <string name="light_tab">Lighting</string>
     <string name="map_tab">Map</string>

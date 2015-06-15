@@ -114,10 +114,10 @@ public class FtdiService extends Service {
             error("D2XX:"+ex.toString());
         }
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
-        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        registerReceiver(usbReceiver, filter);
+        IntentFilter usbFiler = new IntentFilter();
+        usbFiler.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
+        usbFiler.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        registerReceiver(usbReceiver, usbFiler);
     }
 
     @Override

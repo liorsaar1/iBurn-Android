@@ -1,14 +1,17 @@
 package com.gaiagps.iburn.fragment;
 
-import android.animation.ObjectAnimator;
+import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -16,11 +19,13 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.astuetz.PagerSlidingTabStrip;
 import com.gaiagps.iburn.R;
 import com.gaiagps.iburn.activity.MainActivity;
 import com.gaiagps.iburn.gj.ftdi.FtdiService;
@@ -39,6 +44,7 @@ import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by liorsaar on 4/19/15
@@ -53,6 +59,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     private static TextView statusUsb, statusFtdi;
     private static TextView statusRadio, statusVoltage, statusTemp, statusCompass, statusGps;
     private static TextView statusPacketNumber, statusVehicle, statusVersion, statusChecksumErrorCounter;
+    private static TextView statusTabletBattery;
     private static Button testSendResponse, testSendStatus, testSendGps;
     public static byte sVehicleNumber =0;
     public static int sChecksumErrorCounter =0;
@@ -124,6 +131,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         statusPacketNumber = (TextView)view.findViewById(R.id.GjStatusPacketNumber);
         statusVersion = (TextView)view.findViewById(R.id.GjStatusVersion);
         statusChecksumErrorCounter = (TextView)view.findViewById(R.id.GjStatusChecksumErrorCounter);
+        statusTabletBattery = (TextView)view.findViewById(R.id.GjStatusTabletBattery);
 
         statusPacketNumber.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -232,6 +240,10 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         statusVersion.setText("Ver " + version);
     }
 
+    private void setStatusTabletBattery(boolean error) {
+        statusTabletBattery.setBackgroundColor(getColorError(error));
+    }
+
     private int getColorOnOff(boolean offOn) {
         return offOn ? 0xFF00FF00 : 0xFFFF0000;
     }
@@ -298,8 +310,11 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             // report packet number
             setStatusPacketNumber(s.getPacketNumber());
             console("<<< " + message.toString());
+            // check charging status
+            boolean isBatteryError = statusBatteryError(getActivity());
+            setStatusTabletBattery(isBatteryError);
             // display critical error dialog if needed
-            showStatusErrorDialog(getActivity(), s);
+//            statusShowErrorDialog(getActivity(), s, isBatteryError);
             return;
         }
         if (message instanceof GjMessageGps) {
@@ -324,9 +339,45 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         console(message.toString());
     }
 
-    private void showStatusErrorDialog(Activity activity, GjMessageStatusResponse status) {
-        View view = getActivity().findViewById(R.id.GjErrorContainer);
-        if (!status.isCriticalError()) {
+    @SuppressLint("UseSparseArrays")
+    private static final Map<Integer, String> batteryStatusStrings = new HashMap<Integer, String>() {{
+        put(BatteryManager.BATTERY_STATUS_UNKNOWN, "UNKNOWN");
+        put(BatteryManager.BATTERY_STATUS_CHARGING, "CHARGING");
+        put(BatteryManager.BATTERY_STATUS_DISCHARGING, "DISCHARGING");
+        put(BatteryManager.BATTERY_STATUS_NOT_CHARGING, "NOT_CHARGING");
+        put(BatteryManager.BATTERY_STATUS_FULL, "FULL");
+    }};
+
+    @SuppressLint("UseSparseArrays")
+    private static final Map<Integer, String> batteryHealthStrings = new HashMap<Integer, String>() {{
+        put(BatteryManager.BATTERY_HEALTH_UNKNOWN, "UNKNOWN");
+        put(BatteryManager.BATTERY_HEALTH_GOOD, "GOOD");
+        put(BatteryManager.BATTERY_HEALTH_OVERHEAT, "OVERHEAT");
+        put(BatteryManager.BATTERY_HEALTH_DEAD, "DEAD");
+        put(BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE, "OVER_VOLTAGE");
+        put(BatteryManager.BATTERY_HEALTH_UNSPECIFIED_FAILURE, "UNSPECIFIED_FAILURE");
+        put(BatteryManager.BATTERY_HEALTH_COLD, "COLD");
+    }};
+
+    private boolean statusBatteryError(Activity activity) {
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = activity.registerReceiver(null, ifilter);
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging =
+                status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL;
+        int health = batteryStatus.getIntExtra(BatteryManager.EXTRA_HEALTH, -1);
+        console("Tablet Battery: status:" + batteryStatusStrings.get(status) + " health:" + batteryHealthStrings.get(health));
+        if (isCharging)
+            return false;
+        return false;
+//        return true;
+    }
+
+    private void statusShowErrorDialog(Activity activity, GjMessageStatusResponse status, boolean isBatteryError) {
+        View view = activity.findViewById(R.id.GjErrorContainer);
+        boolean isCriticalError = status.isCriticalError() || isBatteryError;
+        if (!isCriticalError) {
             view.setVisibility(View.GONE);
             stopStatusErrorAnimation();
             return;
@@ -336,23 +387,44 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         view.findViewById(R.id.GjErrorRadio).setVisibility(status.getErrorRadio() ? View.VISIBLE : View.GONE);
         view.findViewById(R.id.GjErrorTemp).setVisibility(status.getErrorTemp() ? View.VISIBLE : View.GONE);
         view.findViewById(R.id.GjErrorVoltage).setVisibility(status.getErrorVoltage() ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.GjErrorTabletBattery).setVisibility(isBatteryError ? View.VISIBLE : View.GONE);
         startStatusErrorAnimation(view);
     }
 
-    ObjectAnimator statusErrorAnim;
+    ValueAnimator colorAnimation;
     private void startStatusErrorAnimation(View view) {
-        statusErrorAnim = ObjectAnimator.ofFloat(view, "alpha", 1.0f, 0.0f);
-        statusErrorAnim.setInterpolator(new AccelerateInterpolator(3f));
-        statusErrorAnim.setDuration(1000);
-        statusErrorAnim.setRepeatCount(ValueAnimator.INFINITE);
-        statusErrorAnim.start();
+        if (colorAnimation == null) {
+            final ImageButton statusView = (ImageButton) getTabChildView(2);
+            Integer colorFrom = 0x00000000; // transparent
+            Integer colorTo = 0xFFFF0000; // red
+            colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+            colorAnimation.setDuration(500);
+            colorAnimation.setRepeatCount(ValueAnimator.INFINITE);
+            colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                @Override
+                public void onAnimationUpdate(ValueAnimator animator) {
+                    statusView.setBackgroundColor((Integer) animator.getAnimatedValue());
+                }
+
+            });
+        }
+        if (!colorAnimation.isRunning())
+            colorAnimation.start();
     }
+
     private void stopStatusErrorAnimation() {
-        if (statusErrorAnim != null)
-            statusErrorAnim.cancel();
+        if (colorAnimation != null)
+            colorAnimation.cancel();
+        final ImageButton statusView = (ImageButton)getTabChildView(2);
+        statusView.setBackgroundColor(0x00000000);
     }
 
-
+    public View getTabChildView(int index) {
+        PagerSlidingTabStrip mTabs = ((MainActivity)getActivity()).getTabs();
+        LinearLayout tabView = (LinearLayout) mTabs.getChildAt(0);
+        return tabView.getChildAt(index);
+    }
 
     private static List<GjMessage> queue = new ArrayList<>();
 

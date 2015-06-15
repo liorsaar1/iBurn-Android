@@ -27,6 +27,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
+        <TableRow android:id="@+id/GjErrorTabletBattery"
+                  style="@style/GjErrorRow">
+            <TextView
+
+                style="@style/GjStatus.Error"
+                android:text="Tablet"/>
+            <TextView
+                style="@style/GjErrorText"
+                android:text="Tablet battery not charging properly. \nAre you watching porn again ?"/>
+        </TableRow>
+
         <TableRow android:id="@+id/GjErrorVoltage"
                   style="@style/GjErrorRow">
             <TextView
@@ -57,7 +68,7 @@
                 android:text="Radio"/>
             <TextView
                 style="@style/GjErrorText"
-                android:text="Thats it!  You broke it.  \nTake this thing to the shop"/>
+                android:text="That's it!  You broke it.  \nWe'll never get our deposit now."/>
         </TableRow>
 
         <TableRow style="@style/GjErrorRow"

@@ -48,6 +48,7 @@ import com.gaiagps.iburn.fragment.GalacticJungleFragment;
 import com.gaiagps.iburn.fragment.GoogleMapFragment;
 import com.gaiagps.iburn.fragment.LightingFragment;
 import com.gaiagps.iburn.fragment.SettingsFragment;
+import com.gaiagps.iburn.fragment.StatusFragment;
 import com.gaiagps.iburn.fragment.TextFragment;
 import com.gaiagps.iburn.gj.ftdi.FtdiServiceManager;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
@@ -98,6 +99,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         add(IBurnPagerAdapter.IBurnTab.GJ);
         add(IBurnPagerAdapter.IBurnTab.TEXT);
         add(IBurnPagerAdapter.IBurnTab.SET);
+        add(IBurnPagerAdapter.IBurnTab.STATUS);
         add(IBurnPagerAdapter.IBurnTab.LIGHT);
 //        add(IBurnPagerAdapter.IBurnTab.MAP);
         add(IBurnPagerAdapter.IBurnTab.ART);
@@ -445,7 +447,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
                 Log.e(TAG, "position " + position);
 
                 IBurnPagerAdapter.IBurnTab tab = IBurnPagerAdapter.IBurnTab.values()[position];
-                TextFragment.setOnScreen( tab == IBurnPagerAdapter.IBurnTab.TEXT);
+                TextFragment.setOnScreen(tab == IBurnPagerAdapter.IBurnTab.TEXT);
             }
 
             @Override
@@ -462,8 +464,8 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         });
     }
 
-    private void onPageText() {
-        //
+    public PagerSlidingTabStrip getTabs() {
+        return mTabs;
     }
 
     @Override
@@ -504,6 +506,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
             GJ      (R.string.gj_tab,     R.drawable.ic_brc,       GalacticJungleFragment.class),
             TEXT    (R.string.text_tab,   R.drawable.ic_text,     TextFragment.class),
             SET     (R.string.set_tab,    R.drawable.ic_settings, SettingsFragment.class),
+            STATUS  (R.string.status_tab, R.drawable.ic_status,   StatusFragment.class),
             LIGHT   (R.string.light_tab,  R.drawable.ic_light,    LightingFragment.class),
 //          MAP     (R.string.map_tab,    R.drawable.ic_brc,      GoogleMapFragment.class),
             ART     (R.string.art_tab,    R.drawable.ic_monument, ArtListViewFragment.class),

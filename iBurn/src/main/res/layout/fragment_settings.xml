@@ -26,6 +26,11 @@
                 android:text="Version"/>
 
             <TextView
+                android:id="@+id/GjStatusTabletBattery"
+                style="@style/GjStatus"
+                android:text="Tablet"/>
+
+            <TextView
                 android:id="@+id/GjStatusUsb"
                 style="@style/GjStatus"
                 android:text="USB"/>
