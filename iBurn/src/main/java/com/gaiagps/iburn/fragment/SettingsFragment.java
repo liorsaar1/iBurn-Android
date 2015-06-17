@@ -373,20 +373,20 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     }
 
     private void statusShowErrorDialog(Activity activity, GjMessageStatusResponse status, boolean isBatteryError) {
-        View view = activity.findViewById(R.id.GjErrorContainer);
-        boolean isCriticalError = status.isCriticalError() || isBatteryError;
-        if (!isCriticalError) {
-            view.setVisibility(View.GONE);
-            stopStatusErrorAnimation();
-            return;
-        }
-        view.setVisibility(View.VISIBLE);
-        view.findViewById(R.id.GjErrorGps).setVisibility(status.getErrorGps() | status.getErrorCompass() ? View.VISIBLE : View.GONE);
-        view.findViewById(R.id.GjErrorRadio).setVisibility(status.getErrorRadio() ? View.VISIBLE : View.GONE);
-        view.findViewById(R.id.GjErrorTemp).setVisibility(status.getErrorTemp() ? View.VISIBLE : View.GONE);
-        view.findViewById(R.id.GjErrorVoltage).setVisibility(status.getErrorVoltage() ? View.VISIBLE : View.GONE);
-        view.findViewById(R.id.GjErrorTabletBattery).setVisibility(isBatteryError ? View.VISIBLE : View.GONE);
-        startStatusErrorAnimation(view);
+//        View view = activity.findViewById(R.id.GjErrorContainer);
+//        boolean isCriticalError = status.isCriticalError() || isBatteryError;
+//        if (!isCriticalError) {
+//            view.setVisibility(View.GONE);
+//            stopStatusErrorAnimation();
+//            return;
+//        }
+//        view.setVisibility(View.VISIBLE);
+//        view.findViewById(R.id.GjErrorGps).setVisibility(status.getErrorGps() | status.getErrorCompass() ? View.VISIBLE : View.GONE);
+//        view.findViewById(R.id.GjErrorRadio).setVisibility(status.getErrorRadio() ? View.VISIBLE : View.GONE);
+//        view.findViewById(R.id.GjErrorTemp).setVisibility(status.getErrorTemp() ? View.VISIBLE : View.GONE);
+//        view.findViewById(R.id.GjErrorVoltage).setVisibility(status.getErrorVoltage() ? View.VISIBLE : View.GONE);
+//        view.findViewById(R.id.GjErrorTabletBattery).setVisibility(isBatteryError ? View.VISIBLE : View.GONE);
+//        startStatusErrorAnimation(view);
     }
 
     ValueAnimator colorAnimation;

@@ -17,9 +17,13 @@
             android:id="@+id/GjErrorVersion"
             style="@style/GjErrorRow">
 
-            <TextView
-                style="@style/GjStatus.Error"
-                android:text="Version"/>
+            <LinearLayout
+                style="@style/GjStatusWrapper">
+
+                <TextView
+                    style="@style/GjStatusText"
+                    android:text="Version"/>
+            </LinearLayout>
 
             <TextView
                 style="@style/GjErrorText"/>
@@ -29,9 +33,13 @@
             android:id="@+id/GjErrorVehicle"
             style="@style/GjErrorRow">
 
-            <TextView
-                style="@style/GjStatus.Error"
-                android:text="Vehicle"/>
+            <LinearLayout
+                style="@style/GjStatusWrapper">
+
+                <TextView
+                    style="@style/GjStatusText"
+                    android:text="Vehicle"/>
+            </LinearLayout>
 
             <TextView
                 style="@style/GjErrorText"/>
@@ -41,9 +49,13 @@
             android:id="@+id/GjErrorPacket"
             style="@style/GjErrorRow">
 
-            <TextView
-                style="@style/GjStatus.Error"
-                android:text="Packet"/>
+            <LinearLayout
+                style="@style/GjStatusWrapper">
+
+                <TextView
+                    style="@style/GjStatusText"
+                    android:text="Packet"/>
+            </LinearLayout>
 
             <TextView
                 style="@style/GjErrorText"/>
@@ -54,9 +66,13 @@
             android:id="@+id/GjErrorVoltage"
             style="@style/GjErrorRow">
 
-            <TextView
-                style="@style/GjStatus.Error"
-                android:text="Voltage"/>
+            <LinearLayout
+                style="@style/GjStatusWrapper">
+
+                <TextView
+                    style="@style/GjStatusText"
+                    android:text="Voltage"/>
+            </LinearLayout>
 
             <TextView
                 style="@style/GjErrorText"/>
@@ -66,9 +82,13 @@
             android:id="@+id/GjErrorTemp"
             style="@style/GjErrorRow">
 
-            <TextView
-                style="@style/GjStatus.Error"
-                android:text="Temprature"/>
+            <LinearLayout
+                style="@style/GjStatusWrapper">
+
+                <TextView
+                    style="@style/GjStatusText"
+                    android:text="Temprature"/>
+            </LinearLayout>
 
             <TextView
                 style="@style/GjErrorText"/>
@@ -78,9 +98,13 @@
             android:id="@+id/GjErrorRadio"
             style="@style/GjErrorRow">
 
-            <TextView
-                style="@style/GjStatus.Error"
-                android:text="Radio"/>
+            <LinearLayout
+                style="@style/GjStatusWrapper">
+
+                <TextView
+                    style="@style/GjStatusText"
+                    android:text="Radio"/>
+            </LinearLayout>
 
             <TextView
                 style="@style/GjErrorText"/>
@@ -90,9 +114,13 @@
             android:id="@+id/GjErrorCompass"
             style="@style/GjErrorRow">
 
-            <TextView
-                style="@style/GjStatus.Error"
-                android:text="Compass"/>
+            <LinearLayout
+                style="@style/GjStatusWrapper">
+
+                <TextView
+                    style="@style/GjStatusText"
+                    android:text="Compass"/>
+            </LinearLayout>
 
             <TextView
                 style="@style/GjErrorText"/>
@@ -102,9 +130,13 @@
             android:id="@+id/GjErrorGps"
             style="@style/GjErrorRow">
 
-            <TextView
-                style="@style/GjStatus.Error"
-                android:text="GPS"/>
+            <LinearLayout
+                style="@style/GjStatusWrapper">
+
+                <TextView
+                    style="@style/GjStatusText"
+                    android:text="GPS"/>
+            </LinearLayout>
 
             <TextView
                 style="@style/GjErrorText"/>
@@ -114,9 +146,13 @@
             android:id="@+id/GjErrorTabletBattery"
             style="@style/GjErrorRow">
 
-            <TextView
-                style="@style/GjStatus.Error"
-                android:text="Tablet"/>
+            <LinearLayout
+                style="@style/GjStatusWrapper">
+
+                <TextView
+                    style="@style/GjStatusText"
+                    android:text="Tablet"/>
+            </LinearLayout>
 
             <TextView
                 style="@style/GjErrorText"/>
@@ -126,9 +162,13 @@
             android:id="@+id/GjErrorFtdi"
             style="@style/GjErrorRow">
 
-            <TextView
-                style="@style/GjStatus.Error"
-                android:text="FTDI"/>
+            <LinearLayout
+                style="@style/GjStatusWrapper">
+
+                <TextView
+                    style="@style/GjStatusText"
+                    android:text="FTDI"/>
+            </LinearLayout>
 
             <TextView
                 style="@style/GjErrorText"/>
@@ -138,9 +178,13 @@
             android:id="@+id/GjErrorUsb"
             style="@style/GjErrorRow">
 
-            <TextView
-                style="@style/GjStatus.Error"
-                android:text="USB"/>
+            <LinearLayout
+                style="@style/GjStatusWrapper">
+
+                <TextView
+                    style="@style/GjStatusText"
+                    android:text="USB"/>
+            </LinearLayout>
 
             <TextView
                 style="@style/GjErrorText"/>
@@ -150,14 +194,17 @@
             android:id="@+id/GjErrorChecksum"
             style="@style/GjErrorRow">
 
-            <TextView
-                style="@style/GjStatus.Error"
-                android:text="Checksum"/>
+            <LinearLayout
+                style="@style/GjStatusWrapper">
+
+                <TextView
+                    style="@style/GjStatusText"
+                    android:text="Checksum"/>
+            </LinearLayout>
 
             <TextView
                 style="@style/GjErrorText"/>
         </TableRow>
-
 
     </TableLayout>
 </LinearLayout>

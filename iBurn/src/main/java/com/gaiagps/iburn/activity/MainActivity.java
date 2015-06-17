@@ -106,7 +106,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         add(IBurnPagerAdapter.IBurnTab.ART);
         add(IBurnPagerAdapter.IBurnTab.CAMPS);
         add(IBurnPagerAdapter.IBurnTab.EVENTS);
-        add(IBurnPagerAdapter.IBurnTab.SET);
+//        add(IBurnPagerAdapter.IBurnTab.SET);
     }};
 
     @Override
@@ -434,7 +434,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         mTabs.setDividerColorResource(R.color.tab_selector);
         mViewPager.setAdapter(mPagerAdapter);
         mTabs.setViewPager(mViewPager);
-        mViewPager.setCurrentItem(3); // preselect tab
+        mViewPager.setCurrentItem(0); // preselect tab
         // hide the kbd when moving between pages
         mTabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -508,7 +508,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         public static enum IBurnTab {
             GJ      (R.string.gj_tab,     R.drawable.ic_brc,       GalacticJungleFragment.class),
             TEXT    (R.string.text_tab,   R.drawable.ic_text,     TextFragment.class),
-            SET     (R.string.set_tab,    R.drawable.ic_settings, SettingsFragment.class),
+//            SET     (R.string.set_tab,    R.drawable.ic_settings, SettingsFragment.class),
             STATUS  (R.string.status_tab, R.drawable.ic_status,   StatusFragment.class),
             LIGHT   (R.string.light_tab,  R.drawable.ic_light,    LightingFragment.class),
 //          MAP     (R.string.map_tab,    R.drawable.ic_brc,      GoogleMapFragment.class),

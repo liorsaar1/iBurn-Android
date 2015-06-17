@@ -13,9 +13,11 @@ import android.os.BatteryManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -108,6 +110,7 @@ public class StatusFragment extends Fragment implements GjMessageListener {
 
     byte fakeStatus = 0;
     private void onClickTestSendStatus(View v) {
+//        if (true) return;
         if (fakeStatus ==0) {
             fakeStatus = 1;
         } else {
@@ -162,6 +165,9 @@ public class StatusFragment extends Fragment implements GjMessageListener {
     private void setText(int resId, String text) {
         TableRow row = (TableRow) sView.findViewById(resId);
         TextView textView = (TextView) row.getChildAt(1);
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) textView.getLayoutParams();
+        params.gravity = Gravity.CENTER_VERTICAL;
+        textView.setLayoutParams(params);
         textView.setText(text);
     }
 
