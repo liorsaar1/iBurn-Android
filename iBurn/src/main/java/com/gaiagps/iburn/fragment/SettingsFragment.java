@@ -1,7 +1,5 @@
 package com.gaiagps.iburn.fragment;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -21,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.gaiagps.iburn.R;
@@ -387,38 +384,6 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
 //        view.findViewById(R.id.GjErrorVoltage).setVisibility(status.getErrorVoltage() ? View.VISIBLE : View.GONE);
 //        view.findViewById(R.id.GjErrorTabletBattery).setVisibility(isBatteryError ? View.VISIBLE : View.GONE);
 //        startStatusErrorAnimation(view);
-    }
-
-    ValueAnimator colorAnimation;
-    private void startStatusErrorAnimation(View view) {
-        if (colorAnimation == null) {
-            final ImageButton statusView = getTab();
-            Integer colorFrom = 0x00000000; // transparent
-            Integer colorTo = 0xFFFF0000; // red
-            colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-            colorAnimation.setDuration(500);
-            colorAnimation.setRepeatCount(ValueAnimator.INFINITE);
-            colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-                @Override
-                public void onAnimationUpdate(ValueAnimator animator) {
-                    statusView.setBackgroundColor((Integer) animator.getAnimatedValue());
-                }
-
-            });
-        }
-        if (!colorAnimation.isRunning())
-            colorAnimation.start();
-    }
-
-    private void stopStatusErrorAnimation() {
-        if (colorAnimation != null)
-            colorAnimation.cancel();
-        getTab().setBackgroundColor(0x00000000);
-    }
-
-    private ImageButton getTab() {
-        return ((MainActivity)getActivity()).getTabChildView(3);
     }
 
     private static List<GjMessage> queue = new ArrayList<>();

@@ -1,5 +1,7 @@
 package com.gaiagps.iburn.fragment;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -17,6 +19,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -29,10 +32,14 @@ import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageResponse;
 import com.gaiagps.iburn.gj.message.GjMessageStatusResponse;
+import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
+import com.gaiagps.iburn.gj.message.internal.GjMessageError;
 import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
 import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -73,10 +80,12 @@ public class StatusFragment extends Fragment implements GjMessageListener {
         put(R.id.GjErrorUsb, "USB device not found. Check the tablet cable.");
         put(R.id.GjErrorFtdi, "FTDI port unavailable. Check the tablet cable.");
     }};
-
+    public static byte sVehicleNumber = 0;
     private static View sView;
-    public static byte sVehicleNumber =0;
-    private static int sChecksumErrorCounter =0;
+    private static int sChecksumErrorCounter = 0;
+    private static List<GjMessage> queue = new ArrayList<>();
+    byte fakeStatus = 0;
+    ValueAnimator colorAnimation;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,15 +112,15 @@ public class StatusFragment extends Fragment implements GjMessageListener {
 
         setVersion(getActivity());
         checkUsb(getActivity());
+        queueDispatch();
         setStatusChecksumErrorCounter(sChecksumErrorCounter);
 
         return sView;
     }
 
-    byte fakeStatus = 0;
     private void onClickTestSendStatus(View v) {
 //        if (true) return;
-        if (fakeStatus ==0) {
+        if (fakeStatus == 0) {
             fakeStatus = 1;
         } else {
             fakeStatus <<= 1;
@@ -120,7 +129,6 @@ public class StatusFragment extends Fragment implements GjMessageListener {
         MainActivity.ftdiServiceManager.send(status);
         loopback(status.toByteArray());
     }
-
 
     private void setVersion(Activity activity) {
         try {
@@ -150,7 +158,7 @@ public class StatusFragment extends Fragment implements GjMessageListener {
     private void setStatusChecksumErrorCounter(int counter) {
         boolean error = counter != 0;
         setColor(R.id.GjErrorChecksum, error);
-        setText(R.id.GjErrorChecksum, ""+counter);
+        setText(R.id.GjErrorChecksum, "" + counter);
     }
 
     private void setColorGrey(int resId) {
@@ -196,32 +204,87 @@ public class StatusFragment extends Fragment implements GjMessageListener {
 
     @Override
     public void onMessage(GjMessage message) {
+        if (getActivity() == null) {
+            queue(message);
+            return;
+        }
+        if (message instanceof GjMessageConsole) return;
+        if (message instanceof GjMessageError) return;
+
+        boolean isCritical = false;
+        boolean isWarning = false;
+
         // USB
         if (message instanceof GjMessageUsb) {
-            boolean status = ((GjMessageUsb)message).getStatus();
+            boolean status = ((GjMessageUsb) message).getStatus();
             boolean error = status ? false : true;
+            isWarning |= error;
             setStatus(R.id.GjErrorUsb, error);
-            return;
         }
         // FTDI
         if (message instanceof GjMessageFtdi) {
-            boolean status = ((GjMessageFtdi)message).getStatus();
+            boolean status = ((GjMessageFtdi) message).getStatus();
             boolean error = status ? false : true;
+            isWarning |= error;
             setStatus(R.id.GjErrorFtdi, error);
             return;
         }
-
+        // Status
         if (message instanceof GjMessageStatusResponse) {
             onMessageStatus((GjMessageStatusResponse) message);
-            return;
+            isCritical |= ((GjMessageStatusResponse) message).isCriticalError();
         }
+        // checksum
         if (message instanceof GjMessageResponse) {
-            GjMessageResponse response = (GjMessageResponse)message;
+            GjMessageResponse response = (GjMessageResponse) message;
             if (!response.isOK()) {
                 setStatusChecksumErrorCounter(++sChecksumErrorCounter);
+                isWarning = true;
             }
-            return;
         }
+        // update indicators
+        updateStatusIndicators(getActivity(), isCritical, isWarning);
+    }
+
+    private void updateStatusIndicators(Activity activity, boolean isCritical, boolean isWarning) {
+        if (activity == null) return;
+
+        if (isCritical) {
+            startStatusErrorAnimation();
+        } else {
+            stopStatusErrorAnimation();
+        }
+    }
+
+    private void startStatusErrorAnimation() {
+        if (colorAnimation == null) {
+            final ImageButton statusView = getTab();
+            Integer colorFrom = 0x00000000; // transparent
+            Integer colorTo = 0xFFFF0000; // red
+            colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+            colorAnimation.setDuration(500);
+            colorAnimation.setRepeatCount(ValueAnimator.INFINITE);
+            colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                @Override
+                public void onAnimationUpdate(ValueAnimator animator) {
+                    statusView.setBackgroundColor((Integer) animator.getAnimatedValue());
+                }
+
+            });
+        }
+        if (!colorAnimation.isRunning())
+            colorAnimation.start();
+    }
+
+    private void stopStatusErrorAnimation() {
+        if (colorAnimation != null)
+            colorAnimation.cancel();
+        getTab().setBackgroundColor(0x00000000);
+    }
+
+    private ImageButton getTab() {
+        return ((MainActivity) getActivity()).getTabChildView(3);
     }
 
     private void onMessageStatus(GjMessageStatusResponse s) {
@@ -241,9 +304,6 @@ public class StatusFragment extends Fragment implements GjMessageListener {
         // check charging status
         boolean isBatteryError = statusBatteryError(getActivity());
         setStatus(R.id.GjErrorTabletBattery, isBatteryError);
-//        // display critical error dialog if needed
-//        statusShowErrorDialog(getActivity(), s, isBatteryError);
-        return;
     }
 
     @Override
@@ -270,6 +330,17 @@ public class StatusFragment extends Fragment implements GjMessageListener {
         Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
         intent.putExtra(FtdiService.FTDI_SERVICE_MESSSAGE, bytes);
         getActivity().sendBroadcast(intent);
+    }
+
+    private void queue(GjMessage message) {
+        queue.add(message);
+    }
+
+    // once the UI is up - dispatch the queue
+    private void queueDispatch() {
+        for (GjMessage message : queue) {
+            onMessage(message);
+        }
     }
 
 }
