@@ -30,6 +30,8 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -96,15 +98,15 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
      */
     private static List<IBurnPagerAdapter.IBurnTab> sTabs
             = new ArrayList<IBurnPagerAdapter.IBurnTab>() {{
+        //add(IBurnPagerAdapter.IBurnTab.MAP);
         add(IBurnPagerAdapter.IBurnTab.GJ);
         add(IBurnPagerAdapter.IBurnTab.TEXT);
-        add(IBurnPagerAdapter.IBurnTab.SET);
-        add(IBurnPagerAdapter.IBurnTab.STATUS);
         add(IBurnPagerAdapter.IBurnTab.LIGHT);
-//        add(IBurnPagerAdapter.IBurnTab.MAP);
+        add(IBurnPagerAdapter.IBurnTab.STATUS);
         add(IBurnPagerAdapter.IBurnTab.ART);
         add(IBurnPagerAdapter.IBurnTab.CAMPS);
         add(IBurnPagerAdapter.IBurnTab.EVENTS);
+        add(IBurnPagerAdapter.IBurnTab.SET);
     }};
 
     @Override
@@ -432,7 +434,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         mTabs.setDividerColorResource(R.color.tab_selector);
         mViewPager.setAdapter(mPagerAdapter);
         mTabs.setViewPager(mViewPager);
-        //mViewPager.setCurrentItem(1);
+        mViewPager.setCurrentItem(3); // preselect tab
         // hide the kbd when moving between pages
         mTabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -464,8 +466,9 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         });
     }
 
-    public PagerSlidingTabStrip getTabs() {
-        return mTabs;
+    public ImageButton getTabChildView(int index) {
+        LinearLayout tabView = (LinearLayout) mTabs.getChildAt(0);
+        return (ImageButton)tabView.getChildAt(index);
     }
 
     @Override

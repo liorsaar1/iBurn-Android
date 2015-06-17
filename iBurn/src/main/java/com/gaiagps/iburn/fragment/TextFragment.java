@@ -10,9 +10,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.gaiagps.iburn.R;
@@ -55,6 +57,10 @@ public class TextFragment extends Fragment implements GjMessageListener {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getActivity().setTheme(R.style.Theme_GJ);
+    }
+
+    private ImageButton getTab() {
+        return ((MainActivity)getActivity()).getTabChildView(1);
     }
 
     @Override
@@ -113,6 +119,8 @@ public class TextFragment extends Fragment implements GjMessageListener {
 
     @Override
     public void onMessage(GjMessage message) {
+
+
         if (message instanceof GjMessageStatusResponse) {
             GjMessageStatusResponse s = (GjMessageStatusResponse)message;
             // store my own vehcile ID as reported by the controller
@@ -126,6 +134,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
         if (message instanceof GjMessageText) {
             if (! isOnScreen) {
                 sUnreadCounter++;
+                setUnreadCounterPosition();
                 updateUnreadCounter();
             }
             GjMessageText m = (GjMessageText)message;
@@ -151,6 +160,20 @@ public class TextFragment extends Fragment implements GjMessageListener {
             String counter = sUnreadCounter > 99 ? "99" : ""+sUnreadCounter;
             unreadCounterView.setText(counter);
         }
+    }
+
+    private int[] unreadCounterTabLocation;
+    private void setUnreadCounterPosition() {
+        if (unreadCounterTabLocation != null)
+            return;
+        ImageButton tab = getTab();
+        unreadCounterTabLocation = new int[2];
+        tab.getLocationInWindow(unreadCounterTabLocation);
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) unreadCounterView.getLayoutParams();
+
+        params.leftMargin = unreadCounterTabLocation[0] + 180;
+        params.topMargin = unreadCounterTabLocation[1] - 60;
+        unreadCounterView.setLayoutParams(params);
     }
 
     public static void setOnScreen(boolean isOnScreen) {

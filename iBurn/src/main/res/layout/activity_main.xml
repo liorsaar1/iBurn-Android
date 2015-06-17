@@ -92,9 +92,7 @@
                 app:pstsIndicatorHeight="4dp"/>
 
             <TextView
-                android:layout_marginTop="40dip"
                 android:id="@+id/GjTextUnreadCounter"
-                android:layout_marginLeft="290dip"
                 android:gravity="center"
                 android:layout_width="36dip"
                 android:layout_height="36dip"

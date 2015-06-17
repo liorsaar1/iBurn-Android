@@ -8,23 +8,47 @@
     android:orientation="vertical">
 
     <TableLayout
-        android:layout_width="800dip"
+        android:layout_width="1200dip"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="40dip">
+        android:layout_marginTop="10dip">
 
         <TableRow
-            android:id="@+id/GjErrorTabletBatteryRow"
+            android:id="@+id/GjErrorVersion"
             style="@style/GjErrorRow">
 
             <TextView
-                android:id="@+id/GjErrorTabletBattery"
                 style="@style/GjStatus.Error"
-                android:text="Tablet"/>
+                android:text="Version"/>
 
             <TextView
                 style="@style/GjErrorText"/>
         </TableRow>
+
+        <TableRow
+            android:id="@+id/GjErrorVehicle"
+            style="@style/GjErrorRow">
+
+            <TextView
+                style="@style/GjStatus.Error"
+                android:text="Vehicle"/>
+
+            <TextView
+                style="@style/GjErrorText"/>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/GjErrorPacket"
+            style="@style/GjErrorRow">
+
+            <TextView
+                style="@style/GjStatus.Error"
+                android:text="Packet"/>
+
+            <TextView
+                style="@style/GjErrorText"/>
+        </TableRow>
+
 
         <TableRow
             android:id="@+id/GjErrorVoltage"
@@ -63,6 +87,18 @@
         </TableRow>
 
         <TableRow
+            android:id="@+id/GjErrorCompass"
+            style="@style/GjErrorRow">
+
+            <TextView
+                style="@style/GjStatus.Error"
+                android:text="Compass"/>
+
+            <TextView
+                style="@style/GjErrorText"/>
+        </TableRow>
+
+        <TableRow
             android:id="@+id/GjErrorGps"
             style="@style/GjErrorRow">
 
@@ -75,15 +111,53 @@
         </TableRow>
 
         <TableRow
-            android:id="@+id/GjErrorCompass"
+            android:id="@+id/GjErrorTabletBattery"
             style="@style/GjErrorRow">
 
             <TextView
                 style="@style/GjStatus.Error"
-                android:text="Compass"/>
+                android:text="Tablet"/>
 
             <TextView
                 style="@style/GjErrorText"/>
         </TableRow>
+
+        <TableRow
+            android:id="@+id/GjErrorFtdi"
+            style="@style/GjErrorRow">
+
+            <TextView
+                style="@style/GjStatus.Error"
+                android:text="FTDI"/>
+
+            <TextView
+                style="@style/GjErrorText"/>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/GjErrorUsb"
+            style="@style/GjErrorRow">
+
+            <TextView
+                style="@style/GjStatus.Error"
+                android:text="USB"/>
+
+            <TextView
+                style="@style/GjErrorText"/>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/GjErrorChecksum"
+            style="@style/GjErrorRow">
+
+            <TextView
+                style="@style/GjStatus.Error"
+                android:text="Checksum"/>
+
+            <TextView
+                style="@style/GjErrorText"/>
+        </TableRow>
+
+
     </TableLayout>
 </LinearLayout>

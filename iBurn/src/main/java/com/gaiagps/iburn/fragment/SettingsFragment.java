@@ -22,10 +22,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.astuetz.PagerSlidingTabStrip;
 import com.gaiagps.iburn.R;
 import com.gaiagps.iburn.activity.MainActivity;
 import com.gaiagps.iburn.gj.ftdi.FtdiService;
@@ -97,7 +95,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         messageIncoming = (TextView) view.findViewById(R.id.GjIncoming);
         messageIncoming.setMovementMethod(new ScrollingMovementMethod());
 
-        view.findViewById(R.id.GjTestContainer).setVisibility(View.GONE);
+        view.findViewById(R.id.GjTestContainer).setVisibility(View.VISIBLE);
         testSendResponse = (Button)view.findViewById(R.id.GjTestSendResponse);
         testSendResponse.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -394,7 +392,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     ValueAnimator colorAnimation;
     private void startStatusErrorAnimation(View view) {
         if (colorAnimation == null) {
-            final ImageButton statusView = (ImageButton) getTabChildView(2);
+            final ImageButton statusView = getTab();
             Integer colorFrom = 0x00000000; // transparent
             Integer colorTo = 0xFFFF0000; // red
             colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
@@ -416,14 +414,11 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     private void stopStatusErrorAnimation() {
         if (colorAnimation != null)
             colorAnimation.cancel();
-        final ImageButton statusView = (ImageButton)getTabChildView(2);
-        statusView.setBackgroundColor(0x00000000);
+        getTab().setBackgroundColor(0x00000000);
     }
 
-    public View getTabChildView(int index) {
-        PagerSlidingTabStrip mTabs = ((MainActivity)getActivity()).getTabs();
-        LinearLayout tabView = (LinearLayout) mTabs.getChildAt(0);
-        return tabView.getChildAt(index);
+    private ImageButton getTab() {
+        return ((MainActivity)getActivity()).getTabChildView(3);
     }
 
     private static List<GjMessage> queue = new ArrayList<>();
