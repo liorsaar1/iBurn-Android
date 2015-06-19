@@ -151,7 +151,7 @@
 
                 <TextView
                     style="@style/GjStatusText"
-                    android:text="Tablet"/>
+                    android:text="Tablet Battery"/>
             </LinearLayout>
 
             <TextView
