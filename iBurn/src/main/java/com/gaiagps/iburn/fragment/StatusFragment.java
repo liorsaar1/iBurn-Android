@@ -14,7 +14,6 @@ import android.hardware.usb.UsbManager;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,6 +49,7 @@ import java.util.Map;
  */
 public class StatusFragment extends Fragment implements GjMessageListener {
     private static final String TAG = "StatusFragment";
+    public static Activity sActivity; // horrible hack sorry
 
     @SuppressLint("UseSparseArrays")
     private static final Map<Integer, String> batteryStatusStrings = new HashMap<Integer, String>() {{
@@ -84,11 +84,14 @@ public class StatusFragment extends Fragment implements GjMessageListener {
     }};
     public static byte sVehicleNumber = 0;
     private static View sView;
-    private static int sChecksumErrorCounter = 0;
+    private static int sChecksumErrorCounterTotal = 0, sChecksumErrorCounterCurrent = 0;
     private static List<GjMessage> queue = new ArrayList<>();
     private byte fakeStatus = 0;
     private ValueAnimator warningAnimation;
     private AlphaAnimation criticalAnimation;
+    private static boolean errorUsb=true, errorFtdi=true, errorBattery=true;
+    private static String errorBatteryText = "ERROR";
+    private static GjMessageStatusResponse lastStatusResponse;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,24 +107,49 @@ public class StatusFragment extends Fragment implements GjMessageListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (sView != null)
             return sView;
+        // reset the hack - use the fragments activity from now on
+        sActivity = null;
 
         sView = inflater.inflate(R.layout.fragment_status, container, false);
         sView.findViewById(R.id.GjErrorVersion).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onClickTestSendStatus(v);
+                onClickTestSendStatus();
+            }
+        });
+        sView.findViewById(R.id.GjErrorChecksum).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClickChecksum();
             }
         });
 
         setVersion(getActivity());
         checkUsb(getActivity());
+        updateView();
         queueDispatch();
-        setStatusChecksumErrorCounter(sChecksumErrorCounter);
 
         return sView;
     }
 
-    private void onClickTestSendStatus(View v) {
+    private void updateView() {
+        if (sView == null)
+            return;
+
+        setStatusResponse((GjMessageStatusResponse) lastStatusResponse);
+        setStatus(R.id.GjErrorUsb, errorUsb);
+        setStatus(R.id.GjErrorFtdi, errorFtdi);
+        setStatusChecksumErrorCounter();
+        setText(R.id.GjErrorTabletBattery, errorBatteryText);
+        setColor(R.id.GjErrorTabletBattery, errorBattery);
+    }
+
+    private void onClickChecksum() {
+        sChecksumErrorCounterCurrent = 0;
+        updateView();
+    }
+
+    private void onClickTestSendStatus() {
 //        if (true) return;
         if (fakeStatus == 0) {
             fakeStatus = 1;
@@ -145,8 +173,8 @@ public class StatusFragment extends Fragment implements GjMessageListener {
     // on launch, make sure a usb device is available
     // it will not be available if the unit is off,
     // and will generate a USB intention when attached/detached
-    private void checkUsb(FragmentActivity activity) {
-        UsbManager manager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
+    private void checkUsb(Activity activity) {
+        UsbManager manager = (UsbManager) activity.getSystemService(Context.USB_SERVICE);
         HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
         //console("USB devices: " + deviceList.keySet().size());
         for (String key : deviceList.keySet()) {
@@ -158,10 +186,10 @@ public class StatusFragment extends Fragment implements GjMessageListener {
         }
     }
 
-    private void setStatusChecksumErrorCounter(int counter) {
-        boolean error = counter != 0;
+    private void setStatusChecksumErrorCounter() {
+        boolean error = sChecksumErrorCounterCurrent != 0;
         setColor(R.id.GjErrorChecksum, error);
-        setText(R.id.GjErrorChecksum, "" + counter);
+        setText(R.id.GjErrorChecksum, "Total: " + sChecksumErrorCounterTotal + "  Current: " + sChecksumErrorCounterCurrent);
     }
 
     private void setColorGrey(int resId) {
@@ -207,53 +235,46 @@ public class StatusFragment extends Fragment implements GjMessageListener {
 
     @Override
     public void onMessage(GjMessage message) {
-        if (getActivity() == null) {
-            queue(message);
-            return;
-        }
         if (message instanceof GjMessageConsole) return;
         if (message instanceof GjMessageError) return;
 
-        boolean isCritical = false;
-        boolean isWarning = false;
+        Activity activity = getActivity();
+        if (activity == null) {
+            activity = sActivity;
+        }
 
         // USB
         if (message instanceof GjMessageUsb) {
             boolean status = ((GjMessageUsb) message).getStatus();
-            boolean error = status ? false : true;
-            isWarning |= error;
-            setStatus(R.id.GjErrorUsb, error);
+            errorUsb = status ? false : true;
         }
         // FTDI
         if (message instanceof GjMessageFtdi) {
             boolean status = ((GjMessageFtdi) message).getStatus();
-            boolean error = status ? false : true;
-            isWarning |= error;
-            setStatus(R.id.GjErrorFtdi, error);
+            errorFtdi = status ? false : true;
         }
         // Status
         if (message instanceof GjMessageStatusResponse) {
-            onMessageStatus((GjMessageStatusResponse) message);
-            isCritical |= ((GjMessageStatusResponse) message).isCriticalError();
-
-            // check charging status
-            boolean isBatteryError = statusBatteryError(getActivity());
-            isWarning |= isBatteryError;
+            lastStatusResponse = (GjMessageStatusResponse) message;
+            // check charging status - here as good place as any
+            errorBattery = statusBatteryError(activity);
         }
         // checksum
         if (message instanceof GjMessageResponse) {
             GjMessageResponse response = (GjMessageResponse) message;
             if (!response.isOK()) {
-                setStatusChecksumErrorCounter(++sChecksumErrorCounter);
-                isWarning = true;
+                sChecksumErrorCounterTotal++;
+                sChecksumErrorCounterCurrent++;
             }
         }
         // update indicators
-        updateStatusIndicators(getActivity(), isCritical, isWarning);
+        updateStatusIndicators(activity);
+        updateView();
     }
 
-    private void updateStatusIndicators(Activity activity, boolean isCritical, boolean isWarning) {
-        if (activity == null) return;
+    private void updateStatusIndicators(Activity activity) {
+        boolean isCritical = (lastStatusResponse != null) ? lastStatusResponse.isCriticalError() : false;
+        boolean isWarning = errorBattery || errorFtdi || errorUsb || (sChecksumErrorCounterCurrent != 0);
 
         // blink the tab on any sign of error
         if (isWarning || isCritical) {
@@ -318,10 +339,14 @@ public class StatusFragment extends Fragment implements GjMessageListener {
     }
 
     private ImageButton getTab() {
-        return ((MainActivity) getActivity()).getTabChildView(3);
+        if (getActivity() != null)
+            return ((MainActivity) getActivity()).getTabChildView(3);
+        else
+            return ((MainActivity) sActivity).getTabChildView(3);
     }
 
-    private void onMessageStatus(GjMessageStatusResponse s) {
+    private void setStatusResponse(GjMessageStatusResponse s) {
+        if (s==null) return;
         setStatus(R.id.GjErrorRadio, s.getErrorRadio());
         setStatus(R.id.GjErrorVoltage, s.getErrorVoltage());
         setStatus(R.id.GjErrorTemp, s.getErrorTemp());
@@ -356,13 +381,10 @@ public class StatusFragment extends Fragment implements GjMessageListener {
         // battery overall
         boolean isBatteryError = (isCharging && isHealthy) ? false : true;
         // status text
-        String text = "Status: " + batteryStatusStrings.get(status);
+        errorBatteryText = "Status: " + batteryStatusStrings.get(status);
         if (!isHealthy) {
-            text += "  Health: " + batteryHealthStrings.get(health);
+            errorBatteryText += "  Health: " + batteryHealthStrings.get(health);
         }
-        setText(R.id.GjErrorTabletBattery, text);
-        setColor(R.id.GjErrorTabletBattery, isBatteryError);
-
         return isBatteryError;
     }
 

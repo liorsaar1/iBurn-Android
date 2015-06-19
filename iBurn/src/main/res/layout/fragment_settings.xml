@@ -7,82 +7,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        style="@style/GjText.title"
-        android:text="@string/gj_settings_status"/>
-
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:gravity="center"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/GjStatusVersion"
-                style="@style/GjStatus"
-                android:text="Version"/>
-
-            <TextView
-                android:id="@+id/GjStatusTabletBattery"
-                style="@style/GjStatus"
-                android:text="Tablet"/>
-
-            <TextView
-                android:id="@+id/GjStatusUsb"
-                style="@style/GjStatus"
-                android:text="USB"/>
-
-            <TextView
-                android:id="@+id/GjStatusFtdi"
-                style="@style/GjStatus"
-                android:text="FTDI"/>
-
-            <TextView
-                android:id="@+id/GjStatusVehicle"
-                style="@style/GjStatus"
-                android:text="Vehicle:-"/>
-
-            <TextView
-                android:id="@+id/GjStatusRadio"
-                style="@style/GjStatus"
-                android:text="Radio"/>
-
-            <TextView
-                android:id="@+id/GjStatusVoltage"
-                style="@style/GjStatus"
-                android:text="Voltage"/>
-
-            <TextView
-                android:id="@+id/GjStatusTemp"
-                style="@style/GjStatus"
-                android:text="Temp"/>
-
-            <TextView
-                android:id="@+id/GjStatusCompass"
-                style="@style/GjStatus"
-                android:text="Compass"/>
-
-            <TextView
-                android:id="@+id/GjStatusGps"
-                style="@style/GjStatus"
-                android:text="GPS"/>
-
-            <TextView
-                android:id="@+id/GjStatusChecksumErrorCounter"
-                style="@style/GjStatus"
-                android:text="Checksum:-"/>
-
-            <TextView
-                android:id="@+id/GjStatusPacketNumber"
-                style="@style/GjStatus"
-                android:text="Packet:-"/>
-
-        </TableRow>
-    </TableLayout>
-
     <LinearLayout
         android:id="@+id/GjTestContainer"
         android:layout_width="match_parent"
@@ -108,7 +32,13 @@
                     android:id="@+id/GjTestSendResponse"
                     style="@style/GjButton"
                     android:layout_width="wrap_content"
-                    android:text="Checksum Error"/>
+                    android:text="Send Response"/>
+
+                <Button
+                    android:id="@+id/GjTestChecksum"
+                    style="@style/GjButton"
+                    android:layout_width="wrap_content"
+                    android:text="Generate Checksum"/>
 
                 <Button
                     android:id="@+id/GjTestSendGps"
@@ -133,6 +63,7 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/GjConsoleTitle"
         style="@style/GjText.title"
         android:text="Console"/>
 

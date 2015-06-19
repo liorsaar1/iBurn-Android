@@ -70,6 +70,9 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
     }
 
     private void initGJ() {
+        // allow status indicator to operate before the status fragment is attached
+        StatusFragment.sActivity = getActivity();
+
         gjMap = getMap();
         gjMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
