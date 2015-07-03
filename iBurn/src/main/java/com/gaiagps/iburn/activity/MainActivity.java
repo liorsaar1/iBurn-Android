@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -136,29 +137,27 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         if (ftdiServiceManager == null) {
             ftdiServiceManager = new FtdiServiceManager(getFtdiListeners());
         }
-        starLogoAnimation(this);
     }
 
+    private static boolean isLogoAnimationDone = false;
+
     private void starLogoAnimation(Activity activity) {
-        final View view = activity.findViewById(R.id.logoAnimation);
+        final View parentView = activity.findViewById(R.id.logoAnimation);
+        final View frontView = parentView.findViewById(R.id.logoAnimationFront);
+        final View backView = parentView.findViewById(R.id.logoAnimationBack);
 
-        ObjectAnimator rotxAnim = ObjectAnimator.ofFloat(view, "rotationX", 0.0f, 720.0f);
-        rotxAnim.setInterpolator(new AccelerateInterpolator(0.2f));
-        rotxAnim.setDuration(3 * 1000);
-        rotxAnim.start();
-
-        ObjectAnimator alphaAnim = ObjectAnimator.ofFloat(view, "alpha", 1.0f, 0.0f);
-        alphaAnim.setInterpolator(new AccelerateInterpolator(1.6f));
-        alphaAnim.setDuration(4 * 1000);
-        alphaAnim.start();
-        alphaAnim.addListener(new AnimatorListenerAdapter() {
+        frontView.setVisibility(View.VISIBLE);
+        ObjectAnimator frontAnim = ObjectAnimator.ofFloat(frontView, "alpha", 0.0f, 1.0f);
+        frontAnim.setInterpolator(new AccelerateInterpolator(1f));
+        frontAnim.setDuration(4 * 1000);
+        frontAnim.start();
+        frontAnim.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                view.setVisibility(View.GONE);
+                backView.setVisibility(View.GONE);
             }
         });
-
     }
 
     private List<GjMessageListener> getFtdiListeners() {
@@ -320,6 +319,17 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         }
         // continue reading frmo ftdi
         ftdiServiceManager.onResume(this);
+        // aniumate on the first time
+        if (!isLogoAnimationDone) {
+            isLogoAnimationDone = true;
+            final Activity activity = this;
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    starLogoAnimation(activity);
+                }
+            }, 500);
+        }
     }
 
     private void showWelcomeDialog() {

@@ -117,12 +117,8 @@
             android:layout_height="match_parent"
             android:minHeight="?attr/actionBarSize" />
 
-        <ImageView
-            android:id="@+id/logoAnimation"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_centerInParent="true"
-            android:src="@drawable/logo"/>
+        <include layout="@layout/logo_animation"
+                 android:id="@+id/logoAnimation"/>
 
         <LinearLayout
             android:id="@+id/GjCriticalError"
