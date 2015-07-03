@@ -2,7 +2,6 @@ package com.gaiagps.iburn.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -28,7 +27,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -53,6 +51,7 @@ import com.gaiagps.iburn.fragment.LightingFragment;
 import com.gaiagps.iburn.fragment.SettingsFragment;
 import com.gaiagps.iburn.fragment.StatusFragment;
 import com.gaiagps.iburn.fragment.TextFragment;
+import com.gaiagps.iburn.gj.GjLogoAnimation;
 import com.gaiagps.iburn.gj.ftdi.FtdiServiceManager;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.google.android.gms.common.ConnectionResult;
@@ -78,6 +77,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
     private static final String HOCKEY_ID = SECRETS.HOCKEY_ID;
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
     private boolean googlePlayServicesMissing = false;
+    private GjLogoAnimation logoAnimation;
 
     public static FtdiServiceManager ftdiServiceManager;
 
@@ -137,27 +137,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         if (ftdiServiceManager == null) {
             ftdiServiceManager = new FtdiServiceManager(getFtdiListeners());
         }
-    }
-
-    private static boolean isLogoAnimationDone = false;
-
-    private void starLogoAnimation(Activity activity) {
-        final View parentView = activity.findViewById(R.id.logoAnimation);
-        final View frontView = parentView.findViewById(R.id.logoAnimationFront);
-        final View backView = parentView.findViewById(R.id.logoAnimationBack);
-
-        frontView.setVisibility(View.VISIBLE);
-        ObjectAnimator frontAnim = ObjectAnimator.ofFloat(frontView, "alpha", 0.0f, 1.0f);
-        frontAnim.setInterpolator(new AccelerateInterpolator(1f));
-        frontAnim.setDuration(4 * 1000);
-        frontAnim.start();
-        frontAnim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                backView.setVisibility(View.GONE);
-            }
-        });
+        logoAnimation = new GjLogoAnimation();
     }
 
     private List<GjMessageListener> getFtdiListeners() {
@@ -319,14 +299,13 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         }
         // continue reading frmo ftdi
         ftdiServiceManager.onResume(this);
-        // aniumate on the first time
-        if (!isLogoAnimationDone) {
-            isLogoAnimationDone = true;
+        // animate on the first time
+        if (!logoAnimation.isDone()) {
             final Activity activity = this;
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    starLogoAnimation(activity);
+                    logoAnimation.start(activity);
                 }
             }, 500);
         }

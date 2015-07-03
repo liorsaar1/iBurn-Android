@@ -117,9 +117,6 @@
             android:layout_height="match_parent"
             android:minHeight="?attr/actionBarSize" />
 
-        <include layout="@layout/logo_animation"
-                 android:id="@+id/logoAnimation"/>
-
         <LinearLayout
             android:id="@+id/GjCriticalError"
             android:visibility="gone"
@@ -165,5 +162,8 @@
             android:text="@string/unlock_description"/>
 
         </RelativeLayout>
+
+    <include layout="@layout/logo_animation"
+             android:id="@+id/logoAnimation"/>
 
 </RelativeLayout>
