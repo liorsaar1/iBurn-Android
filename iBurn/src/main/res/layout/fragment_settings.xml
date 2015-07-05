@@ -45,6 +45,12 @@
                     style="@style/GjButton"
                     android:layout_width="wrap_content"
                     android:text="Send GPS"/>
+
+                <Button
+                    android:id="@+id/GjTestReadFile"
+                    style="@style/GjButton"
+                    android:layout_width="wrap_content"
+                    android:text="Read File"/>
             </TableRow>
         </TableLayout>
 

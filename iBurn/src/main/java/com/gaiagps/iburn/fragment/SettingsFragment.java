@@ -1,9 +1,11 @@
 package com.gaiagps.iburn.fragment;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +28,8 @@ import com.gaiagps.iburn.gj.message.GjMessageText;
 import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
 import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +43,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     private static Button sendTextButton;
     private static TextView messageConsole;
     private static TextView messageIncoming;
-    private static Button testSendResponse, testSendStatus, testSendGps, testChecksum;
+    private static Button testSendResponse, testSendStatus, testSendGps, testChecksum, testReadFile;
     private static int statusClickCounter = 0;
 
     public void onCreate(Bundle savedInstanceState) {
@@ -103,6 +107,13 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
                 onClickTestSendGps(v);
             }
         });
+        testReadFile = (Button)view.findViewById(R.id.GjTestReadFile);
+        testReadFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClickTestReadFile(v);
+            }
+        });
 
         view.findViewById(R.id.GjConsoleTitle).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,6 +149,31 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
 //        MainActivity.ftdiServiceManager.send(GjMessageFactory.createGps());
         loopback(GjMessageFactory.createGps().array());
 
+    }
+
+    private void onClickTestReadFile(View v) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        startActivityForResult(intent, 1234);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1234  &&  data != null ) {
+            Uri uri = data.getData();
+            try {
+                StringBuffer sb = GalacticJungleFragment.logRead(getActivity(), uri);
+                ByteBuffer bb = GjMessageFactory.fromString(sb.toString());
+                List<GjMessage> list = GjMessageFactory.parseAll(bb);
+                for (GjMessage message : list) {
+                    Log.e(TAG, message.toString());
+                }
+                return;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void onClickSendText(View v) {

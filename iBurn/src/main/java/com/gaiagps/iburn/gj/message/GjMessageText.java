@@ -17,6 +17,6 @@ public class GjMessageText extends GjMessageString {
 
     @Override
     public String toString() {
-        return super.toString() + ":" + vehicle + ":" +new String(data);
+        return Type.valueOf(type).toString() + ":" + vehicle + ":" +new String(data);
     }
 }

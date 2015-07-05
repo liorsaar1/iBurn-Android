@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_centerInParent="true"
-        android:src="@drawable/logo_animals_back_0"/>
+        android:src="@drawable/logo_animals_tiger_back"/>
 
     <ImageView
         android:visibility="gone"
@@ -19,6 +19,6 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_centerInParent="true"
-        android:src="@drawable/logo_animals_front_0"/>
+        android:src="@drawable/logo_animals_tiger_front"/>
 
 </RelativeLayout>

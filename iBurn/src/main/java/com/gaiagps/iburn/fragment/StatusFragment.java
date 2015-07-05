@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.usb.UsbDevice;
@@ -82,7 +83,6 @@ public class StatusFragment extends Fragment implements GjMessageListener {
         put(R.id.GjErrorUsb, "USB device not found. Check the tablet cable.");
         put(R.id.GjErrorFtdi, "FTDI port unavailable. Check the tablet cable.");
     }};
-    public static byte sVehicleNumber = 0;
     private static View sView;
     private static int sChecksumErrorCounterTotal = 0, sChecksumErrorCounterCurrent = 0;
     private static List<GjMessage> queue = new ArrayList<>();
@@ -258,6 +258,7 @@ public class StatusFragment extends Fragment implements GjMessageListener {
             lastStatusResponse = (GjMessageStatusResponse) message;
             // check charging status - here as good place as any
             errorBattery = statusBatteryError(activity);
+            setPrefVehicle(activity, message.getVehicle());
         }
         // checksum
         if (message instanceof GjMessageResponse) {
@@ -270,6 +271,16 @@ public class StatusFragment extends Fragment implements GjMessageListener {
         // update indicators
         updateStatusIndicators(activity);
         updateView();
+    }
+
+    private void setPrefVehicle(Activity activity, byte vehicle) {
+        SharedPreferences prefs = activity.getSharedPreferences("gj", Context.MODE_PRIVATE);
+        prefs.edit().putInt("vehicle", vehicle).commit();
+    }
+
+    public static int getPrefVehicle(Activity activity) {
+        SharedPreferences prefs = activity.getSharedPreferences("gj", Context.MODE_PRIVATE);
+        return prefs.getInt("vehicle",0);
     }
 
     private void updateStatusIndicators(Activity activity) {
@@ -352,11 +363,9 @@ public class StatusFragment extends Fragment implements GjMessageListener {
         setStatus(R.id.GjErrorTemp, s.getErrorTemp());
         setStatus(R.id.GjErrorCompass, s.getErrorCompass());
         setStatus(R.id.GjErrorGps, s.getErrorGps());
-        // store my own vehcile ID as reported by the controller
-        sVehicleNumber = s.getVehicle();
         // vehicle
         setStatus(R.id.GjErrorVehicle, false);
-        setText(R.id.GjErrorVehicle, "" + sVehicleNumber);
+        setText(R.id.GjErrorVehicle, "" + s.getVehicle());
         // packet
         setStatus(R.id.GjErrorPacket, false);
         setText(R.id.GjErrorPacket, "" + s.getPacketNumber());

@@ -1,7 +1,10 @@
 package com.gaiagps.iburn.fragment;
 
+import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +22,17 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -128,7 +142,7 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
                 .anchor(0.5f, 0.5f)
                 .title("Vehicle " + vehicle);
         Marker marker = gjMap.addMarker(mops);
-        vehicles.put(""+vehicle, marker);
+        vehicles.put("" + vehicle, marker);
         return marker;
     }
 
@@ -144,6 +158,56 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
 
     @Override
     public void incoming(byte[] bytes) {
-        // notin'
+        try {
+            logWrite(bytes);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
+    private static FileOutputStream logFOS;
+    private static int logCounter = 0;
+    private static String logName = new SimpleDateFormat("yyyy-MM-dd-hh-MM").format(new Date());
+
+    private void logWrite(byte[] bytes) throws IOException {
+        if (logFOS == null) {
+            logFOS = new FileOutputStream("sdcard/Download/GalacticJungle_" + logName +".txt");
+        }
+        OutputStreamWriter osw = new OutputStreamWriter(logFOS,"UTF-8");
+        BufferedWriter out = new BufferedWriter(osw);
+        StringBuffer sb = new StringBuffer();
+        for (byte b : bytes) {
+            String s = String.format("%02X ", b);
+            ++logCounter;
+            if (logCounter%20 == 0) {
+                sb.append("\n");
+            }
+            sb.append(s);
+        }
+        out.write(sb.toString());
+        out.flush();
+        logFOS.flush();
+    }
+
+    public static StringBuffer logRead(String filename) throws IOException {
+        File file = new File(filename);
+        FileInputStream fis = new FileInputStream(file);
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String line;
+        StringBuffer sb = new StringBuffer();
+        while ((line = br.readLine()) != null) {
+            sb.append(line);
+        }
+        return sb;
+    }
+
+    public static StringBuffer logRead(Context context, Uri uri) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(context.getContentResolver().openInputStream(uri)));
+        String line;
+        StringBuffer sb = new StringBuffer();
+        while ((line = br.readLine()) != null) {
+            sb.append(line);
+        }
+        return sb;
     }
 }
