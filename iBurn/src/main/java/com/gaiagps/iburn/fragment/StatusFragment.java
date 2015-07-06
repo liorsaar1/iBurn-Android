@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.usb.UsbDevice;
@@ -258,7 +257,6 @@ public class StatusFragment extends Fragment implements GjMessageListener {
             lastStatusResponse = (GjMessageStatusResponse) message;
             // check charging status - here as good place as any
             errorBattery = statusBatteryError(activity);
-            setPrefVehicle(activity, message.getVehicle());
         }
         // checksum
         if (message instanceof GjMessageResponse) {
@@ -271,16 +269,6 @@ public class StatusFragment extends Fragment implements GjMessageListener {
         // update indicators
         updateStatusIndicators(activity);
         updateView();
-    }
-
-    private void setPrefVehicle(Activity activity, byte vehicle) {
-        SharedPreferences prefs = activity.getSharedPreferences("gj", Context.MODE_PRIVATE);
-        prefs.edit().putInt("vehicle", vehicle).commit();
-    }
-
-    public static int getPrefVehicle(Activity activity) {
-        SharedPreferences prefs = activity.getSharedPreferences("gj", Context.MODE_PRIVATE);
-        return prefs.getInt("vehicle",0);
     }
 
     private void updateStatusIndicators(Activity activity) {

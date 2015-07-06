@@ -302,10 +302,11 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         // animate on the first time
         if (!logoAnimation.isDone()) {
             final Activity activity = this;
+            final int animalId = SettingsFragment.getPrefAnimal(activity);
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    logoAnimation.start(activity);
+                    logoAnimation.start(activity, animalId);
                 }
             }, 500);
         }

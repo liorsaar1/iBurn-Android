@@ -1,6 +1,9 @@
 package com.gaiagps.iburn.fragment;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,12 +12,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.gaiagps.iburn.R;
 import com.gaiagps.iburn.activity.MainActivity;
+import com.gaiagps.iburn.gj.GjLogoAnimation;
 import com.gaiagps.iburn.gj.ftdi.FtdiService;
 import com.gaiagps.iburn.gj.ftdi.FtdiServiceManager;
 import com.gaiagps.iburn.gj.message.GjMessage;
@@ -31,6 +38,7 @@ import com.gaiagps.iburn.gj.message.internal.GjMessageUsb;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -44,6 +52,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     private static TextView messageConsole;
     private static TextView messageIncoming;
     private static Button testSendResponse, testSendStatus, testSendGps, testChecksum, testReadFile;
+    private static Spinner logoAnimalSpinner;
     private static int statusClickCounter = 0;
 
     public void onCreate(Bundle savedInstanceState) {
@@ -112,6 +121,34 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             @Override
             public void onClick(View v) {
                 onClickTestReadFile(v);
+            }
+        });
+
+        logoAnimalSpinner = (Spinner)view.findViewById(R.id.GjSetLogoAnimal);
+
+        List<String> list = new ArrayList<String>(Arrays.asList("Tiger", "Elephant", "Lion", "Rhino", "Zebra"));
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, list);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        logoAnimalSpinner.setAdapter(dataAdapter);
+        final int animalId = SettingsFragment.getPrefAnimal(getActivity());
+        logoAnimalSpinner.setSelection(animalId);
+
+        logoAnimalSpinner.post(new Runnable() {
+            @Override
+            public void run() {
+                logoAnimalSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                        SettingsFragment.setPrefAnimal(getActivity(), position);
+                        GjLogoAnimation logoAnimation = new GjLogoAnimation();
+                        logoAnimation.start(getActivity(), position);
+
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
+                });
             }
         });
 
@@ -305,5 +342,16 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         intent.putExtra(FtdiService.FTDI_SERVICE_MESSSAGE, bytes);
         getActivity().sendBroadcast(intent);
     }
+
+    public static void setPrefAnimal(Activity activity, int vehicle) {
+        SharedPreferences prefs = activity.getSharedPreferences("gj", Context.MODE_PRIVATE);
+        prefs.edit().putInt("animal", vehicle).commit();
+    }
+
+    public static int getPrefAnimal(Activity activity) {
+        SharedPreferences prefs = activity.getSharedPreferences("gj", Context.MODE_PRIVATE);
+        return prefs.getInt("animal",0);
+    }
+
 
 }
