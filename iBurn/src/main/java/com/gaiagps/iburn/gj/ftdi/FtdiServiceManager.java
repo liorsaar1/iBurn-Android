@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -14,8 +15,8 @@ import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageFactory;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageResponse;
-import com.gaiagps.iburn.gj.message.GjMessageText;
 import com.gaiagps.iburn.gj.message.internal.GjMessageConsole;
+import com.gaiagps.iburn.gj.message.internal.GjMessageError;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -100,7 +101,7 @@ public class FtdiServiceManager {
                     mService = binder.getService();
                     mBound = true;
                     console("Service Bound");
-                    send(new GjMessageText("Online"));
+                    mService.open();
                 }
 
                 @Override
@@ -122,8 +123,14 @@ public class FtdiServiceManager {
     }
 
     private void console(String string) {
-        Log.e(TAG, string);
+        Log.e(TAG, "console: " + string);
         GjMessageConsole message = new GjMessageConsole(string);
+        dispatch(message);
+    }
+
+    private void error(String string) {
+        Log.e(TAG, "error: " + string);
+        GjMessageError message = new GjMessageError(string);
         dispatch(message);
     }
 
@@ -148,19 +155,28 @@ public class FtdiServiceManager {
 
     public static int outgoingPacketNumber = 1;
 
-    public int send(GjMessage message) {
-        // save in history
-        if (! (message instanceof GjMessageResponse))
-            message.setPacketNumber((byte) outgoingPacketNumber++);
-        historyPut(message);
-        // send
-        int written = send(message.toByteArray());
-        if (written == message.toByteArray().length) {
-            console("Sent: bytes written :" + written);
-        } else {
-            console("Send ERROR: expected: " + message.toByteArray().length + " written:" + written);
-        }
-        return written;
+    private Handler handler = new Handler();
+
+    public void send(final GjMessage message) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                // console
+                console("Send:" + message.toString());
+                // save in history
+                if (! (message instanceof GjMessageResponse))
+                    message.setPacketNumber((byte) outgoingPacketNumber++);
+                historyPut(message);
+                // send
+                int written = send(message.toByteArray());
+                if (written == message.toByteArray().length) {
+                    //console("Sent:" + message.toString());
+                } else {
+                    error("Send ERROR: expected: " + message.toByteArray().length + " written:" + written);
+                }
+            }
+        });
+        //return written;
     }
 
     public int send(ByteBuffer bb) {
@@ -170,7 +186,7 @@ public class FtdiServiceManager {
         if (written == bb.limit()) {
             console("Sent: written:" + written);
         } else {
-            console("ERROR: expected: " + bb.limit() + " written:" + written);
+            error("ERROR: expected: " + bb.limit() + " written:" + written);
         }
         return written;
     }

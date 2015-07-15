@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -87,7 +88,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         messageIncoming = (TextView) view.findViewById(R.id.GjIncoming);
         messageIncoming.setMovementMethod(new ScrollingMovementMethod());
 
-        view.findViewById(R.id.GjTestContainer).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.GjTestContainer).setVisibility(View.GONE);
         testSendResponse = (Button)view.findViewById(R.id.GjTestSendResponse);
         testSendResponse.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -213,12 +214,29 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    private Handler handler = new Handler();
     private void onClickSendText(View v) {
-        int vehicle = (int)(5*Math.random());
+        sendTextEditText.setEnabled(false);
         String text = sendTextEditText.getText().toString();
-        GjMessageText message = new GjMessageText(text, (byte)vehicle);
+        setOutgoingText();
+        if (text.trim().length() ==0) {
+            return;
+        }
+        final GjMessageText message = new GjMessageText(text, StatusFragment.getVehicle());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.ftdiServiceManager.send(message);
+                sendTextEditText.setEnabled(true);
+            }
+        });
+    }
+
+    private void onClickSendTextLoopback(View v) {
+        byte vehicle = (byte)(5*Math.random());
+        String text = sendTextEditText.getText().toString();
+        GjMessageText message = new GjMessageText(text, vehicle);
         MainActivity.ftdiServiceManager.send(message);
-        console(">>> " + message);
         loopback(message.toByteArray());
         setOutgoingText();
     }
@@ -232,7 +250,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         if (messageConsole == null ) {
             return;
         }
-        messageConsole.append(string + "\n\n");
+        messageConsole.append(string + "\n");
         scrollToEnd(messageConsole);
     }
 
@@ -326,7 +344,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             return;
         }
         console("Fake Checksum Error for packet " + lastPacket);
-        int written = MainActivity.ftdiServiceManager.send(new GjMessageResponse((byte)lastPacket, (byte)9, new byte[]{0} ));
+        MainActivity.ftdiServiceManager.send(new GjMessageResponse((byte)lastPacket, (byte)9, new byte[]{0} ));
     }
 
     public void onClickTestChecksum() {

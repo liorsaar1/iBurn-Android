@@ -15,13 +15,15 @@ import com.gaiagps.iburn.R;
  */
 public class GjLogoAnimation {
 
-    private boolean isDone = false;
+    private static boolean isDone = false;
 
     public boolean isDone() {
         return isDone;
     }
 
     public void start(Activity activity, int animalId) {
+        isDone = true;
+
         final View parentView = activity.findViewById(R.id.logoAnimation);
         final ImageView frontView = (ImageView) parentView.findViewById(R.id.logoAnimationFront);
         final ImageView backView = (ImageView) parentView.findViewById(R.id.logoAnimationBack);

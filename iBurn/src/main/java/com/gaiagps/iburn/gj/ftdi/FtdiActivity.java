@@ -172,7 +172,7 @@ public class FtdiActivity extends Activity implements GjMessageListener {
             return;
         }
         checksumButton.setEnabled(false);
-        int written = ftdiServiceManager.send(new GjMessageResponse((byte)8, (byte)7, new byte[] {0x00}));
+        ftdiServiceManager.send(new GjMessageResponse((byte)8, (byte)7, new byte[] {0x00}));
         checksumButton.setEnabled(true);
     }
 

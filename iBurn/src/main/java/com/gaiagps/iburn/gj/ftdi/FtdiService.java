@@ -23,6 +23,11 @@ import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+/*
+http://www.ftdichip.com/Support/Documents/ProgramGuides/D2XX_Programmer's_Guide(FT_000071).pdf
+http://www.ftdichip.com/Support/Documents/AppNotes/AN_233_Java_D2xx_for_Android_API_User_Manual.pdf
+ */
+
 public class FtdiService extends Service {
     public static final int FTDI_BUFFER_SIZE = 1024 * 1024 * 4; // 4 meg
     private final static String TAG = "FtdiService";
@@ -73,7 +78,7 @@ public class FtdiService extends Service {
 
                 // if nothing came in - sleep more
                 if (readSize <= 0) {
-                    sleepDuration += 100;
+                    sleepDuration = 500;
                 } else {
                     sleepDuration = 100;
                 }
@@ -157,6 +162,12 @@ public class FtdiService extends Service {
         return write(bytes);
     }
 
+    public void open() {
+        if (ftDev == null) {
+            openDevice();
+        }
+    }
+
     private void incoming(byte[] bytes) {
         Intent intent = new Intent(FtdiServiceManager.ACTION_VIEW);
         intent.putExtra(FTDI_SERVICE_BYTES, bytes);
@@ -195,7 +206,7 @@ public class FtdiService extends Service {
             }
 
             ftDev.setLatencyTimer((byte) 16);
-            int written = ftDev.write(bytes, bytes.length);
+            int written = ftDev.write(bytes, bytes.length, true);
             return written;
         }
     }
@@ -339,6 +350,7 @@ public class FtdiService extends Service {
                 flowCtrlSetting = D2xxManager.FT_FLOW_NONE;
                 break;
         }
+        flowCtrlSetting = D2xxManager.FT_FLOW_NONE;
 
         // see doc
         ftDev.setFlowControl(flowCtrlSetting, (byte) 0x11, (byte) 0x13);

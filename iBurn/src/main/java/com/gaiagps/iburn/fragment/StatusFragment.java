@@ -88,9 +88,10 @@ public class StatusFragment extends Fragment implements GjMessageListener {
     private byte fakeStatus = 0;
     private ValueAnimator warningAnimation;
     private AlphaAnimation criticalAnimation;
-    private static boolean errorUsb=true, errorFtdi=true, errorBattery=true;
+    private static boolean errorUsb=false, errorFtdi=false, errorBattery=false;
     private static String errorBatteryText = "ERROR";
     private static GjMessageStatusResponse lastStatusResponse;
+    private static byte sVehicle=0;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -241,6 +242,8 @@ public class StatusFragment extends Fragment implements GjMessageListener {
         if (activity == null) {
             activity = sActivity;
         }
+        // BATTERY - check charging status - here as good place as any
+        errorBattery = statusBatteryError(activity);
 
         // USB
         if (message instanceof GjMessageUsb) {
@@ -255,8 +258,6 @@ public class StatusFragment extends Fragment implements GjMessageListener {
         // Status
         if (message instanceof GjMessageStatusResponse) {
             lastStatusResponse = (GjMessageStatusResponse) message;
-            // check charging status - here as good place as any
-            errorBattery = statusBatteryError(activity);
         }
         // checksum
         if (message instanceof GjMessageResponse) {
@@ -352,11 +353,16 @@ public class StatusFragment extends Fragment implements GjMessageListener {
         setStatus(R.id.GjErrorCompass, s.getErrorCompass());
         setStatus(R.id.GjErrorGps, s.getErrorGps());
         // vehicle
+        sVehicle = s.getVehicle();
         setStatus(R.id.GjErrorVehicle, false);
-        setText(R.id.GjErrorVehicle, "" + s.getVehicle());
+        setText(R.id.GjErrorVehicle, "" + sVehicle);
         // packet
         setStatus(R.id.GjErrorPacket, false);
         setText(R.id.GjErrorPacket, "" + s.getPacketNumber());
+    }
+
+    public static byte getVehicle() {
+        return sVehicle;
     }
 
     @Override

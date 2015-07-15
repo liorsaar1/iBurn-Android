@@ -2,11 +2,13 @@ package com.gaiagps.iburn.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,7 +23,6 @@ import com.gaiagps.iburn.R;
 import com.gaiagps.iburn.activity.MainActivity;
 import com.gaiagps.iburn.gj.message.GjMessage;
 import com.gaiagps.iburn.gj.message.GjMessageListener;
-import com.gaiagps.iburn.gj.message.GjMessageStatusResponse;
 import com.gaiagps.iburn.gj.message.GjMessageText;
 import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
 
@@ -41,8 +42,6 @@ public class TextFragment extends Fragment implements GjMessageListener {
     private static ListView listView;
     private static EditText sendTextEditText;
     private static Button sendTextButton;
-    private static byte sVehicle = 0;
-    //private static Spinner targetSpinner;
     private static TextView unreadCounterView;
 
     public static TextFragment newInstance() {
@@ -101,17 +100,29 @@ public class TextFragment extends Fragment implements GjMessageListener {
         sendTextEditText.setEnabled(enabled);
         sendTextButton.setEnabled(enabled);
         sendTextEditText.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
-        //targetSpinner.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
     }
 
+    private static int testCounter = 1;
+    private Handler handler = new Handler();
+
     private void onClickSendText(View v) {
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(sendTextEditText, InputMethodManager.SHOW_FORCED);
+
         String text = sendTextEditText.getText().toString();
-        sendTextEditText.setText("");
         if (text.trim().length() ==0) {
             return;
         }
-        GjMessageText message = new GjMessageText(text);
-        MainActivity.ftdiServiceManager.send(message);
+        sendTextButton.setEnabled(false);
+        sendTextEditText.setText("");
+        final GjMessageText message = new GjMessageText(text, StatusFragment.getVehicle());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.ftdiServiceManager.send(message);
+                sendTextButton.setEnabled(true);
+            }
+        });
         onMessage(message);
 //        FtdiServiceManager.loopback(getActivity(), message.toByteArray());
     }
@@ -120,13 +131,6 @@ public class TextFragment extends Fragment implements GjMessageListener {
     @Override
     public void onMessage(GjMessage message) {
 
-
-        if (message instanceof GjMessageStatusResponse) {
-            GjMessageStatusResponse s = (GjMessageStatusResponse)message;
-            // store my own vehcile ID as reported by the controller
-            sVehicle = s.getVehicle();
-            return;
-        }
         if (message instanceof GjMessageFtdi) {
             boolean status = ((GjMessageFtdi)message).getStatus();
             setSendTextEnabled(status);
@@ -191,7 +195,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
     }
 
     public boolean isMe(int vehicle) {
-        return (vehicle == sVehicle);
+        return (vehicle == StatusFragment.getVehicle());
     }
 
     public class TextArrayAdapter extends ArrayAdapter<TextMessage> {
