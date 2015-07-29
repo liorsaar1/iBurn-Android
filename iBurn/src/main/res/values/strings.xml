@@ -9,6 +9,7 @@
     <string name="set_tab">Settings</string>
     <string name="status_tab">Status</string>
     <string name="text_tab">Messaging</string>
+    <string name="sound_tab">Sound</string>
     <string name="light_tab">Lighting</string>
     <string name="map_tab">Map</string>
     <string name="camps_tab">Camps</string>
@@ -59,6 +60,7 @@
     <string name="gj_settings_messages">Messages</string>
     <string name="gj_settings_status">Status</string>
     <string name="gj_text_send">Send</string>
+    <string name="gj_sound_activate">Activate</string>
 
     <string name="gj_message_type">Message Type</string>
     <string-array name="gj_message_type_array">

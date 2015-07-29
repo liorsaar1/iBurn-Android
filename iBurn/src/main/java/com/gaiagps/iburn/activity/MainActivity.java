@@ -49,6 +49,7 @@ import com.gaiagps.iburn.fragment.GalacticJungleFragment;
 import com.gaiagps.iburn.fragment.GoogleMapFragment;
 import com.gaiagps.iburn.fragment.LightingFragment;
 import com.gaiagps.iburn.fragment.SettingsFragment;
+import com.gaiagps.iburn.fragment.SoundFragment;
 import com.gaiagps.iburn.fragment.StatusFragment;
 import com.gaiagps.iburn.fragment.TextFragment;
 import com.gaiagps.iburn.gj.GjLogoAnimation;
@@ -103,6 +104,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         add(IBurnPagerAdapter.IBurnTab.GJ);
         add(IBurnPagerAdapter.IBurnTab.TEXT);
         add(IBurnPagerAdapter.IBurnTab.LIGHT);
+        add(IBurnPagerAdapter.IBurnTab.SOUND);
         add(IBurnPagerAdapter.IBurnTab.STATUS);
         add(IBurnPagerAdapter.IBurnTab.ART);
         add(IBurnPagerAdapter.IBurnTab.CAMPS);
@@ -424,7 +426,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         mTabs.setDividerColorResource(R.color.tab_selector);
         mViewPager.setAdapter(mPagerAdapter);
         mTabs.setViewPager(mViewPager);
-        //mViewPager.setCurrentItem(7); // preselect tab
+        //mViewPager.setCurrentItem(3); // preselect tab
         // hide the kbd when moving between pages
         mTabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -498,6 +500,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
         public static enum IBurnTab {
             GJ      (R.string.gj_tab,     R.drawable.ic_brc,       GalacticJungleFragment.class),
             TEXT    (R.string.text_tab,   R.drawable.ic_text,     TextFragment.class),
+            SOUND   (R.string.sound_tab,  R.drawable.ic_sound,    SoundFragment.class),
             SET     (R.string.set_tab,    R.drawable.ic_settings, SettingsFragment.class),
             STATUS  (R.string.status_tab, R.drawable.ic_status,   StatusFragment.class),
             LIGHT   (R.string.light_tab,  R.drawable.ic_light,    LightingFragment.class),
@@ -555,7 +558,7 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
                 if (fragmentInstances[position] == null)
                     fragmentInstances[position] = mTabs.get(position).getFragmentClass().newInstance(); //.getMethod("newInstance", null).invoke(null, null);
                 return fragmentInstances[position];
-            } catch (InstantiationException | IllegalAccessException e) {
+            } catch ( InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
                 throw new IllegalStateException("Unexpected ViewPager item requested: " + position);
             }

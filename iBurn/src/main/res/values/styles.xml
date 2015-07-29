@@ -175,6 +175,10 @@
         <item name="android:background">@drawable/status_background_error</item>
     </style>
 
+    <style name="GjSoundSwitch">
+        <item name="android:textSize">20sp</item>
+    </style>
+
     <!-- light -->
     <style name="GjLightTableRow">
         <item name="android:layout_width">match_parent</item>
