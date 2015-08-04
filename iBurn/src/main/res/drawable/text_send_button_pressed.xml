@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:startColor="@color/iburn_color_dark"
+        android:centerColor="@color/iburn_color_darker"
+        android:endColor="@color/iburn_color_dark"
+        android:angle="90"/>
+    <stroke
+        android:width="3dip"
+        android:color="#FF0000"/>
+    <corners android:radius="6dip"/>
+    <padding
+        android:bottom="0dip"
+        android:left="0dip"
+        android:right="0dip"
+        android:top="0dip"/>
+</shape>

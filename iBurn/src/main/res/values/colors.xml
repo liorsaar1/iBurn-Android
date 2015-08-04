@@ -22,6 +22,7 @@
     <!-- Highlight Color -->
     <color name="iburn_color">@color/highlight_comp</color>
     <color name="iburn_color_dark">#ffdd7a1b</color>
+    <color name="iburn_color_darker">#ff944a18</color>
     <!-- ActionBar -->
     <color name="ab_bg">@color/off_blk_2</color>
 

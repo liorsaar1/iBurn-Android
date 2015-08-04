@@ -283,6 +283,7 @@ public class StatusFragment extends Fragment implements GjMessageListener {
             stopStatusWarningAnimation();
         }
         // display critical
+        isCritical = false; // never display critical error
         View view = activity.findViewById(R.id.GjCriticalError);
         if (isCritical) {
             startStatusCriticalAnimation(view);
@@ -340,9 +341,9 @@ public class StatusFragment extends Fragment implements GjMessageListener {
 
     private ImageButton getTab() {
         if (getActivity() != null)
-            return ((MainActivity) getActivity()).getTabChildView(3);
+            return ((MainActivity) getActivity()).getTabChildView(4);
         else
-            return ((MainActivity) sActivity).getTabChildView(3);
+            return ((MainActivity) sActivity).getTabChildView(4);
     }
 
     private void setStatusResponse(GjMessageStatusResponse s) {

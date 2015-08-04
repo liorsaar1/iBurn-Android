@@ -175,7 +175,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
         tab.getLocationInWindow(unreadCounterTabLocation);
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) unreadCounterView.getLayoutParams();
 
-        params.leftMargin = unreadCounterTabLocation[0] + 180;
+        params.leftMargin = unreadCounterTabLocation[0] + 150;
         params.topMargin = unreadCounterTabLocation[1] - 60;
         unreadCounterView.setLayoutParams(params);
     }
@@ -246,15 +246,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
     }
 
     private int getAvatarResId(byte vehicle) {
-        switch(vehicle) {
-            case 0: return R.drawable.ic_v0;
-            case 1: return R.drawable.ic_v1;
-            case 2: return R.drawable.ic_v2;
-            case 3: return R.drawable.ic_v3;
-            case 4: return R.drawable.ic_v4;
-            case 5: return R.drawable.ic_v5;
-        }
-        return R.drawable.ic_v0;
+        return GalacticJungleFragment.getVehicleResId(vehicle);
     }
 
     SimpleDateFormat format = new SimpleDateFormat("EEE, HH:mm a");

@@ -230,6 +230,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
                 sendTextEditText.setEnabled(true);
             }
         });
+        onClickSendTextLoopback(v);
     }
 
     private void onClickSendTextLoopback(View v) {

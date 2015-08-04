@@ -138,7 +138,7 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
         // if doesnt exist - create a new one
         MarkerOptions mops = new MarkerOptions()
                 .position(bmLatLong)
-                .icon(BitmapDescriptorFactory.fromResource(vehicleResId[vehicle]))
+                .icon(BitmapDescriptorFactory.fromResource(getVehicleResId(vehicle)))
                 .anchor(0.5f, 0.5f)
                 .title("Vehicle " + vehicle);
         Marker marker = gjMap.addMarker(mops);
@@ -146,15 +146,19 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
         return marker;
     }
 
-    private int vehicleResId[] = new int[] {
-            R.drawable.vehicle_0,
-            R.drawable.vehicle_1,
-            R.drawable.vehicle_2,
-            R.drawable.vehicle_3,
-            R.drawable.vehicle_4,
-            R.drawable.vehicle_5,
-            R.drawable.vehicle_0,
+    private static int vehicleResId[] = new int[] {
+            R.drawable.map_icon_elephant,
+            R.drawable.map_icon_lion,
+            R.drawable.map_icon_rhino,
+            R.drawable.map_icon_tiger,
+            R.drawable.map_icon_zebra
     };
+
+    public static int getVehicleResId(int vehicle) {
+        if (vehicle < 0) vehicle = 0;
+        if (vehicle >= vehicleResId.length) vehicle = vehicleResId.length-1;
+        return vehicleResId[vehicle];
+    }
 
     @Override
     public void incoming(byte[] bytes) {
