@@ -149,7 +149,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
                 public void run() {
                     listView.setSelection(adapter.getCount() - 1);
                 }
-            },250);
+            }, 250);
         }
     }
 
@@ -226,13 +226,13 @@ public class TextFragment extends Fragment implements GjMessageListener {
                 text.setGravity(Gravity.RIGHT);
                 avatarLeft.setVisibility(View.GONE);
                 avatarRight.setVisibility(View.VISIBLE);
-                avatarRight.setImageResource(getAvatarResId(message.vehicle));
+                avatarRight.setImageResource(getVehicleResId(message.vehicle));
                 textParams.gravity = Gravity.RIGHT;
                 dateParams.gravity = Gravity.RIGHT;
             } else {
                 text.setGravity(Gravity.LEFT);
                 avatarLeft.setVisibility(View.VISIBLE);
-                avatarLeft.setImageResource(getAvatarResId(message.vehicle));
+                avatarLeft.setImageResource(getVehicleResId(message.vehicle));
                 avatarRight.setVisibility(View.GONE);
                 textParams.gravity = Gravity.LEFT;
                 dateParams.gravity = Gravity.LEFT;
@@ -245,9 +245,21 @@ public class TextFragment extends Fragment implements GjMessageListener {
         }
     }
 
-    private int getAvatarResId(byte vehicle) {
-        return GalacticJungleFragment.getVehicleResId(vehicle);
+    private int vehicleResId[] = new int[] {
+            R.drawable.map_icon_elephant_white,
+            R.drawable.map_icon_lion_white,
+            R.drawable.map_icon_rhino_white,
+            R.drawable.map_icon_tiger_white,
+            R.drawable.map_icon_zebra_white
+    };
+
+    private int getVehicleResId(int vehicle) {
+        if (vehicle < 0) vehicle = 0;
+        if (vehicle >= vehicleResId.length) vehicle = vehicleResId.length-1;
+        return vehicleResId[vehicle];
     }
+
+
 
     SimpleDateFormat format = new SimpleDateFormat("EEE, HH:mm a");
 
@@ -294,7 +306,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
             if (position == 0) {
                 icon.setImageResource(R.drawable.ic_vall);
             } else {
-                icon.setImageResource(getAvatarResId((byte) (position-1)));
+                icon.setImageResource(getVehicleResId((byte) (position-1)));
             }
 
             return view;

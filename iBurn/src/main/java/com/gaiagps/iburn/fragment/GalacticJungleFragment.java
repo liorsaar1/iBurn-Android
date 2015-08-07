@@ -35,12 +35,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by liorsaar on 4/18/15.
  */
 public class GalacticJungleFragment extends GoogleMapFragment implements GjMessageListener {
     private static final String TAG = "GalacticJungleFragment";
+    private Timer gpsTimer;
 
     public static GalacticJungleFragment newInstance() {
         return new GalacticJungleFragment();
@@ -76,7 +79,58 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
     @Override
     public void onResume() {
         super.onResume();
+        if (gpsTimer == null) {
+            gpsTimer = new Timer();
+            gpsTimer.scheduleAtFixedRate(gpsTimerTask, 5000, 5000 );
+        }
+//        Long timeMillis = System.currentTimeMillis();
+//        gpsLastUpdate.put("0", timeMillis);
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    TimerTask gpsTimerTask = new TimerTask() {
+        @Override
+        public void run() {
+            for (int i = 0; i < 5 ; i++) {
+                // if not an active marker - bail
+                if (!vehicles.containsKey("" + i)) {
+                    continue;
+                }
+                Log.e(TAG, "gps timer found marker " + i);
+
+                // check timeout
+                if (!gpsLastUpdate.containsKey(""+i)) {
+                    continue;
+                }
+                long now = System.currentTimeMillis();
+                long lastUpdate = gpsLastUpdate.get(""+i);
+
+                long delta = now - lastUpdate;
+                Log.e(TAG, "gps timer delta " + delta);
+                if ( delta < 15000) {
+                    continue;
+                }
+                gpsLastUpdate.remove(""+i);
+
+                // timeout - change icon
+                final Marker marker = vehicles.get("" + i);
+                if (marker == null) {
+                    continue;
+                }
+                final int resId = getVehicleGreyResId(i);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        marker.setIcon(BitmapDescriptorFactory.fromResource(resId));
+                    }
+                });
+            }
+        }
+    };
 
     @Override
     public void onDestroyView() {
@@ -108,15 +162,20 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
             if (vehicle > 5) {
                 return;
             }
-            final Marker marker = getMarker(message.getVehicle());
+            final Marker marker = getMarker(vehicle);
             marker.setRotation((float) gps.getHead());
             final LatLng latLng = new LatLng(gps.getLat(), gps.getLong());
+            final int resId = getVehicleResId(vehicle);
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     marker.setPosition(latLng);
+                    marker.setIcon(BitmapDescriptorFactory.fromResource(resId));
                 }
             }, 500);
+            // set update time
+            Long timeMillis = System.currentTimeMillis();
+            gpsLastUpdate.put("" + message.getVehicle(), timeMillis);
         }
         if (message instanceof GjMessageStatusResponse) {
             GjMessageStatusResponse status = (GjMessageStatusResponse) message;
@@ -127,6 +186,7 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
     private static int sGjVehicleId = 0;
 
     private Map<String, Marker> vehicles = new HashMap<String, Marker>();
+    private Map<String, Long> gpsLastUpdate = new HashMap<String, Long>();
     private LatLng bmLatLong = new LatLng(40.7888, -119.20315);
     private static GoogleMap gjMap ;
 
@@ -154,10 +214,24 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
             R.drawable.map_icon_zebra
     };
 
+    private static int vehicleGreyResId[] = new int[] {
+            R.drawable.map_icon_elephant_grey,
+            R.drawable.map_icon_lion_grey,
+            R.drawable.map_icon_rhino_grey,
+            R.drawable.map_icon_tiger_grey,
+            R.drawable.map_icon_zebra_grey
+    };
+
     public static int getVehicleResId(int vehicle) {
         if (vehicle < 0) vehicle = 0;
         if (vehicle >= vehicleResId.length) vehicle = vehicleResId.length-1;
         return vehicleResId[vehicle];
+    }
+
+    public static int getVehicleGreyResId(int vehicle) {
+        if (vehicle < 0) vehicle = 0;
+        if (vehicle >= vehicleGreyResId.length) vehicle = vehicleGreyResId.length-1;
+        return vehicleGreyResId[vehicle];
     }
 
     @Override

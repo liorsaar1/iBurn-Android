@@ -54,7 +54,7 @@ public class FtdiService extends Service {
                 synchronized (ftDev) {
                     readSize = ftDev.getQueueStatus();
                     if (readSize > 0) {
-                        console("read:" + readSize);
+                        //console("read:" + readSize);
                         byte[] inputBytes = new byte[readSize];
                         ftDev.read(inputBytes, readSize);
                         incoming(inputBytes);

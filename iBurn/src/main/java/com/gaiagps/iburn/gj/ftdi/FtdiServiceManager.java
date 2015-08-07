@@ -170,7 +170,7 @@ public class FtdiServiceManager {
                 // send
                 int written = send(message.toByteArray());
                 if (written == message.toByteArray().length) {
-                    //console("Sent:" + message.toString());
+                    console("Sent:" + message.toString());
                 } else {
                     error("Send ERROR: expected: " + message.toByteArray().length + " written:" + written);
                 }

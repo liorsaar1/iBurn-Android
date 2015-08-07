@@ -55,6 +55,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     private static Button testSendResponse, testSendStatus, testSendGps, testChecksum, testReadFile;
     private static Spinner logoAnimalSpinner;
     private static int statusClickCounter = 0;
+    private boolean verbose = false;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -266,7 +267,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             return;
         }
         String hex = GjMessage.toHexString(bytes);
-        console("<<< Incoming:" + hex + "\n");
+        if (verbose) console("<<< Incoming:" + hex + "\n");
     }
 
     private static int lastPacket = -1;
@@ -289,16 +290,16 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         }
         if (message instanceof GjMessageResponse) {
             GjMessageResponse response = (GjMessageResponse)message;
-            console("<<< " + message.toString());
+            if (verbose) console("<<< " + message.toString());
             return;
         }
         if (message instanceof GjMessageStatusResponse) {
-            console("<<< " + message.toString());
+            if (verbose) console("<<< " + message.toString());
             return;
         }
         if (message instanceof GjMessageGps) {
             // report packet number
-            console("<<< " + message.toString());
+            if (verbose) console("<<< " + message.toString());
             return;
         }
         if (message instanceof GjMessageText) {
