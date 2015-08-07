@@ -39,7 +39,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by liorsaar on 4/19/15
@@ -51,10 +53,13 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     private static Button sendTextButton;
     private static TextView messageConsole;
     private static TextView messageIncoming;
+    private static TextView countersTextView;
     private static Button testSendResponse, testSendStatus, testSendGps, testChecksum, testReadFile;
     private static Spinner logoAnimalSpinner;
     private static int statusClickCounter = 0;
     private boolean verbose = false;
+    private static List<String> logoAnimalList = Arrays.asList("Lion", "Elephant", "Tiger", "Zebra", "Rhino" );
+
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +69,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getActivity().setTheme(R.style.Theme_GJ);
+        countersUpdate();
     }
 
     private static View sView;
@@ -87,6 +93,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         messageConsole.setMovementMethod(new ScrollingMovementMethod());
         messageIncoming = (TextView) view.findViewById(R.id.GjIncoming);
         messageIncoming.setMovementMethod(new ScrollingMovementMethod());
+        countersTextView = (TextView) view.findViewById(R.id.GjTestCounters);
 
         view.findViewById(R.id.GjTestContainer).setVisibility(View.GONE);
         testSendResponse = (Button)view.findViewById(R.id.GjTestSendResponse);
@@ -127,8 +134,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
 
         logoAnimalSpinner = (Spinner)view.findViewById(R.id.GjSetLogoAnimal);
 
-        List<String> list = Arrays.asList("Lion", "Elephant", "Tiger", "Zebra", "Rhino" );
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, list);
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, logoAnimalList);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         logoAnimalSpinner.setAdapter(dataAdapter);
         final int animalId = SettingsFragment.getPrefAnimal(getActivity());
@@ -280,36 +286,44 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
 
         if (message instanceof GjMessageFtdi) {
             console("### " + message.toString());
+            countersInc("FTDI");
             return;
         }
         if (message instanceof GjMessageUsb) {
             console("### " + message.toString());
+            countersInc("USB");
             return;
         }
         if (message instanceof GjMessageResponse) {
             GjMessageResponse response = (GjMessageResponse)message;
             if (verbose) console("<<< " + message.toString());
+            countersInc("Response");
             return;
         }
         if (message instanceof GjMessageStatusResponse) {
             if (verbose) console("<<< " + message.toString());
+            countersInc("StatusResponse");
             return;
         }
         if (message instanceof GjMessageGps) {
             // report packet number
             if (verbose) console("<<< " + message.toString());
+            countersInc("GPS");
             return;
         }
         if (message instanceof GjMessageText) {
             console("<<< " + message.toString());
+            countersInc("Text");
             return;
         }
         if (message instanceof GjMessageLighting) {
             console("<<< " + message.getTime() + ":" + message.toString());
+            countersInc("Lighting");
             return;
         }
         // otherwise
         console(message.toString());
+        countersUpdate();
     }
 
     private static List<GjMessage> queue = new ArrayList<>();
@@ -344,7 +358,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
             return;
         }
         console("Fake Checksum Error for packet " + lastPacket);
-        MainActivity.ftdiServiceManager.send(new GjMessageResponse((byte)lastPacket, (byte)9, new byte[]{0} ));
+        MainActivity.ftdiServiceManager.send(new GjMessageResponse((byte) lastPacket, (byte) 9, new byte[]{0}));
     }
 
     public void onClickTestChecksum() {
@@ -371,5 +385,46 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         return prefs.getInt("animal",0);
     }
 
+    private static Map<String, Integer> countersMap = new HashMap<>();
+    static {
+        countersMap.put("FTDI", 0);
+        countersMap.put("USB", 0);
+        countersMap.put("Response", 0);
+        countersMap.put("StatusResponse", 0);
+        countersMap.put("GPS", 0);
+        countersMap.put("Text", 0);
+        countersMap.put("Lighting", 0);
+    }
 
+//    private void countersCreate() {
+//        countersMap.put("FTDI", 0);
+//        countersMap.put("USB", 0);
+//        countersMap.put("Response", 0);
+//        countersMap.put("StatusResponse", 0);
+//        countersMap.put("GPS", 0);
+//        countersMap.put("Text", 0);
+//        countersMap.put("Lighting", 0);
+//    }
+
+    private void countersInc(String key) {
+        Integer value = countersMap.get(key);
+        countersMap.put(key, value+1);
+    }
+
+    private void countersUpdate() {
+        final String text =
+            "FTDI: " + countersMap.get("FTDI") + ", " +
+            "USB: " + countersMap.get("USB") + ", " +
+            "Response: " + countersMap.get("Response") + ", " +
+            "StatusResponse: " + countersMap.get("StatusResponse") + ", " +
+            "GPS: " + countersMap.get("GPS") + ", " +
+            "Text: " + countersMap.get("Text") + ", " +
+            "Lighting: " + countersMap.get("Lighting") ;
+        countersTextView.post(new Runnable() {
+            @Override
+            public void run() {
+                countersTextView.setText(text);
+            }
+        });
+    }
 }

@@ -74,6 +74,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
 
         sendTextEditText = (EditText) view.findViewById(R.id.GjTextEditText);
         sendTextEditText.setPadding(20, 0, 0, 0); //must be here, doesnt work in xml
+        sendTextEditText.setText("# " + testCounter);
 
         sendTextButton = (Button)view.findViewById(R.id.GjTextSendButton);
         sendTextButton.setOnClickListener(new View.OnClickListener() {
@@ -85,9 +86,10 @@ public class TextFragment extends Fragment implements GjMessageListener {
 
         setSendTextEnabled(false);
 
+        final int animalId = SettingsFragment.getPrefAnimal(getActivity())+1;
         listView = (ListView) view.findViewById(R.id.textListView);
         if (list.size() == 0)
-            list.add(new TextMessage("Be Awesome.  No Drama."));
+            list.add(new TextMessage((byte)animalId, "Be Awesome.  No Drama."));
 
         adapter = new TextArrayAdapter(getActivity(), list);
         listView.setAdapter(adapter);
@@ -114,7 +116,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
             return;
         }
         sendTextButton.setEnabled(false);
-        sendTextEditText.setText("");
+        sendTextEditText.setText("# " + testCounter++);
         final GjMessageText message = new GjMessageText(text, StatusFragment.getVehicle());
         handler.post(new Runnable() {
             @Override
@@ -269,12 +271,12 @@ public class TextFragment extends Fragment implements GjMessageListener {
         public String date;
         public byte vehicle;
 
-        public TextMessage(String text) {
-            this.text = text;
-            this.vehicle = 0;
-            this.date = format.format(new Date());
-        }
-
+//        public TextMessage(String text) {
+//            this.text = text;
+//            this.vehicle = 0;
+//            this.date = format.format(new Date());
+//        }
+//
         public TextMessage(byte vehicle, String text) {
             this.text = text;
             this.vehicle = vehicle;

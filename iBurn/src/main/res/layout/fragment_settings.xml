@@ -74,6 +74,14 @@
             style="@style/GjText"
             android:text="Text"/>
 
+        <TextView
+            android:id="@+id/GjTestCounters"
+            style="@style/GjText.title"
+            android:gravity="left"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Notin yet"/>
+
     </LinearLayout>
 
     <TextView
