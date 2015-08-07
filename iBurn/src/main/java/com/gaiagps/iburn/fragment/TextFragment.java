@@ -246,11 +246,12 @@ public class TextFragment extends Fragment implements GjMessageListener {
     }
 
     private int vehicleResId[] = new int[] {
-            R.drawable.map_icon_elephant_white,
+            0,
             R.drawable.map_icon_lion_white,
-            R.drawable.map_icon_rhino_white,
+            R.drawable.map_icon_elephant_white,
             R.drawable.map_icon_tiger_white,
-            R.drawable.map_icon_zebra_white
+            R.drawable.map_icon_zebra_white,
+            R.drawable.map_icon_rhino_white,
     };
 
     private int getVehicleResId(int vehicle) {

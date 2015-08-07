@@ -205,21 +205,31 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
         vehicles.put("" + vehicle, marker);
         return marker;
     }
+    /*
+    Lion	3143757	1
+    Elephant	3143756	2
+    Tiger	3143758	3
+    Zebra	3143754	4
+    Rhino	3143755	5
+    Spare	3143753	n/a
+     */
 
     private static int vehicleResId[] = new int[] {
-            R.drawable.map_icon_elephant,
+            0,
             R.drawable.map_icon_lion,
-            R.drawable.map_icon_rhino,
+            R.drawable.map_icon_elephant,
             R.drawable.map_icon_tiger,
-            R.drawable.map_icon_zebra
+            R.drawable.map_icon_zebra,
+            R.drawable.map_icon_rhino,
     };
 
     private static int vehicleGreyResId[] = new int[] {
-            R.drawable.map_icon_elephant_grey,
+            0,
             R.drawable.map_icon_lion_grey,
-            R.drawable.map_icon_rhino_grey,
+            R.drawable.map_icon_elephant_grey,
             R.drawable.map_icon_tiger_grey,
-            R.drawable.map_icon_zebra_grey
+            R.drawable.map_icon_zebra_grey,
+            R.drawable.map_icon_rhino_grey,
     };
 
     public static int getVehicleResId(int vehicle) {

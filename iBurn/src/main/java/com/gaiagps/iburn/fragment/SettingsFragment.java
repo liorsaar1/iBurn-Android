@@ -22,7 +22,6 @@ import android.widget.TextView;
 
 import com.gaiagps.iburn.R;
 import com.gaiagps.iburn.activity.MainActivity;
-import com.gaiagps.iburn.gj.GjLogoAnimation;
 import com.gaiagps.iburn.gj.ftdi.FtdiService;
 import com.gaiagps.iburn.gj.ftdi.FtdiServiceManager;
 import com.gaiagps.iburn.gj.message.GjMessage;
@@ -128,12 +127,12 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
 
         logoAnimalSpinner = (Spinner)view.findViewById(R.id.GjSetLogoAnimal);
 
-        List<String> list = new ArrayList<String>(Arrays.asList("Tiger", "Elephant", "Lion", "Rhino", "Zebra"));
+        List<String> list = Arrays.asList("Lion", "Elephant", "Tiger", "Zebra", "Rhino" );
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, list);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         logoAnimalSpinner.setAdapter(dataAdapter);
         final int animalId = SettingsFragment.getPrefAnimal(getActivity());
-        logoAnimalSpinner.setSelection(animalId);
+        logoAnimalSpinner.setSelection(animalId-1);
 
         logoAnimalSpinner.post(new Runnable() {
             @Override
@@ -141,10 +140,9 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
                 logoAnimalSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                        SettingsFragment.setPrefAnimal(getActivity(), position);
-                        GjLogoAnimation logoAnimation = new GjLogoAnimation();
-                        logoAnimation.start(getActivity(), position);
-
+                        SettingsFragment.setPrefAnimal(getActivity(), position+1);
+                        //GjLogoAnimation logoAnimation = new GjLogoAnimation();
+                        //logoAnimation.start(getActivity(), position);
                     }
 
                     @Override

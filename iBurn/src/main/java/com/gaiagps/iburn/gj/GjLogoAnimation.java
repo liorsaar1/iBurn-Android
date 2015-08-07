@@ -63,22 +63,22 @@ public class GjLogoAnimation {
 
     private int getFrontResId(int animalId) {
         switch (animalId) {
-            case 0: return R.drawable.logo_animals_tiger_front;
-            case 1: return R.drawable.logo_animals_elephant_front;
-            case 2: return R.drawable.logo_animals_lion_front;
-            case 3: return R.drawable.logo_animals_rhino_front;
+            case 1: return R.drawable.logo_animals_lion_front;
+            case 2: return R.drawable.logo_animals_elephant_front;
+            case 3: return R.drawable.logo_animals_tiger_front;
             case 4: return R.drawable.logo_animals_zebra_front;
+            case 5: return R.drawable.logo_animals_rhino_front;
         }
         return R.drawable.logo_animals_tiger_front;
     }
 
     private int getBackResId(int animalId) {
         switch (animalId) {
-            case 0: return R.drawable.logo_animals_tiger_back;
-            case 1: return R.drawable.logo_animals_elephant_back;
-            case 2: return R.drawable.logo_animals_lion_back;
-            case 3: return R.drawable.logo_animals_rhino_back;
+            case 1: return R.drawable.logo_animals_lion_back;
+            case 2: return R.drawable.logo_animals_elephant_back;
+            case 3: return R.drawable.logo_animals_tiger_back;
             case 4: return R.drawable.logo_animals_zebra_back;
+            case 5: return R.drawable.logo_animals_rhino_back;
         }
         return R.drawable.logo_animals_tiger_back;
     }
