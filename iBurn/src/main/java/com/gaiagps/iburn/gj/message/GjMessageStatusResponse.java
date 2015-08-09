@@ -19,7 +19,7 @@ public class GjMessageStatusResponse extends GjMessage {
     }
 
     public boolean getErrorRadio() { return (getByte() & BITMASK_RADIO) != 0; }
-    public boolean getErrorVoltage() { return (getByte() & BITMASK_VOLTAGE) != 0; }
+    public boolean getErrorVoltage() { return false;} //(getByte() & BITMASK_VOLTAGE) != 0; }
     public boolean getErrorTemp() { return (getByte() & BITMASK_TEMP) != 0; }
     public boolean getErrorCompass() { return (getByte() & BITMASK_COMPASS) != 0; }
     public boolean getErrorGps() { return (getByte() & BITMASK_GPS) != 0; }

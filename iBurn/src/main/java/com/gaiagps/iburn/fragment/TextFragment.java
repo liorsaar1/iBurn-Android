@@ -74,7 +74,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
 
         sendTextEditText = (EditText) view.findViewById(R.id.GjTextEditText);
         sendTextEditText.setPadding(20, 0, 0, 0); //must be here, doesnt work in xml
-        sendTextEditText.setText("# " + testCounter);
+        sendTextEditText.setText(""); //"# " + testCounter);
 
         sendTextButton = (Button)view.findViewById(R.id.GjTextSendButton);
         sendTextButton.setOnClickListener(new View.OnClickListener() {
@@ -116,7 +116,7 @@ public class TextFragment extends Fragment implements GjMessageListener {
             return;
         }
         sendTextButton.setEnabled(false);
-        sendTextEditText.setText("# " + testCounter++);
+        sendTextEditText.setText("") ; //"# " + testCounter++);
         final GjMessageText message = new GjMessageText(text, StatusFragment.getVehicle());
         handler.post(new Runnable() {
             @Override

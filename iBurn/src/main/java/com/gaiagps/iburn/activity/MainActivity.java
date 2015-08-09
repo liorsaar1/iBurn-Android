@@ -155,19 +155,19 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
     @Override
     protected void onStart() {
         super.onStart();
-        ftdiServiceManager.onStart(this);
+        if (ftdiServiceManager != null) ftdiServiceManager.onStart(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        ftdiServiceManager.onStop(this);
+        if (ftdiServiceManager != null) ftdiServiceManager.onStop(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        ftdiServiceManager.onPause(this);
+        if (ftdiServiceManager != null) ftdiServiceManager.onPause(this);
     }
 
     private boolean mSearching = false;
@@ -299,8 +299,10 @@ public class MainActivity extends ActionBarActivity implements SearchQueryProvid
             setupFragmentStatePagerAdapter();
             googlePlayServicesMissing = false;
         }
-        // continue reading frmo ftdi
-        ftdiServiceManager.onResume(this);
+        // continue reading from ftdi
+        // service manager
+        if (ftdiServiceManager != null) ftdiServiceManager.onResume(this);
+
         // animate on the first time
         if (!logoAnimation.isDone()) {
             final Activity activity = this;

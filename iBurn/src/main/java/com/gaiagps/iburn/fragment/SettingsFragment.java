@@ -95,7 +95,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         messageIncoming.setMovementMethod(new ScrollingMovementMethod());
         countersTextView = (TextView) view.findViewById(R.id.GjTestCounters);
 
-        view.findViewById(R.id.GjTestContainer).setVisibility(View.GONE);
+        view.findViewById(R.id.GjTestContainer).setVisibility(View.VISIBLE); //GONE);
         testSendResponse = (Button)view.findViewById(R.id.GjTestSendResponse);
         testSendResponse.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,14 +184,16 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         }
 
         GjMessageStatusResponse status = new GjMessageStatusResponse(fakeStatus);
-        MainActivity.ftdiServiceManager.send(status);
-        loopback(status.toByteArray());
+        for (int i = 0 ; i < 1000; i++) {
+            MainActivity.ftdiServiceManager.send(status);
+        }
+//        loopback(status.toByteArray());
     }
 
     private void onClickTestSendGps(View v) {
-//        MainActivity.ftdiServiceManager.send(GjMessageFactory.createGps());
-        loopback(GjMessageFactory.createGps().array());
-
+        ByteBuffer bb = GjMessageFactory.createGps();
+        MainActivity.ftdiServiceManager.send(bb, 1000, 5);
+//        loopback(GjMessageFactory.createGps().array());
     }
 
     private void onClickTestReadFile(View v) {

@@ -349,7 +349,7 @@ public class StatusFragment extends Fragment implements GjMessageListener {
     private void setStatusResponse(GjMessageStatusResponse s) {
         if (s==null) return;
         setStatus(R.id.GjErrorRadio, s.getErrorRadio());
-        setStatus(R.id.GjErrorVoltage, false) ; // s.getErrorVoltage());  force OK
+        setStatus(R.id.GjErrorVoltage, s.getErrorVoltage());
         setStatus(R.id.GjErrorTemp, s.getErrorTemp());
         setStatus(R.id.GjErrorCompass, s.getErrorCompass());
         setStatus(R.id.GjErrorGps, s.getErrorGps());

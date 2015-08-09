@@ -118,7 +118,10 @@ public class FtdiServiceManager {
 
     private void incoming(byte[] bytes) {
         for (GjMessageListener listener : ftdiListeners) {
-            listener.incoming(bytes);
+            try {
+                listener.incoming(bytes);
+            } catch (Throwable t) {
+            }
         }
     }
 
@@ -139,7 +142,10 @@ public class FtdiServiceManager {
             historyHandle((GjMessageResponse)message);
         }
         for (GjMessageListener listener : ftdiListeners) {
-            listener.onMessage(message);
+            try {
+                listener.onMessage(message);
+            } catch (Throwable t) {
+            }
         }
     }
 
@@ -177,6 +183,27 @@ public class FtdiServiceManager {
             }
         });
         //return written;
+    }
+
+    public int send(ByteBuffer bb, int count, long time) {
+        byte[] bytes = new byte[bb.limit()];
+        bb.get(bytes, 0, bb.limit());
+        int written=-1;
+        for (int i = 0; i < count; i++) {
+            written = send(bytes);
+            if (written == bb.limit()) {
+            } else {
+                error("ERROR: expected: " + bb.limit() + " written:" + written);
+                break;
+            }
+            try {
+                Thread.sleep(time);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        console("Sent: written:" + written + " " + count);
+        return written;
     }
 
     public int send(ByteBuffer bb) {

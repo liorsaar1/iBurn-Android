@@ -215,7 +215,7 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
      */
 
     private static int vehicleResId[] = new int[] {
-            0,
+            R.drawable.map_icon_elephant, // default
             R.drawable.map_icon_lion,
             R.drawable.map_icon_elephant,
             R.drawable.map_icon_tiger,
@@ -224,7 +224,7 @@ public class GalacticJungleFragment extends GoogleMapFragment implements GjMessa
     };
 
     private static int vehicleGreyResId[] = new int[] {
-            0,
+            R.drawable.map_icon_elephant_grey, // default
             R.drawable.map_icon_lion_grey,
             R.drawable.map_icon_elephant_grey,
             R.drawable.map_icon_tiger_grey,
