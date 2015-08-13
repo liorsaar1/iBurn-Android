@@ -64,6 +64,7 @@
 
         <TableRow
             android:id="@+id/GjErrorVoltage"
+            android:visibility="gone"
             style="@style/GjErrorRow">
 
             <LinearLayout
@@ -144,6 +145,7 @@
 
         <TableRow
             android:id="@+id/GjErrorTabletBattery"
+            android:visibility="gone"
             style="@style/GjErrorRow">
 
             <LinearLayout

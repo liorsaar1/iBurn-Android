@@ -372,6 +372,8 @@ public class StatusFragment extends Fragment implements GjMessageListener {
     }
 
     private boolean statusBatteryError(Activity activity) {
+        if (true) return false;
+
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = activity.registerReceiver(null, ifilter);
         // charging status
