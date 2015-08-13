@@ -73,11 +73,11 @@ public class StatusFragment extends Fragment implements GjMessageListener {
 
     @SuppressLint("UseSparseArrays")
     public static HashMap<Integer, String> errorMessagesMap = new HashMap<Integer, String>() {{
-        put(R.id.GjErrorRadio, "That's it!  You broke it. We'll never get our deposit now.");
+        put(R.id.GjErrorRadio, "Radio offline.  Check the radio module.");
         put(R.id.GjErrorVoltage, "Cart batteries dangerously low, switch into charge mode immediately");
-        put(R.id.GjErrorTemp, "Wow dude !  Way too hot !! Find some shade and chill out for a few hours");
-        put(R.id.GjErrorCompass, "Compass is broken. We are lost. They will never find us.");
-        put(R.id.GjErrorGps, "GPS is broken. We are lost. They will never find us.");
+        put(R.id.GjErrorTemp, "Radio module overheating. Move into the shade immediately, or turn the system off.");
+        put(R.id.GjErrorCompass, "Compass offline.  Check the radio module.");
+        put(R.id.GjErrorGps, "GPS offline.  Check the radio module.");
 
         put(R.id.GjErrorUsb, "USB device not found. Check the tablet cable.");
         put(R.id.GjErrorFtdi, "FTDI port unavailable. Check the tablet cable.");
