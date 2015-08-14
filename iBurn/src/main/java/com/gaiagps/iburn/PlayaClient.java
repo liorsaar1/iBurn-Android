@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.gaiagps.iburn.database.DBWrapper;
-import com.gaiagps.iburn.database.PlayaDatabase;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
@@ -30,7 +29,7 @@ public class PlayaClient {
     private static final boolean DEBUG_FORCE_EMBARGO_CLEAR = false;
 
     /** Used by PlayaDatabase and DBWrapper */
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 1;
 
     /** Geographic Bounds of Black Rock City
      * Used to determining whether a location lies
