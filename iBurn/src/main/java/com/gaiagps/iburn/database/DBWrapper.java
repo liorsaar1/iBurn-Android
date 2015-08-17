@@ -1,14 +1,9 @@
 package com.gaiagps.iburn.database;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.gaiagps.iburn.PlayaClient;
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
-
-import java.util.ArrayList;
 
 
 /**
@@ -34,5 +29,6 @@ public class DBWrapper extends SQLiteAssetHelper {
     public DBWrapper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         c = context;
+        setForcedUpgrade(DATABASE_VERSION);
     }
 }

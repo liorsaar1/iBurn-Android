@@ -29,7 +29,7 @@ public class PlayaClient {
     private static final boolean DEBUG_FORCE_EMBARGO_CLEAR = false;
 
     /** Used by PlayaDatabase and DBWrapper */
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
 
     /** Geographic Bounds of Black Rock City
      * Used to determining whether a location lies

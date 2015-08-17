@@ -7,80 +7,9 @@
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40px"
-        android:background="@drawable/rounded_frame"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:padding="20dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="INPUT"
-            android:textSize="50sp"/>
-
-        <Switch
-            android:id="@+id/GjSoundInputIpod"
-            android:layout_width="300dp"
-            android:layout_height="60dp"
-            android:switchTextAppearance="@style/GjErrorText"
-            android:text="Ipod"
-            android:textSize="32sp"/>
-
-        <Switch
-            android:id="@+id/GjSoundInputPack"
-            android:layout_width="300dp"
-            android:layout_height="60dp"
-            android:switchTextAppearance="@style/GjErrorText"
-            android:text="Pack"
-            android:textSize="32sp"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40px"
-        android:background="@drawable/rounded_frame"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:padding="20dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="OUTPUT"
-            android:textSize="50sp"/>
-
-        <Switch
-            android:id="@+id/GjSoundOutputInternal"
-            android:layout_width="600px"
-            android:layout_height="100px"
-            android:switchTextAppearance="@style/GjErrorText"
-            android:text="Internal"
-            android:textSize="32sp"/>
-
-        <Switch
-            android:id="@+id/GjSoundOutputExternal"
-            android:layout_width="600px"
-            android:layout_height="100px"
-            android:switchTextAppearance="@style/GjErrorText"
-            android:text="External"
-            android:textSize="32sp"/>
-
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/GjSoundActivate"
-        android:layout_width="680px"
-        android:layout_height="120px"
-        android:layout_marginTop="40px"
-        android:background="@drawable/text_send_button"
-        android:text="@string/gj_sound_activate"
-        android:textSize="40sp"
-        android:textStyle="bold"/>
+    <WebView
+        android:id="@+id/GjSoundMixerWebview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 </LinearLayout>
