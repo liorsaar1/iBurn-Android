@@ -1,8 +1,10 @@
 package com.gaiagps.iburn.fragment;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -22,6 +24,10 @@ import com.gaiagps.iburn.gj.message.GjMessageListener;
 import com.gaiagps.iburn.gj.message.GjMessageStatusResponse;
 import com.gaiagps.iburn.gj.message.internal.GjMessageFtdi;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -52,6 +58,13 @@ public class LightingFragment extends Fragment implements GjMessageListener {
     private static ModeAdapter modeAdapter;
     private static PaletteAdapter paletteAdapter;
     private static View sView;
+    private static String[] buttonPresets = {
+            "button 1/1", "button 1/2", "button 1/3", "button 1/4",
+            "button 2/1", "button 2/2", "button 2/3", "button 2/4",
+            "button 3/1", "button 3/2", "button 3/3", "button 3/4",
+            "button 4/1", "button 4/2", "button 4/3", "button 4/4",
+            "button 5/1", "button 5/2", "button 5/3", "button 5/4",
+    };
     private static String[] palettePresets = {
             "0x000080,0x000a80,0x001480,0x001e80,0x002880,0x003280,0x003c80,0x004680,0x005080,0x005a80,0x006480,0x006e80,0x007880,0x008280,0x008c80,0x009680",
             "0x0a0080,0x0a0a80,0x0a1480,0x0a1e80,0x0a2880,0x0a3280,0x0a3c80,0x0a4680,0x0a5080,0x0a5a80,0x0a6480,0x0a6e80,0x0a7880,0x0a8280,0x0a8c80,0x0a9680",
@@ -106,6 +119,8 @@ public class LightingFragment extends Fragment implements GjMessageListener {
         if (sView != null) {
             return sView;
         }
+        // read the assets in
+        readAssets("lighting.txt");
 
         View view = inflater.inflate(R.layout.fragment_lighting, container, false);
 
@@ -135,6 +150,36 @@ public class LightingFragment extends Fragment implements GjMessageListener {
         sView = view;
         return view;
     }
+
+    private void readAssets(String filename) {
+        File sdcard = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File file = new File(sdcard, filename);
+        if (!file.exists()) return;
+
+        BufferedReader reader = null;
+        try {
+            //reader = new BufferedReader(new InputStreamReader(getActivity().getAssets().open(filename)));
+            reader = new BufferedReader(new FileReader(file));
+
+            for (int i=0; i < 4*5; i++) {
+                String line = reader.readLine();
+                buttonPresets[i] = line;
+            }
+            for (int i=0; i < 10; i++) {
+                String line = reader.readLine();
+                palettePresets[i] = line;
+            }
+        } catch (IOException e) {
+            //log the exception
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    //log the exception
+                }
+            }
+        }    }
 
     private void onChange() {
 
@@ -242,8 +287,11 @@ public class LightingFragment extends Fragment implements GjMessageListener {
                 view.setLayoutParams(new GridView.LayoutParams((int) (145 * 2.0), (int) (60 * 2.0)));
                 view.setBackgroundResource(R.drawable.light_button);
                 view.setTag(i);
+                view.setLines(2);
+                view.setPadding(20,0,20,0);
+                view.setEllipsize(TextUtils.TruncateAt.END);
                 view.setGravity(Gravity.CENTER);
-                view.setText("Strawberry\nFields " + (i + 1));
+                view.setText(buttonPresets[i]);
                 view.setOnClickListener(onClick);
                 views.add(view);
             }

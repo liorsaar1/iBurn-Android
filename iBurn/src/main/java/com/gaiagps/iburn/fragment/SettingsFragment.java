@@ -95,7 +95,7 @@ public class SettingsFragment extends Fragment implements GjMessageListener {
         messageIncoming.setMovementMethod(new ScrollingMovementMethod());
         countersTextView = (TextView) view.findViewById(R.id.GjTestCounters);
 
-        view.findViewById(R.id.GjTestContainer).setVisibility(View.VISIBLE); //GONE);
+        view.findViewById(R.id.GjTestContainer).setVisibility(View.GONE);
         testSendResponse = (Button)view.findViewById(R.id.GjTestSendResponse);
         testSendResponse.setOnClickListener(new View.OnClickListener() {
             @Override
